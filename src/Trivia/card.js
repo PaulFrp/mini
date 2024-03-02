@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import styles from './card.module.css'; // Correct import statement
 
-const Card = ({ question, answer }) => {
-  const [isFlipped, setIsFlipped] = useState(false);
+const Card = ({ question, answer, isFlipped, handleCardClick }) => {
 
-  const handleCardClick = () => {
-    setIsFlipped(!isFlipped);
-  };
+
 
   return (
     <div className={`${styles.card} ${isFlipped ? styles['card-flipped'] : ''}`} onClick={handleCardClick}>

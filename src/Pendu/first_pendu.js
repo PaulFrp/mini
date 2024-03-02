@@ -5,7 +5,6 @@ const Trivia = () => {
   const [wordToGuess, setWordToGuess] = useState("TEST");
   const [clickedButtons, setClickedButtons] = useState([]);
   const [i, seti] = useState(0);
-  const [numbers , setNumbers] = useState(false)
   const maxIndex = 9;
 
   useEffect(() => {

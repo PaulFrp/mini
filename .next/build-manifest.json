@@ -22,15 +22,10 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/pendu": [
+    "/trivia/game2": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/pendu.js"
-    ],
-    "/pendu/pendu_one": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/pendu/pendu_one.js"
+      "static/chunks/pages/trivia/game2.js"
     ]
   },
   "ampFirstPages": []
