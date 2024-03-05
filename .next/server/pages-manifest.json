@@ -2,6 +2,5 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/never": "pages/never.js",
-  "/trivia/game2": "pages/trivia/game2.js"
+  "/picolo": "pages/picolo.js"
 }
