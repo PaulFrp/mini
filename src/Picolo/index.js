@@ -9,6 +9,8 @@ import q_everyone from "./question_everyone.json"
 import q_punition from "./question_punition.json"
 import q_normal from "./question_normal.json"
 
+
+
 const Introduction = ({ onStart }) => {
 
   const [players, setPlayers] = useState([]);
@@ -75,7 +77,6 @@ const Introduction = ({ onStart }) => {
     setQuestionsPunition(q_punition)
     setQuestionsEveryone(q_everyone)
     
-    
       const randomIndex = Math.floor(Math.random() * players.length);
       setSelectedPlayer(players[randomIndex])
 
@@ -109,34 +110,63 @@ const Introduction = ({ onStart }) => {
   };
 
   useEffect(() => {
-
     if (selectedPlayer && cardType) {
-
-        console.log(cardType);
-      if (cardType == "mec-meuf") {
-        if(selectedPlayer.sex == "male"){
-            getRandomQuestion(questionsMec);
-        }else if (selectedPlayer.sex == "meuf") {
-            getRandomQuestion(questionsMeuf);
+      console.log(selectedPlayer.sex);
+      console.log(cardType);
+      
+      if (cardType === "mec-meuf") {
+        if (selectedPlayer.sex === "male") {
+          getRandomQuestion(questionsMec);
+          console.log("worked mec");
+        } else if (selectedPlayer.sex === "female") {
+          getRandomQuestion(questionsMeuf);
+          console.log("worked meuf");
+        } else {
+          console.log("error");
         }
-
-      }else if (cardType == "everyone") {
-        getRandomQuestion(questionsEveryone)
-      }else if (cardType == "hot") {
-        getRandomQuestion(questionsHot)
-      }else if (cardType == "normal") {
-        getRandomQuestion(questions)
-      }else if(cardType == "punition"){
-        getRandomQuestion(questionsPunition)
+      } else if (cardType === "everyone") {
+        getRandomQuestion(questionsEveryone);
+        console.log("worked everyone");
+      } else if (cardType === "hot") {
+        getRandomQuestion(questionsHot);
+        console.log("worked hot");
+      } else if (cardType === "normal") {
+        getRandomQuestion(questions);
+        console.log("worked normal");
+      } else if (cardType === "punition") {
+        getRandomQuestion(questionsPunition);
+        console.log("worked punition");
+      } else {
+        console.log("error first rotation");
       }
     }
   }, [selectedPlayer, cardType, questionsMeuf, questionsMec, questionsEveryone, questionsHot, questions, questionsPunition, randomCard]);
+  
 
   return (
     <div>
+
     {!started && (
-    <>
-    <h1>Welcome to the Game</h1>
+
+    <div className={`${styles['confetti-background']}`}>
+    <div className={styles['overlay-image']}></div>
+   
+
+    <div className={styles['container']}>
+      <div className={styles['left-container']}> 
+      <img src='/images/picolo/beers.png'
+        className={`${styles["img-beers"]}`}/> 
+    </div>
+
+    <h1 className={styles['h1-center']}>Welcome to Picolo</h1>
+
+    <div className={styles['right-container']}> 
+      <img src='/images/picolo/beers.png'
+        className={`${styles["img-beers"]}`}/> 
+    </div>
+    </div>
+    
+    <div className={styles['form-design']}> 
       <label>
         Name:
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
@@ -149,8 +179,9 @@ const Introduction = ({ onStart }) => {
           <option value="male">Male</option>
         </select>
       </label>
-      <button onClick={handleAddPlayer}>Add Player</button>
-      <button onClick={handleStartGame} disabled={players.length === 0}>
+      <br/>
+      <button className={`${styles['margin-top-button']} ${styles['button_improved']}`} onClick={handleAddPlayer}>Add Player</button>
+      <button className={`${styles['margin-top-button']} ${styles['button_improved']}`} onClick={handleStartGame} disabled={players.length === 0}>
         Start Game
       </button>
       <ul>
@@ -160,14 +191,26 @@ const Introduction = ({ onStart }) => {
           </li>
         ))}
       </ul>
-    </>
-    )
-        
-    }
+    </div>
+    </div>
+    )}
 
     {started && (
     <div className={`${styles['centered-cell']} ${styles[cardType + '-bg']} ${styles['full-screen-bg']}`}>
-    <h1>Welcome to Picolo</h1>
+
+    <div className={styles['container']}>
+      <div className={styles['left-container']}> 
+      <img src='/images/picolo/beers.png'
+        className={`${styles["img-beers"]}`}/> 
+    </div>
+
+    <h1 className={styles['h1-center']}>Welcome to Picolo</h1>
+
+    <div className={styles['right-container']}> 
+      <img src='/images/picolo/beers.png'
+        className={`${styles["img-beers"]}`}/> 
+    </div>
+    </div>
     <button className={`${styles['margin-button']} ${styles['button_improved']}`} onClick={getQuestion}>Get Question</button>
 
     {selectedPlayer && (
