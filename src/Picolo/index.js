@@ -83,18 +83,18 @@ const Introduction = ({ onStart }) => {
       //Logique to know which card to get
       //Proba questions: normal 10% puntion: 10% hot: 40% mec/meuf: 20% everyone: 20%
       // I think there is an issue when the same card come in twice
-       setRandomCard(Math.floor(Math.random() * 10) +1);
+       setRandomCard(Math.floor(Math.random() * 253) +1);
 
       console.log(randomCard);
-      if(randomCard<=4){
+      if(randomCard<=66){
         setCardType("hot")
-      }else if (randomCard>4 && randomCard<=6){
+      }else if (randomCard>66 && randomCard<=101){
         setCardType("mec-meuf")
-      }else if(randomCard>6 && randomCard <=8){
+      }else if(randomCard>101 && randomCard <=185){
         setCardType("everyone")
-      }else if(randomCard == 9){
+      }else if(randomCard>185 && randomCard <= 224){
         setCardType("normal")
-      }else if(randomCard == 10){
+      }else if(randomCard>224){
         setCardType("punition")
       }
 
