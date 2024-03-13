@@ -1,0 +1,42 @@
+.navbar {
+    background-color: #333; /* Set background color */
+    color: white; /* Set text color */
+    padding: 10px 0; /* Add some padding */
+  }
+  
+  .navbar ul {
+    list-style-type: none; /* Remove default list styles */
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
+    text-align: center;
+  }
+  
+  .navbar li {
+    display: inline-block; /* Display list items inline */
+    margin-right: 10px; /* Display list items horizontally */
+  }
+  
+  .navbar li a {
+    display: block;
+    color: white; /* Set text color for links */
+    text-decoration: none; /* Remove underline from links */
+    padding: 10px 20px; /* Add padding to links */
+  }
+  
+  /* Style hover effect */
+  .navbar li a:hover {
+    background-color: #555;
+  }
+
+  .background-image {
+    background-image: url('/images/picolo/green.jpg');
+    background-size: cover; /* Cover the entire container */
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Do not repeat the background image */
+    height: 100vh; /* 100% of the viewport height */
+    width: 100vw; /* 100% of the viewport width */
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }

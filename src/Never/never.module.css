@@ -1,0 +1,17 @@
+.background-image {
+    background-image: url('/images/picolo/green.jpg');
+    background-size: cover; /* Cover the entire container */
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Do not repeat the background image */
+    height: 100vh; /* 100% of the viewport height */
+    width: 100vw; /* 100% of the viewport width */
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+
+  .centered-cell {
+    text-align: center;
+    overflow: auto
+  }

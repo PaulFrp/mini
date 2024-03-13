@@ -27,10 +27,15 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/trivia/game3": [
+    "/never": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/trivia/game3.js"
+      "static/chunks/pages/never.js"
+    ],
+    "/picolo": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/picolo.js"
     ]
   },
   "ampFirstPages": []

@@ -1,14 +1,11 @@
-
+import React from 'react';
+import NavigationBar from './navBar';
+import styles from "./navBar.module.css";
 
 function App() {
   return (
-    <div className="App">
-      
-        <p>
-         Test
-        </p>
-       
-        
+    <div className={styles['background-image']}>
+       <NavigationBar />
     </div>
   );
 }

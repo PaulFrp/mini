@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from "./pendu.module.css";
+import NavigationBar from '../navBar';
 
 const Trivia = () => {
   const [wordToGuess, setWordToGuess] = useState("TEST");
@@ -63,8 +64,9 @@ const Trivia = () => {
   };
 
   return (
-    <div>
-      <h1>Welcome to Hangman </h1>
+    <div className={`${styles['centered']} ${styles['background-image']}`}>
+    <NavigationBar/>
+      <h1 >Pendu</h1>
 
       <div>
         {Array.from({ length: 26 }, (_, i) => String.fromCharCode('A'.charCodeAt(0) + i)).map(letter => (
@@ -74,16 +76,16 @@ const Trivia = () => {
         ))}
       </div>
 
-      <div>
+      <div className={styles['margin-top']}>
         {Array.from({ length: wordToGuess.length }, (_, i) => (
-          <span key={i} className={styles['space']}>
+          <span key={i} className={`${styles['space']}`}>
             {displayLetterOrLine(wordToGuess[i])}
           </span>
         ))}
       </div>
 
-      <button onClick={() => changeWord("prev")}>Previous</button>
-      <button onClick={() => changeWord("up")}>Next</button>
+      <button className={styles['margin-top']} onClick={() => changeWord("prev")}>Previous</button>
+      <button className={styles['margin-top']} onClick={() => changeWord("up")}>Next</button>
 
     </div>
   );

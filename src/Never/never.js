@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import q from "./questions.json"
 import q_hot from "./question_sex.json"
+import NavigationBar from '../navBar';
+import styles from "./never.module.css"
 
 const NeverHaveI = () => {
 
@@ -59,7 +61,8 @@ const NeverHaveI = () => {
       };
 
   return (
-    <div>
+    <div className={`${styles['centered-cell']} ${styles['background-image']}`}>
+    <NavigationBar/>
       <h1>Welcome to Never have i ever </h1>
 
       <button onClick={() => getRandomQuestion()}>

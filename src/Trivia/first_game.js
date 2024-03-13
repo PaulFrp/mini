@@ -1,16 +1,27 @@
 import React, { useState } from 'react';
 import Card from './card'; // Import the Card component
 import styles from './card.module.css'; // Correct import statement
+import NavigationBar from '../navBar';
 
 
 const Trivia = () => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [clickedButtons, setClickedButtons] = useState([]);
+  const [isFlipped, setIsFlipped] = useState(false);
 
   const showCard = (number) => {
     setSelectedCard(number);
     setClickedButtons((prevClickedButtons) => [...prevClickedButtons, number]);
+    setIsFlipped(false)
     
+  };
+
+  const handleCardClick = () => {
+    if(!isFlipped){
+        setIsFlipped(true)
+    }else{
+        setIsFlipped(false)
+    }
   };
 
   const getCardTexts = (number) => {
@@ -106,40 +117,31 @@ const Trivia = () => {
   };
 
 
-  // Create a 7x5 grid of buttons
-  const buttons = [];
-  for (let row = 1; row <= 7; row++) {
-    for (let col = 1; col <= 5; col++) {
-       // Calculate a unique number for each button
-      buttons.push(
-        <button key={row} onClick={() => showCard(col + (row - 1) * 5)}>
-          {row}
-        </button>
-      );
-    }
-  }
-
   const { question, answer } = selectedCard ? getCardTexts(selectedCard) : { question: '', answer: '' };
  
   return (
-    <div>
-      <h1>Welcome to trivia </h1>
+    <div className={`${styles['centered-cell']} ${styles['background-image']}`}>
+    <NavigationBar/>
+      <h1>Welcome to trivia 2 </h1>
       <table className={styles['centered-table']}>
       <thead>
           <tr>
-            <th className={styles["space-columns"]}>Geographie</th>
-            <th className={styles["space-columns"]}>Logique</th>
-            <th className={styles["space-columns"]}>Anatomie </th>
-            <th className={styles["space-columns"]}>Fantaisie</th>
-            <th className={styles["space-columns"]}>Physique quantique</th>
+            <th className={styles["space-columns"]}>Géographie</th>
+            <th className={styles["space-columns"]}>Economie</th>
+            <th className={styles["space-columns"]}>Math</th>
+            <th className={styles["space-columns"]}>Physics</th>
+            <th className={styles["space-columns"]}>L'espace</th>
+            <th className={styles["space-columns"]}>Jeux vidéo</th>
+            <th className={styles["space-columns"]}>Cailloux et trucs</th>
+            <th className={styles["space-columns"]}>Ordinateur</th>
           </tr>
         </thead>
         <tbody>
         
-          {Array.from({ length: 7 }, (_, rowIndex) => (
+          {Array.from({ length: 5 }, (_, rowIndex) => (
             <tr key={rowIndex}>
-            {Array.from({ length: 5 }, (_, colIndex) => {
-              const buttonNumber = (colIndex + rowIndex * 5) + 1;
+            {Array.from({ length: 8 }, (_, colIndex) => {
+              const buttonNumber = (colIndex + rowIndex * 8) + 1;
               const isButtonClicked = clickedButtons.includes(buttonNumber);
 
               return (
@@ -159,13 +161,14 @@ const Trivia = () => {
         </tbody>
       </table>
 
-      {selectedCard && <Card className={styles["centered-cell"]} question={question} answer={answer} />}
-    
+      <div className={styles['card-container']}>
+      {selectedCard && (
+        <div className={`${styles['centered-cell']} ${styles['card']}`}>
+          <Card question={question} answer={answer} isFlipped={isFlipped} handleCardClick={handleCardClick} />
+        </div>
+      )}
+    </div>
 
-
-      
-      
-       
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Card from './card'; // Import the Card component
 import styles from './card.module.css'; // Correct import statement
+import NavigationBar from '../navBar';
 
 
 const Trivia = () => {
@@ -170,7 +171,8 @@ const Trivia = () => {
   const { question, answer } = selectedCard ? getCardTexts(selectedCard) : { question: '', answer: '' };
  
   return (
-    <div>
+    <div className={`${styles['centered-cell']} ${styles['background-image']}`}>
+    <NavigationBar/>
       <h1>Welcome to trivia </h1>
       <table className={styles['centered-table']}>
       <thead>
@@ -210,15 +212,19 @@ const Trivia = () => {
         </tbody>
       </table>
 
-      {selectedCard && <Card className={styles["centered-cell"]} question={question} answer={answer} isFlipped={isFlipped} handleCardClick={handleCardClick} />}
+      <div className={styles['card-container']}>
+      {selectedCard && (
+        <div className={`${styles['centered-cell']} ${styles['card']}`}>
+          <Card question={question} answer={answer} isFlipped={isFlipped} handleCardClick={handleCardClick} />
+        </div>
+      )}
+    </div>
+    <div className={styles['scroll']}>
       {question40 && <img src='/images/trivia/code.png'></img>}
       {question37 && <img src='/images/trivia/equationsaha.png'></img>}
       {question9 && <img src='/images/trivia/corée.png'></img>}
-
-
+    </div>
       
-      
-       
     </div>
   );
 };

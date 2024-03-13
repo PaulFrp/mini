@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Card from "./cardPicolo.js"
 import styles from "./cardPicolo.module.css"
+import NavigationBar from '../navBar';
 
 import q_hot from "./question_hot.json"; 
 import q_meuf from "./question_meuf.json"
@@ -144,10 +145,12 @@ const Introduction = ({ onStart }) => {
   
 
   return (
+    
     <div>
-
+      
+      
     {!started && (
-
+    
     <div className={`${styles['confetti-background']}`}>
     <div className={styles['overlay-image']}></div>
    
@@ -186,9 +189,9 @@ const Introduction = ({ onStart }) => {
       </button>
       <ul>
         {players.map((player, index) => (
-          <li key={index}>
+          <p key={index}>
             {player.name} - {player.sex}
-          </li>
+          </p>
         ))}
       </ul>
     </div>
