@@ -38,7 +38,7 @@ const Trivia = () => {
         case 16:
           return { question: 'Quel est le meilleur moyen de plier un t shirt ?', answer: 'le plier' };
         case 21:
-          return { question: `Quel est l animal préféré de paul`, answer: ' X ' };
+          return { question: `Quel est l animal préféré de paul`, answer: 'La chatte' };
         case 26:
           return { question: "Qule taille faisait Napoléon ?", answer: '1m68' };
         case 31:

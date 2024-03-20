@@ -13,7 +13,7 @@ import q_normal from "./question_normal.json"
 
 
 const Introduction = ({ onStart }) => {
-
+  //Needed variables definition
   const [players, setPlayers] = useState([]);
   const [name, setName] = useState('');
   const [sex, setSex] = useState('');
@@ -32,7 +32,7 @@ const Introduction = ({ onStart }) => {
   const [usedQuestions, setUsedQuestions] = useState([]);
   const [selectedQuestion, setSelectedQuestion] = useState('');
 
-
+  // Create the list of players 
   const handleAddPlayer = () => {
     if (name.trim() !="") {
       setPlayers([...players, { name, sex }]);
@@ -47,6 +47,7 @@ const Introduction = ({ onStart }) => {
     setStarted(true)
   };
 
+  
   const getRandomQuestion = (questions) => {
     if (questions.length === 0) return 'No questions available';
 
@@ -59,6 +60,7 @@ const Introduction = ({ onStart }) => {
       console.log("a plus");
     }
 
+    //Select a random question from the available ones
     const randomIndex = Math.floor(Math.random() * availableQuestions.length);
     const newSelectedQuestion = availableQuestions[randomIndex];
 
@@ -70,7 +72,7 @@ const Introduction = ({ onStart }) => {
   };
 
   const getQuestion = () => {
-    // peut etre pas une bonne idee de load au moment ou la fonction s execute
+    // peut etre pas une bonne idee de load au moment ou la fonction s execute (prend pas bcp de temps donc osef pour l instant)
     setQuestionsHot(q_hot)
     setQuestions(q_normal)
     setQuestionsMeuf(q_meuf)
@@ -82,8 +84,7 @@ const Introduction = ({ onStart }) => {
       setSelectedPlayer(players[randomIndex])
 
       //Logique to know which card to get
-      //Proba questions: normal 10% puntion: 10% hot: 40% mec/meuf: 20% everyone: 20%
-      // I think there is an issue when the same card come in twice
+      //Proba questions: % en fonction de la représentation
        setRandomCard(Math.floor(Math.random() * 253) +1);
 
       console.log(randomCard);
@@ -101,6 +102,7 @@ const Introduction = ({ onStart }) => {
 
   }
 
+  //Used to input the selected player s name into the question by replacing the [NAME] element from the question
   const replaceNamePlaceholder = (sentence, name) => {
 
     if (sentence !=undefined && sentence.includes('[NAME]')) {
@@ -110,6 +112,8 @@ const Introduction = ({ onStart }) => {
       }
   };
 
+  // UseEffect function to select what card type to display
+  //-----------------Happens on a lot of variables need to check if they are all useful ?---------------------
   useEffect(() => {
     if (selectedPlayer && cardType) {
       console.log(selectedPlayer.sex);
@@ -144,10 +148,10 @@ const Introduction = ({ onStart }) => {
   }, [selectedPlayer, cardType, questionsMeuf, questionsMec, questionsEveryone, questionsHot, questions, questionsPunition, randomCard]);
   
 
+  //Display JSX components 
   return (
     
     <div>
-      
       
     {!started && (
     

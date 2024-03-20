@@ -5,6 +5,8 @@ import NavigationBar from '../navBar';
 
 
 const Trivia = () => {
+
+  //Create relevant variables 
   const [selectedCard, setSelectedCard] = useState(null);
   const [clickedButtons, setClickedButtons] = useState([]);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -12,12 +14,14 @@ const Trivia = () => {
   const[question9, setQuestion9] = useState(false)
   const[question37, setQuestion37] = useState(false)
 
+  //Get the card number, add the number that was clicked to the array of clicked buttons and set the card to the question side
   const showCard = (number) => {
     setSelectedCard(number);
     setClickedButtons((prevClickedButtons) => [...prevClickedButtons, number]);
     setIsFlipped(false)
   };
 
+  //Turn the card around when flipped
   const handleCardClick = () => {
     if(!isFlipped){
         setIsFlipped(true)
@@ -26,6 +30,7 @@ const Trivia = () => {
     }
   };
 
+  //Handle pictures display depending on the question need (executes every time a new card is selected)
   useEffect(() => {
     if (selectedCard === 9) {
       setQuestion9(true)
@@ -47,6 +52,7 @@ const Trivia = () => {
   }, [selectedCard]);
 
 
+  //Questions and answers for the trivia 
   const getCardTexts = (number) => {
     console.log(number);
     switch (number) {
@@ -74,7 +80,7 @@ const Trivia = () => {
         case 26:
           return { question: `Qu'est ce qu'un ETF`, answer: 'Le groupe jugera de la qualité de la réponse' };
         case 34:
-          return { question: "Explique le Water-Diamond paradoxe", answer: 'Le groupe jugera la véracité de ces propos.' };  
+          return { question: "Explique l'utilité d'une simulation de monte carlo sur la détermination du prix d'une option ?", answer: 'Simule le prix de l underlying pour tous les chemins possible et calcule les bénéfices de l option dans chaque situation.' };  
          
         
         //3ème columne (Math)
@@ -87,7 +93,7 @@ const Trivia = () => {
         case 27:
           return { question: '172 * 13', answer: '2236' };  
         case 35:
-          return { question: `Quelle est la 19ème lettre de l'alphabet ?`, answer: 'S' };
+          return { question: `Quelles sont les implications de P = NP`, answer: 'Révolution de l IA et des algortihms de résolution' };
         
 
         //4ème columne (Physique)
@@ -128,7 +134,7 @@ const Trivia = () => {
             return { question: `On fait une game de tic tac toe`, answer: 'Perdant prend 2 grogées' };
             //Missing this one
           case 38:
-            return { question: 'J ai une trèèèèès grande bi-', answer: 'bi- bliothèque' };  
+            return { question: 'De quelle livre les auteurs de Minecraft se sont inspiré ?', answer: 'Mein Kampf' };  
           
 
              //5ème columne (Cailloux et trucs)
@@ -164,10 +170,7 @@ const Trivia = () => {
       }
   };
 
-
-  // Create a grid of buttons
- 
-
+ //Create the constant with the curent question and answer 
   const { question, answer } = selectedCard ? getCardTexts(selectedCard) : { question: '', answer: '' };
  
   return (

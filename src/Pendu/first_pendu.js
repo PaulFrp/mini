@@ -3,11 +3,14 @@ import styles from "./pendu.module.css";
 import NavigationBar from '../navBar';
 
 const Trivia = () => {
+
+  //Create needed variables 
   const [wordToGuess, setWordToGuess] = useState("TEST");
   const [clickedButtons, setClickedButtons] = useState([]);
   const [i, seti] = useState(0);
   const maxIndex = 9;
 
+  //Use effect function to select the current word to guess
   useEffect(() => {
     // Perform logic based on the updated value of i
     if (i === 0) {
@@ -29,10 +32,11 @@ const Trivia = () => {
     }else if (i===8) {
         setWordToGuess("WG")    
     }else if (i===9) {
-        setWordToGuess("VERRE TOUT FINIT MONDE")    
+        setWordToGuess("VERRE TOUT LE FINIT SON MONDE")    
     }
   }, [i]); // The effect will run whenever i changes
 
+  //Sets the new word to guess and handles the change in i 
   const changeWord = (change) => {
     setClickedButtons([]);
     console.log(wordToGuess);
@@ -52,17 +56,20 @@ const Trivia = () => {
     });
   };
 
+  //adds the clicked letter to the array of clicked letters so we know which ones are remaining or not
   const checkLetter = (letter) => {
     setClickedButtons((prevClickedButtons) => [...prevClickedButtons, letter]);
     console.log(wordToGuess);
   };
 
+  // Check if a letter that has been clicked is in the word and if yes, dispaly the letter otherwise display "_"
   const displayLetterOrLine = (letter) => {
     if (letter !== " ") {
       return clickedButtons.includes(letter) ? letter : '_';
     }
   };
 
+  //Dispaly JSX element
   return (
     <div className={`${styles['centered']} ${styles['background-image']}`}>
     <NavigationBar/>
