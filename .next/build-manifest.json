@@ -27,15 +27,10 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/never": [
+    "/cah": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/never.js"
-    ],
-    "/picolo": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/picolo.js"
+      "static/chunks/pages/cah.js"
     ]
   },
   "ampFirstPages": []

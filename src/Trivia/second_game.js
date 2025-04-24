@@ -134,7 +134,7 @@ const Trivia = () => {
   return (
     <div className={`${styles['centered-cell']} ${styles['background-image']}`}>
     <NavigationBar/>
-      <h1>Welcome to trivia </h1>
+      <h1>Welcome to trivia 2 </h1>
       <table className={styles['centered-table']}>
       <thead>
           <tr>
