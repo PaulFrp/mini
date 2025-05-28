@@ -12,6 +12,7 @@ function NavigationBar() {
         <li><a href="/never">Je n'ai jamais</a></li>
         <li><a href="/picolo">Picolo</a></li>
         <li><a href="/pendu/pendu_one">Pendu</a></li>
+        <li><a href="/memes">Memes culture</a></li>
       </ul>
     </nav>
   );

@@ -40,7 +40,7 @@ const Trivia = () => {
         case 21:
           return { question: `Quel est l animal préféré de paul`, answer: 'La chatte' };
         case 26:
-          return { question: "Qule taille faisait Napoléon ?", answer: '1m68' };
+          return { question: "Quelle taille faisait Napoléon ?", answer: '1m68' };
         case 31:
           return { question: `Qui vit dans un ananas sous la mer ?`, answer: 'Personne peut vivre sous la mer encore moins dans un ananas' };
         

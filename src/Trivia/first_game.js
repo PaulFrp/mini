@@ -127,21 +127,18 @@ const Trivia = () => {
       <thead>
           <tr>
             <th className={styles["space-columns"]}>Géographie</th>
-            <th className={styles["space-columns"]}>Economie</th>
             <th className={styles["space-columns"]}>Math</th>
-            <th className={styles["space-columns"]}>Physics</th>
-            <th className={styles["space-columns"]}>L'espace</th>
+            <th className={styles["space-columns"]}>Médical</th>
             <th className={styles["space-columns"]}>Jeux vidéo</th>
-            <th className={styles["space-columns"]}>Cailloux et trucs</th>
-            <th className={styles["space-columns"]}>Ordinateur</th>
+            <th className={styles["space-columns"]}>Physics</th>
           </tr>
         </thead>
         <tbody>
         
-          {Array.from({ length: 5 }, (_, rowIndex) => (
+          {Array.from({ length: 7 }, (_, rowIndex) => (
             <tr key={rowIndex}>
-            {Array.from({ length: 8 }, (_, colIndex) => {
-              const buttonNumber = (colIndex + rowIndex * 8) + 1;
+            {Array.from({ length: 5 }, (_, colIndex) => {
+              const buttonNumber = (colIndex + rowIndex * 5) + 1;
               const isButtonClicked = clickedButtons.includes(buttonNumber);
 
               return (

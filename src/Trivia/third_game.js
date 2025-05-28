@@ -158,7 +158,7 @@ const Trivia = () => {
           case 24:
             return { question: 'Une question', answer: '42' };  
           case 32:
-            return { question: `let x = 50 if(x=10){console.log("Nique ta mère")} else {x --}`, answer: 'manque un signe =' };
+            return { question: `let x = 50 if(x=10){console.log("Nique ta mère")} else {x-5}`, answer: 'manque un signe =' };
           case 40:
             return { question: 'Que fait ce code ?', answer: 'Le jeux de merde aux quel vous êtes entrain de jouer.' };  
         
