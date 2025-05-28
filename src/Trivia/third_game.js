@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Card from './card'; // Import the Card component
-import styles from './card.module.css'; // Correct import statement
+import stylesCard from './card.module.css'; // Correct import statement
 import NavigationBar from '../navBar';
-
+import styles from "./Trivia.module.css";
 
 const Trivia = () => {
 
@@ -85,15 +85,15 @@ const Trivia = () => {
         
         //3ème columne (Math)
         case 3:
-          return { question: `Qu'est ce que 1+3 ?`, answer: 'Prend 4 grogées' };
+          return { question: `Qu'est ce que 1+3 ?`, answer: 'Prends 4 gorgées' };
         case 11:
-          return { question: "Les 6 premiers nombres de pi ?", answer: '3.14159' };  
+          return { question: "Les 100 premiers nombres de pi ? (autant de gorgées que de mauvais chiffres)", answer: '3,1415926535 8979323846 2643383279 5028841971 6939937510 5820974944 5923078164 0628620899 8628034825 3421170679' };  
         case 19:
           return { question: `e^(-ln(2)) `, answer: '1/2' };
         case 27:
           return { question: '172 * 13', answer: '2236' };  
         case 35:
-          return { question: `Quelles sont les implications de P = NP`, answer: 'Révolution de l IA et des algortihms de résolution' };
+          return { question: `Si ta mère ne te voulait pas et que ton père t'apprécie quel est le résultat ?`, answer: 'Sasha' };
         
 
         //4ème columne (Physique)
@@ -160,7 +160,7 @@ const Trivia = () => {
           case 32:
             return { question: `let x = 50 if(x=10){console.log("Nique ta mère")} else {x-5}`, answer: 'manque un signe =' };
           case 40:
-            return { question: 'Que fait ce code ?', answer: 'Le jeux de merde aux quel vous êtes entrain de jouer.' };  
+            return { question: 'Que fait ce code ?', answer: 'Une racine carrée plus vite' };  
         
         
 
@@ -174,22 +174,24 @@ const Trivia = () => {
   const { question, answer } = selectedCard ? getCardTexts(selectedCard) : { question: '', answer: '' };
  
   return (
-    <div className={`${styles['centered-cell']} ${styles['background-image']}`}>
+    <div className={`${styles['centered-cell']} ${stylesCard['background-image']}`}>
     <NavigationBar/>
-      <h1>Welcome to trivia 3 </h1>
+      <h1 style={{ textAlign: 'center', marginTop: '20px', fontSize: '2rem' }}>
+        🎓 Welcome to Trivia 2
+      </h1>
       <table className={styles['centered-table']}>
       <thead>
-          <tr>
-            <th className={styles["space-columns"]}>Géographie</th>
-            <th className={styles["space-columns"]}>Economie</th>
-            <th className={styles["space-columns"]}>Math</th>
-            <th className={styles["space-columns"]}>Physics</th>
-            <th className={styles["space-columns"]}>L'espace</th>
-            <th className={styles["space-columns"]}>Jeux vidéo</th>
-            <th className={styles["space-columns"]}>Cailloux et trucs</th>
-            <th className={styles["space-columns"]}>Ordinateur</th>
-          </tr>
-        </thead>
+        <tr>
+          <th className={styles["space-columns"]}>🗺️ Géographie</th>
+          <th className={styles["space-columns"]}>💰 Économie</th>
+          <th className={styles["space-columns"]}>🧮 Math</th>
+          <th className={styles["space-columns"]}>🧲 Physics</th>
+          <th className={styles["space-columns"]}>🚀 L'espace</th>
+          <th className={styles["space-columns"]}>🎮 Jeux vidéo</th>
+          <th className={styles["space-columns"]}>🪨 Cailloux et trucs</th>
+          <th className={styles["space-columns"]}>💻 Ordinateur</th>
+        </tr>
+      </thead>
         <tbody>
         
           {Array.from({ length: 5 }, (_, rowIndex) => (
@@ -201,9 +203,8 @@ const Trivia = () => {
               return (
                   <td key={colIndex} className={styles['centered-cell']}>
                   <button
-                  key={rowIndex}
-                  onClick={() => showCard(buttonNumber)}
-                  className={isButtonClicked ? styles['red-button'] : ''}
+                    onClick={() => showCard(buttonNumber)}
+                    className={`${styles.triviaButton} ${isButtonClicked ? styles['red-button'] : ''}`}
                   >
                   {rowIndex}
                   </button>
@@ -215,14 +216,14 @@ const Trivia = () => {
         </tbody>
       </table>
 
-      <div className={styles['card-container']}>
+      <div className={stylesCard['card-container']}>
       {selectedCard && (
-        <div className={`${styles['centered-cell']} ${styles['card']}`}>
+        <div className={`${stylesCard['centered-cell']} ${stylesCard['card']}`}>
           <Card question={question} answer={answer} isFlipped={isFlipped} handleCardClick={handleCardClick} />
         </div>
       )}
     </div>
-    <div className={styles['scroll']}>
+    <div className={stylesCard['scroll']}>
       {question40 && <img src='/images/trivia/code.png'></img>}
       {question37 && <img src='/images/trivia/equationsaha.png'></img>}
       {question9 && <img src='/images/trivia/corée.png'></img>}

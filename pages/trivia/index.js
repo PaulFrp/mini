@@ -1,4 +1,4 @@
-import App from '../../src/Trivia/first_game';
+import App from '../../src/Trivia/home';
 
 const Trivia = () => {
   return <App />;

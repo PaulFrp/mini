@@ -1,0 +1,64 @@
+
+
+.cardsContainer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 40px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .cardsContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .cardsContainer {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Base card style */
+.card {
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 20px;
+  text-align: center;
+  font-size: 1.1rem;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+/* Color variants */
+.gray    { background-color: #6c757d; }
+.blue    { background-color: #007bff; }
+.teal    { background-color: #20c997; }
+.indigo  { background-color: #6610f2; }
+.orange  { background-color: #fd7e14; }
+.pink    { background-color: #e83e8c; }
+.red     { background-color: #dc3545; }
+.green   { background-color: #28a745; }
+
+
+.background-image {
+    background-image: url('/images/picolo/green.jpg');
+    background-size: cover; /* Cover the entire container */
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Do not repeat the background image */
+    height: 100vh; /* 100% of the viewport height */
+    width: 100vw; /* 100% of the viewport width */
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }

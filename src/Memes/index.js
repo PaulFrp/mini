@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Card from './card'; // Import the Card component
-import styles from './card.module.css'; // Correct import statement
+import stylesCard from './card.module.css'; // Correct import statement
 import NavigationBar from '../navBar';
-
+import styles from "./Memes.module.css"; 
 
 const Trivia = () => {
 
@@ -40,51 +40,51 @@ const Trivia = () => {
   // Dictionary mapping card numbers to YouTube URLs
   const videoUrls = {
     1: "https://www.youtube.com/embed/3IDIlooy0HA",
-    2: "https://www.youtube.com/embed/VIDEO_ID_2",
-    3: "https://www.youtube.com/embed/VIDEO_ID_3",
-    4: "https://www.youtube.com/embed/VIDEO_ID_4",
-    5: "https://www.youtube.com/embed/VIDEO_ID_5",
-    6: "https://www.youtube.com/embed/VIDEO_ID_6",
-    7: "https://www.youtube.com/embed/VIDEO_ID_7",
-    8: "https://www.youtube.com/embed/VIDEO_ID_8",
-    9: "https://www.youtube.com/embed/VIDEO_ID_9",
-    10: "https://www.youtube.com/embed/VIDEO_ID_10",
-    11: "https://www.youtube.com/embed/VIDEO_ID_11",
-    12: "https://www.youtube.com/embed/VIDEO_ID_12",
-    13: "https://www.youtube.com/embed/VIDEO_ID_13",
-    14: "https://www.youtube.com/embed/VIDEO_ID_14",
-    15: "https://www.youtube.com/embed/VIDEO_ID_15",
-    16: "https://www.youtube.com/embed/VIDEO_ID_16",
-    17: "https://www.youtube.com/embed/VIDEO_ID_17",
-    18: "https://www.youtube.com/embed/VIDEO_ID_18",
-    19: "https://www.youtube.com/embed/VIDEO_ID_19",
-    20: "https://www.youtube.com/embed/VIDEO_ID_20",
-    21: "https://www.youtube.com/embed/VIDEO_ID_21",
+    2: "https://www.youtube.com/embed/jUXGN-ffKlk",
+    3: "https://www.youtube.com/embed/lR-jr2ZmSgM",
+    4: "https://www.youtube.com/embed/NP9NI8xX9nY",
+    5: "https://www.youtube.com/embed/5V2D1aXX_UM",
+    6: "https://www.youtube.com/embed/j_nBgTFbXb4",
+    7: "https://www.youtube.com/embed/UJ3TOP3bBN0",
+    8: "https://www.youtube.com/embed/PNHYCZJWbGY",
+    9: "https://www.youtube.com/embed/1ABOGlSXV9k",
+    10: "https://www.youtube.com/embed/L9e8tGd11vQ",
+    11: "https://www.youtube.com/embed/Ho8xZ5VN9oM",
+    12: "https://www.youtube.com/embed/EsROdUJOWWc",
+    13: "https://www.youtube.com/embed/tyykNPc1r4U",
+    14: "https://www.youtube.com/embed/YSti80flxfA",
+    15: "https://www.youtube.com/embed/dVVGBP6lPRM",
+    16: "https://www.youtube.com/embed/eFUc7ln2PKI",
+    17: "https://www.youtube.com/embed/VIDEO_ID_17", //Need to find vid 
+    18: "https://www.youtube.com/embed/4w6REQGQ89E",
+    19: "https://www.youtube.com/embed/dI7kaN2fZ4g",
+    20: "https://www.youtube.com/embed/iSXja9pRfQ0",
+    21: "https://www.youtube.com/embed/9NECnxp_m6k",
     // Add more mappings as needed
   };
 
   const imageUrls = {
-    1: "/images/memes/code.png",
-    3: "https://www.youtube.com/embed/VIDEO_ID_3",
-    2: "https://www.youtube.com/embed/VIDEO_ID_2",
-    4: "https://www.youtube.com/embed/VIDEO_ID_4",
-    5: "https://www.youtube.com/embed/VIDEO_ID_5",
-    6: "https://www.youtube.com/embed/VIDEO_ID_6",
-    7: "https://www.youtube.com/embed/VIDEO_ID_7",
-    8: "https://www.youtube.com/embed/VIDEO_ID_8",
-    9: "https://www.youtube.com/embed/VIDEO_ID_9",
-    10: "https://www.youtube.com/embed/VIDEO_ID_10",
-    11: "https://www.youtube.com/embed/VIDEO_ID_11",
-    12: "https://www.youtube.com/embed/VIDEO_ID_12",
-    13: "https://www.youtube.com/embed/VIDEO_ID_13",
-    14: "https://www.youtube.com/embed/VIDEO_ID_14",
-    15: "https://www.youtube.com/embed/VIDEO_ID_15",
-    16: "https://www.youtube.com/embed/VIDEO_ID_16",
-    17: "https://www.youtube.com/embed/VIDEO_ID_17",
-    18: "https://www.youtube.com/embed/VIDEO_ID_18",
-    19: "https://www.youtube.com/embed/VIDEO_ID_19",
-    20: "https://www.youtube.com/embed/VIDEO_ID_20",
-    21: "https://www.youtube.com/embed/VIDEO_ID_21",
+    1: "/images/memes/eddy_malou.jfif",
+    2: "/images/memes/bugatti.png",
+    3: "/images/memes/la_rue.png",
+    4: "/images/memes/respect.jfif",
+    5: "/images/memes/bolideur.jfif",
+    6: "/images/memes/étoile.jfif",
+    7: "/images/memes/8_morts.jfif",
+    8: "/images/memes/flax.jpg",
+    9: "/images/memes/gnoni.png",
+    10: "/images/memes/eleonore.jfif",
+    11: "/images/memes/grigny.jfif",
+    12: "/images/memes/coach.jfif",
+    13: "/images/memes/enzo.png",
+    14: "/images/memes/kimono.jfif",
+    15: "/images/memes/attiré.jfif",
+    16: "/images/memes/mon_sac_fait.jfif",
+    17: "/images/memes/kayakobeme.jfif",
+    18: "/images/memes/giroud.jfif",
+    19: "/images/memes/ce_lait.png",
+    20: "/images/memes/la_vie.jpg",
+    21: "/images/memes/roucoule.jfif",
     // Add more mappings as needed
   };
 
@@ -98,49 +98,49 @@ const Trivia = () => {
     switch (number) {
         //1ère colomne Easy 
         case 1:
-          return { question: `Le premier savant de toute la république démocratique du Congo ? `, answer: 'EDDY MALOU' };
+          return { question: `Le premier savant de toute la république démocratique du Congo ? `, answer: '' };
         case 4: 
-          return { question: 'Tu crois que c est du respect ? ', answer: 'Tu crois que c est du respect mon garcon ? ' }; 
+          return { question: 'Tu crois que c est du respect ? ', answer: '' }; 
         case 7:
-          return { question: '8 morts 6 blessés ?', answer: 'Je pète ma bière, MA "LUBELLULE"' }; 
+          return { question: '8 morts 6 blessés ?', answer: '' }; 
         case 10:
-          return { question: 'Moi j adore ca le jus d orange', answer: 'C est bien éléonore on est content' }; 
+          return { question: 'Moi j adore ca le jus d orange', answer: '' }; 
         case 13:
-          return { question: `Enzo je coupe la vidéo`, answer: 'J t encule' };
+          return { question: `Enzo je coupe la vidéo`, answer: '' };
         case 16:
-          return { question: `Mon sac est  `, answer: 'Fait' };
+          return { question: `Mon sac est  `, answer: '' };
         case 19:
-          return { question: 'Il est lent ce', answer: 'Lait' }; 
+          return { question: 'Il est lent ce', answer: '' }; 
         //2ème columne Medium
         case 2:
-           return { question: "What color is your ?", answer: 'Bugatti' };
+           return { question: "What color is your ?", answer: '' };
         case 5:
-          return { question: `Etiènne le bolideur, fan de ?`, answer: 'Bolidage' };
+          return { question: `Etiènne le bolideur, fan de ?`, answer: '' };
         case 8:
-          return { question: `La gadji elle est trop soulex `, answer: 'La gadji elle est trop flax' };
+          return { question: `La gadji elle est trop soulex `, answer: '' };
         case 11:
-          return { question: `Grigny la grande borne -?`, answer: 'Une bite sur l épaule (si toute la chanson distribue 2 shoots)' };
+          return { question: `Grigny la grande borne -?`, answer: '' };
         case 14:
-          return { question: 'Tu as mis le ', answer: 'Kimonon' }; 
+          return { question: 'Tu as mis le ', answer: '' }; 
         case 17:
-          return { question: `Y a que moi qui la touche `, answer: 'Y a que moi qui la kayakobeme' };
+          return { question: `Y a que moi qui la touche `, answer: '' };
         case 20:
-          return { question: `C est pas comme ca qu on `, answer: 'imagine la vie' };
+          return { question: `C est pas comme ca qu on `, answer: '' };
         //3ème columne Hard
         case 3:
-          return { question: `La rue la vrai que de la fumée ya ya`, answer: 'Tu vois c est pour ca t as pas de meuf ' };
+          return { question: `La rue la vrai que de la fumée ya ya`, answer: '' };
         case 6:
-          return { question: 'Quoicou -?', answer: 'Baka' }; 
+          return { question: 'faites ? sur le clavier', answer: '' }; 
         case 9:
-          return { question: `Bébou est que tu m'aimes ? Est ce que tu me ? `, answer: "Gnoni" };
+          return { question: `Bébou est que tu m'aimes ? Est ce que tu me ? `, answer: "" };
         case 12:
-          return { question: `Vous aussi vous attendez l ouverture de fitness park`, answer: 'Non moi je suis coach' };
+          return { question: `Vous aussi vous attendez l ouverture de fitness park`, answer: '' };
         case 15:
-          return { question: `Attention je suis peut etre attiré `, answer: 'par les mineurs' };
+          return { question: `Attention je suis peut etre attiré `, answer: '' };
         case 18:
-          return { question: `Why giroud is the best player`, answer: 'Yes is a giroud' };
+          return { question: `Why giroud is the best player`, answer: '' };
         case 21:
-          return { question: `Je Roucoule`, answer: 'Je brois la langue de molière' };
+          return { question: `Je Roucoule`, answer: '' };
         // Add more cases as needed
         default:
           return { question: 'Default Question', answer: 'Default Answer' };
@@ -152,9 +152,9 @@ const Trivia = () => {
   const { question, answer } = selectedCard ? getCardTexts(selectedCard) : { question: '', answer: '' };
  
   return (
-    <div className={`${styles['centered-cell']} ${styles['background-image']}`}>
+    <div className={`${styles['centered-cell']} ${stylesCard['background-image']}`}>
       <NavigationBar/>
-      <h1>Welcome to trivia 3 </h1>
+      <h1>Welcome to Memes culture </h1>
       <table className={styles['centered-table']}>
         <thead>
           <tr>
@@ -165,7 +165,7 @@ const Trivia = () => {
         </thead>
         <tbody>
         
-          {Array.from({ length: 5 }, (_, rowIndex) => (
+          {Array.from({ length: 7 }, (_, rowIndex) => (
             <tr key={rowIndex}>
             {Array.from({ length: 3 }, (_, colIndex) => {
               const buttonNumber = (colIndex + rowIndex * 3) + 1;
@@ -174,9 +174,8 @@ const Trivia = () => {
               return (
                   <td key={colIndex} className={styles['centered-cell']}>
                   <button
-                  key={rowIndex}
-                  onClick={() => showCard(buttonNumber)}
-                  className={isButtonClicked ? styles['red-button'] : ''}
+                    onClick={() => showCard(buttonNumber)}
+                    className={`${styles.triviaButton} ${isButtonClicked ? styles['red-button'] : ''}`}
                   >
                   {rowIndex}
                   </button>
@@ -188,10 +187,10 @@ const Trivia = () => {
         </tbody>
       </table>
 
-      <div className={styles['card-container']}>
+      <div className={stylesCard['card-container']}>
       {selectedCard && (
         <div>
-        <div className={`${styles['centered-cell']} ${styles['card']}`}>
+        <div className={`${stylesCard['centered-cell']} ${stylesCard['card']}`}>
           <Card  
             image={currentImage} 
             answer={answer} 

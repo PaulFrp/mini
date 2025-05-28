@@ -55,11 +55,7 @@
    
   }
 
-  .centered-cell {
-    text-align: center;
-    overflow: auto
-  }
-  
+
   .space-columns{
     padding: 10px;
   }

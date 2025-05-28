@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import Card from './card'; // Import the Card component
-import styles from './card.module.css'; // Correct import statement
+import stylesCard from './card.module.css'; // Correct import statement
 import NavigationBar from '../navBar';
+import styles from "./Trivia.module.css";
 
 
 const Trivia = () => {
@@ -132,7 +133,7 @@ const Trivia = () => {
   const { question, answer } = selectedCard ? getCardTexts(selectedCard) : { question: '', answer: '' };
  
   return (
-    <div className={`${styles['centered-cell']} ${styles['background-image']}`}>
+    <div className={`${styles['centered-cell']} ${stylesCard['background-image']}`}>
     <NavigationBar/>
       <h1>Welcome to trivia 2 </h1>
       <table className={styles['centered-table']}>
@@ -156,9 +157,8 @@ const Trivia = () => {
               return (
                   <td key={colIndex} className={styles['centered-cell']}>
                   <button
-                  key={rowIndex}
-                  onClick={() => showCard(buttonNumber)}
-                  className={isButtonClicked ? styles['red-button'] : ''}
+                    onClick={() => showCard(buttonNumber)}
+                    className={`${styles.triviaButton} ${isButtonClicked ? styles['red-button'] : ''}`}
                   >
                   {rowIndex}
                   </button>
@@ -170,9 +170,9 @@ const Trivia = () => {
         </tbody>
       </table>
 
-      <div className={styles['card-container']}>
+      <div className={stylesCard['card-container']}>
       {selectedCard && (
-        <div className={`${styles['centered-cell']} ${styles['card']}`}>
+        <div className={`${stylesCard['centered-cell']} ${stylesCard['card']}`}>
           <Card question={question} answer={answer} isFlipped={isFlipped} handleCardClick={handleCardClick} />
         </div>
       )}
