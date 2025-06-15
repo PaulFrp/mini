@@ -7,3 +7,4 @@ class Room(Base):
     __tablename__ = "rooms"
     id = Column(Integer, primary_key=True)
     status = Column(String)
+    creator = Column(String, nullable=True)
