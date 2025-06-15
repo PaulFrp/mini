@@ -7,6 +7,10 @@ from db import get_db, init_db
 from models import Room
 from contextlib import asynccontextmanager
 from fastapi import Header
+import time
+from fastapi import FastAPI, HTTPException, BackgroundTasks
+from typing import Dict, List
+from pydantic import BaseModel
 
 
 @asynccontextmanager
@@ -67,10 +71,78 @@ rooms_status = {}
 
 @app.post("/start_game/{room_id}")
 async def start_game(room_id: int):
-    rooms_status[room_id] = "game_started"
+    # For demo, get player list from somewhere, or store in memory/db
+    players = ["Alice", "Bob", "Carol", "Dave"]
+    start_voting_game(room_id, players)
     return {"status": "game started", "room_id": room_id}
 
 @app.get("/room_status/{room_id}")
 async def room_status(room_id: int):
     status = rooms_status.get(room_id, "waiting")
     return {"room_id": room_id, "status": status}
+
+
+
+# Store game state in memory
+games = {}  # room_id -> game info
+
+class VoteRequest(BaseModel):
+    voter_id: str
+    vote_for: str  # player name/id
+
+def start_voting_game(room_id: int, players: List[str]):
+    games[room_id] = {
+        "question": "Who is the kindest person in the room?",
+        "players": players,
+        "votes": {},  # voter_id -> voted_player
+        "start_time": time.time(),
+        "duration": 30,  # seconds
+        "finished": False,
+    }
+
+
+
+@app.get("/game_status/{room_id}")
+async def game_status(room_id: int):
+    game = games.get(room_id)
+    if not game:
+        return {"status": "waiting"}
+
+    elapsed = time.time() - game["start_time"]
+    remaining = max(0, int(game["duration"] - elapsed))
+
+    if remaining == 0 and not game["finished"]:
+        game["finished"] = True
+
+    if not game["finished"]:
+        return {
+            "status": "voting",
+            "question": game["question"],
+            "players": game["players"],
+            "remaining": remaining,
+            "votes_count": {p: list(game["votes"].values()).count(p) for p in game["players"]}
+        }
+    else:
+        # Calculate winner
+        votes_count = {p: list(game["votes"].values()).count(p) for p in game["players"]}
+        max_votes = max(votes_count.values(), default=0)
+        winners = [p for p, c in votes_count.items() if c == max_votes]
+        return {
+            "status": "finished",
+            "winners": winners,
+            "votes_count": votes_count
+        }
+
+@app.post("/vote/{room_id}")
+async def vote(room_id: int, vote: VoteRequest):
+    game = games.get(room_id)
+    if not game or game["finished"]:
+        raise HTTPException(status_code=400, detail="No active voting or voting finished")
+
+    if vote.vote_for not in game["players"]:
+        raise HTTPException(status_code=400, detail="Invalid player")
+
+    # Register vote
+    game["votes"][vote.voter_id] = vote.vote_for
+    return {"message": f"Voted for {vote.vote_for}"}
+

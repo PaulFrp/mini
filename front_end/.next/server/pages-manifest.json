@@ -2,7 +2,7 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
+  "/pb_games/room": "pages/pb_games/room.js",
   "/": "pages/index.js",
-  "/pb_games": "pages/pb_games.js",
-  "/pb_games/room": "pages/pb_games/room.js"
+  "/pb_games": "pages/pb_games.js"
 }

@@ -16,6 +16,15 @@ export default function RoomPage() {
   const [clientId, setClientId] = useState(null);
   const [gameStarted, setGameStarted] = useState(false);
 
+  // New states for voting
+  const [question, setQuestion] = useState("");
+  const [players, setPlayers] = useState([]);
+  const [remaining, setRemaining] = useState(0);
+  const [votesCount, setVotesCount] = useState({});
+  const [hasVoted, setHasVoted] = useState(false);
+  const [votingFinished, setVotingFinished] = useState(false);
+  const [winners, setWinners] = useState([]);
+
   useEffect(() => {
     const id = getClientId();
     setClientId(id);
@@ -38,26 +47,39 @@ export default function RoomPage() {
       });
   }, []);
 
-  // Polling for game status every 3 seconds once roomId is known
+  // Polling game status, including voting
   useEffect(() => {
     if (!roomId) return;
 
     const interval = setInterval(() => {
-      fetch(`http://localhost:8000/room_status/${roomId}`)
+      fetch(`http://localhost:8000/game_status/${roomId}`)
         .then((res) => res.json())
         .then((data) => {
-          if (data.status === "game_started") {
+          if (data.status === "waiting") {
+            setGameStarted(false);
+            setVotingFinished(false);
+            setHasVoted(false);
+            setMessages(["Waiting for the game to start..."]);
+          } else if (data.status === "voting") {
             setGameStarted(true);
+            setVotingFinished(false);
+            setQuestion(data.question);
+            setPlayers(data.players);
+            setRemaining(data.remaining);
+            setVotesCount(data.votes_count);
             setMessages((msgs) => {
-              // Add message only if not already present
               if (!msgs.includes("Game has started!")) {
                 return [...msgs, "Game has started!"];
               }
               return msgs;
             });
+          } else if (data.status === "finished") {
+            setVotingFinished(true);
+            setWinners(data.winners);
+            setVotesCount(data.votes_count);
           }
         });
-    }, 3000);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [roomId]);
@@ -69,9 +91,20 @@ export default function RoomPage() {
     });
   };
 
+  const castVote = (player) => {
+    if (hasVoted || votingFinished) return;
+
+    fetch(`http://localhost:8000/vote/${roomId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ voter_id: clientId, vote_for: player }),
+    }).then(() => setHasVoted(true));
+  };
+
   return (
     <div style={{ padding: "2rem" }}>
       <h1>Room</h1>
+
       <div>
         {messages.length === 0 ? (
           <p>No messages yet</p>
@@ -80,13 +113,43 @@ export default function RoomPage() {
         )}
       </div>
 
-      {isCreator && !gameStarted && (
+      {!gameStarted && isCreator && (
         <button onClick={startGame} style={{ marginTop: "1rem" }}>
           Start Game
         </button>
       )}
 
-      {gameStarted && <p>The game is now started!</p>}
+      {gameStarted && !votingFinished && (
+        <div>
+          <h2>{question}</h2>
+          <p>Time remaining: {remaining}s</p>
+          {players.map((p) => (
+            <button
+              key={p}
+              onClick={() => castVote(p)}
+              disabled={hasVoted}
+              style={{ margin: "0.5rem" }}
+            >
+              {p} ({votesCount[p] || 0})
+            </button>
+          ))}
+          {hasVoted && <p>Thanks for voting!</p>}
+        </div>
+      )}
+
+      {votingFinished && (
+        <div>
+          <h2>Voting finished!</h2>
+          <p>Winner(s): {winners.join(", ")}</p>
+          <ul>
+            {Object.entries(votesCount).map(([player, count]) => (
+              <li key={player}>
+                {player}: {count} vote{count !== 1 ? "s" : ""}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
