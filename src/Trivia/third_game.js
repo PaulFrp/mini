@@ -76,9 +76,9 @@ const Trivia = () => {
         case 10:
           return { question: `Tout le monde joue, comme à la roulette (rouge ou noir). Pariez un nombre de gorgées`, answer: 'Rouge (si bonne réponse distribue les gorgées parié sinon bois les' };
         case 18:
-          return { question: 'Venez on imprime plus d argent comme ca y aura plus de pauvreté ?', answer: "Inflation goes BRRRRRRRRRRRRRRRRRRRRRRRR" };
+          return { question: 'Venez on imprime plus d argent comme ca y aura plus de pauvreté ?', answer: "Inflation" };
         case 26:
-          return { question: `Qu'est ce qu'un ETF`, answer: 'Le groupe jugera de la qualité de la réponse' };
+          return { question: `Qu'est ce qu'un ETF`, answer: 'Un NFT à une lettre près' };
         case 34:
           return { question: "Explique l'utilité d'une simulation de monte carlo sur la détermination du prix d'une option ?", answer: 'Simule le prix de l underlying pour tous les chemins possible et calcule les bénéfices de l option dans chaque situation.' };  
          
@@ -87,7 +87,7 @@ const Trivia = () => {
         case 3:
           return { question: `Qu'est ce que 1+3 ?`, answer: 'Prends 4 gorgées' };
         case 11:
-          return { question: "Les 100 premiers nombres de pi ? (autant de gorgées que de mauvais chiffres)", answer: '3,1415926535 8979323846 2643383279 5028841971 6939937510 5820974944 5923078164 0628620899 8628034825 3421170679' };  
+          return { question: "Les 11 premiers nombres de pi ? (autant de gorgées que de mauvais chiffres)", answer: '3,1415926535' };  
         case 19:
           return { question: `e^(-ln(2)) `, answer: '1/2' };
         case 27:

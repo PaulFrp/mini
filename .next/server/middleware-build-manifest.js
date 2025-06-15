@@ -28,26 +28,6 @@ self.__BUILD_MANIFEST = {
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/memes.js"
-    ],
-    "/never": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/never.js"
-    ],
-    "/pendu/pendu_one": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/pendu/pendu_one.js"
-    ],
-    "/picolo": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/picolo.js"
-    ],
-    "/trivia/game3": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/trivia/game3.js"
     ]
   },
   "ampFirstPages": []

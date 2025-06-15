@@ -152,7 +152,7 @@ const Introduction = ({ onStart }) => {
   return (
     
     <div>
-      
+    <NavigationBar/>  
     {!started && (
     
     <div className={`${styles['confetti-background']}`}>

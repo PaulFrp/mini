@@ -59,15 +59,15 @@ const Trivia = () => {
         case 27:
           return { question: `Le plus grand défaut de ce jeux ?`, answer: 'On boit pas assez tous un shoot' };
         case 32:
-          return { question: 'Quel est le nom du dragon de hagrid dans harry potter ?', answer: 'Norbert' };  
+          return { question: 'Combien y a t il de lettres dans l alphabet ?', answer: 'Toutes' };  
         
-        //3ème columne (meme culture 2)
+        //3ème columne Fiction
         case 3:
-          return { question: `Le premier savant de toute la république démocratique du Congo ? `, answer: 'EDDY MALOU' };
+          return { question: `Des enfants de 10 ans qui forcent des esclaves a se battre`, answer: 'Digimon' };
         case 8:
-          return { question: "What color is your ?", answer: 'Bugatti' };  
+          return { question: "Tu as un date ce soir, qu est ce que tu fais ?", answer: 'Tu bois, personne ne veut de toi c était ton imagination' };  
         case 13:
-          return { question: `La gadji elle est trop soulex `, answer: 'La gadji elle est trop flax' };
+          return { question: `Qulle serait la première phrase Paul en arrivant sur la Lune ? `, answer: 'Y a pas de bar j me casse' };
         case 18:
           return { question: 'Quoicou -?', answer: 'Baka' };  
         case 23:
@@ -75,7 +75,7 @@ const Trivia = () => {
         case 28:
           return { question: 'Tu crois que c est du respect ? ', answer: 'Tu crois que c est du respect mon garcon ? ' }; 
         case 33:
-          return { question: `Etiènne le bolideur, fan de ?`, answer: 'Bolidage' };
+          return { question: `Quel est le nom du dragon de hagrid dans harry potter ?`, answer: 'Norbert' };
 
         //4ème columne (meme culture)
         case 4:
