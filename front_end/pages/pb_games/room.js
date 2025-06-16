@@ -59,7 +59,7 @@ export default function RoomPage() {
             setGameStarted(false);
             setVotingFinished(false);
             setHasVoted(false);
-            setMessages(["Waiting for the game to start..."]);
+            setMessages([`${roomId} Waiting for the game to start...`]);
           } else if (data.status === "voting") {
             setGameStarted(true);
             setVotingFinished(false);
@@ -88,6 +88,9 @@ export default function RoomPage() {
     if (!roomId) return;
     fetch(`http://localhost:8000/start_game/${roomId}`, {
       method: "POST",
+      headers: {
+        "x-client-id": clientId,
+      },
     });
   };
 

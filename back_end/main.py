@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from uuid import uuid4
 from session import signer
 from db import get_db, init_db
-from models import Room
+from models import Room, Player
 from contextlib import asynccontextmanager
 from fastapi import Header
 import time
@@ -12,6 +12,7 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks
 from typing import Dict, List
 from pydantic import BaseModel
 
+# start back end server with: uvicorn main:app --reload
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -44,6 +45,40 @@ def join_room(room_id: int, response: Response):
     response.set_cookie(key="room_session", value=cookie_value, httponly=True, samesite="lax", secure=False)
     return {"message": f"Joined room {room_id}"}
 
+
+class JoinRoomRequest(BaseModel):
+    username: str
+    client_id: str
+
+@app.post("/join_room_with_username/{room_id}")
+def join_room_with_username(
+    room_id: int,
+    data: JoinRoomRequest,
+    response: Response,
+    db: Session = Depends(get_db),
+):
+    # Add user to DB if not exists
+    player = db.query(Player).filter_by(user_id=data.client_id, room_id=room_id).first()
+    if player:
+        player.username = data.username
+    else:
+        player = Player(user_id=data.client_id, username=data.username, room_id=room_id)
+        db.add(player)
+    db.commit()
+
+    # Set signed session cookie like the old endpoint
+    cookie_value = signer.sign(str(room_id)).decode()
+    response.set_cookie(
+        key="room_session",
+        value=cookie_value,
+        httponly=True,
+        samesite="lax",
+        secure=False,  # Set to True in production with HTTPS
+    )
+
+    return {"message": f"User '{data.username}' joined room {room_id}"}
+
+
 @app.get("/room_messages")
 def get_messages(
     room_session: str = Cookie(None),
@@ -70,10 +105,21 @@ def get_messages(
 rooms_status = {} 
 
 @app.post("/start_game/{room_id}")
-async def start_game(room_id: int):
-    # For demo, get player list from somewhere, or store in memory/db
-    players = ["Alice", "Bob", "Carol", "Dave"]
-    start_voting_game(room_id, players)
+async def start_game(room_id: int, x_client_id: str = Header(None), db: Session = Depends(get_db)):
+    room = db.query(Room).filter(Room.id == room_id).first()
+    print(f"[DEBUG] room_id: {room_id}")
+    print(f"[DEBUG] x_client_id header: {x_client_id}")
+    print(f"[DEBUG] room.creator in DB: {room.creator}")
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+
+    if room.creator != x_client_id:
+        raise HTTPException(status_code=403, detail="Only the creator can start the game")
+
+    players = db.query(Player).filter(Player.room_id == room_id).all()
+    player_names = [p.username for p in players]
+
+    start_voting_game(room_id, player_names)
     return {"status": "game started", "room_id": room_id}
 
 @app.get("/room_status/{room_id}")
