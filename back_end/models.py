@@ -19,7 +19,7 @@ class Player(Base):
     user_id = Column(String, unique=False, index=True)  # client_id
     username = Column(String, unique=False, index=True)
     room_id = Column(Integer, ForeignKey("rooms.id", ondelete="CASCADE"))
-    last_seen = Column(DateTime, default=datetime.now(timezone.utc))
+    last_seen = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     room = relationship("Room", back_populates="players")
 

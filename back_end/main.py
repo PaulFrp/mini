@@ -17,6 +17,9 @@ import time
 from contextlib import asynccontextmanager
 import asyncio
 from datetime import datetime, timezone, timedelta
+from sqlalchemy.orm import joinedload
+import traceback
+import pytz
 
 
 # start back end server with: uvicorn main:app --reload
@@ -186,6 +189,7 @@ def game_status(room_id: int, db: Session = Depends(get_db), request: Request = 
         player = db.query(Player).filter_by(user_id=client_id, room_id=room_id).first()
         if player:
             player.last_seen = datetime.now(timezone.utc)
+            print(f"[Ping] Updated last_seen for user {player.user_id} in room {room_id}")
             db.commit()
 
     game = games.get(room_id)
@@ -284,26 +288,39 @@ async def vote(room_id: int, vote: VoteRequest):
     game["votes"][vote.voter_id] = vote.vote_for
     return {"message": f"Voted for {vote.vote_for}"}
 
-#SUPPOSECD TRO DELETE ROOMS BUT IS NOT WORKI?G !
+
+local_tz = pytz.timezone("Europe/Paris")
+
+def to_utc_aware(dt):
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        # Convert naive local datetime to aware UTC datetime
+        local_dt = local_tz.localize(dt)
+        return local_dt.astimezone(timezone.utc)
+    return dt
+
+
 async def cleanup_empty_rooms_task():
     while True:
-        await asyncio.sleep(30)  
+        await asyncio.sleep(30)
         with SessionLocal() as db:
             now = datetime.now(timezone.utc)
-            timeout = now - timedelta(seconds=20)
+            timeout = now - timedelta(minutes=5)
 
-            rooms = db.query(Room).all()
+            rooms = db.query(Room).options(joinedload(Room.players)).all()
             for room in rooms:
                 active_players = [
-                    p for p in room.players if p.last_seen and p.last_seen > timeout
+                    p for p in room.players
+                    if p.last_seen and to_utc_aware(p.last_seen) > timeout
                 ]
+                print(f"[Cleanup] Room {room.id} has {len(room.players)} total players, {len(active_players)} active")
+                print(f"[Cleanup] Room {room.id} last seen time: {room.players[0].last_seen if room.players else 'N/A'}")
+
                 if not active_players:
                     print(f"[Cleanup] Deleting empty room {room.id}")
-
-                    # Supprimer explicitement les joueurs liés (si pas cascade)
-                    db.query(Player).filter(Player.room_id == room.id).delete()
-
-                    # Supprimer la room
                     db.delete(room)
+
             db.commit()
+
 
