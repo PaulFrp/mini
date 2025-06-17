@@ -13,7 +13,8 @@ const categories = [
 
 const newGames = [
   { name: "😂 Memes culture", link: "/memes",},
-  { name: "🔍 Trivia 2", link: "/trivia/game3" }
+  { name: "🔍 Trivia 2", link: "/trivia/game3" },
+  { name: "🤔 Jeux des problemes", link: "/pb_games" }
 ];
 
 function App() {
