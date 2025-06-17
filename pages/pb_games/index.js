@@ -12,6 +12,7 @@ export default function Home() {
   const [showUsernameInput, setShowUsernameInput] = useState(false);
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+  console.log("Using backend URL:", BACKEND_URL);
 
   useEffect(() => {
     let id = localStorage.getItem("client_id");

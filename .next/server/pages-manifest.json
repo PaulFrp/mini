@@ -2,11 +2,6 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js",
-  "/trivia": "pages/trivia.js",
   "/pb_games": "pages/pb_games.js",
-  "/never": "pages/never.js",
-  "/memes": "pages/memes.js",
-  "/picolo": "pages/picolo.js",
-  "/pendu/pendu_one": "pages/pendu/pendu_one.js"
+  "/": "pages/index.js"
 }
