@@ -51,11 +51,11 @@ const Trivia = () => {
     10: "https://www.youtube.com/embed/L9e8tGd11vQ",
     11: "https://www.youtube.com/embed/Ho8xZ5VN9oM",
     12: "https://www.youtube.com/embed/EsROdUJOWWc",
-    13: "https://www.youtube.com/embed/tyykNPc1r4U",
+    13: "https://www.youtube.com/embed/dVVGBP6lPRM",
     14: "https://www.youtube.com/embed/YSti80flxfA",
-    15: "https://www.youtube.com/embed/dVVGBP6lPRM",
+    15: "https://www.youtube.com/embed/tyykNPc1r4U",
     16: "https://www.youtube.com/embed/eFUc7ln2PKI",
-    17: "https://www.youtube.com/embed/VIDEO_ID_17", //Need to find vid 
+    17: "https://www.tiktok.com/@bestclip.editz/video/7415118143070194977?lang=fr", //Need to find vid 
     18: "https://www.youtube.com/embed/4w6REQGQ89E",
     19: "https://www.youtube.com/embed/dI7kaN2fZ4g",
     20: "https://www.youtube.com/embed/iSXja9pRfQ0",
@@ -76,9 +76,9 @@ const Trivia = () => {
     10: "/images/memes/eleonore.jfif",
     11: "/images/memes/grigny.jfif",
     12: "/images/memes/coach.jfif",
-    13: "/images/memes/enzo.png",
+    13: "/images/memes/attiré.jfif",
     14: "/images/memes/kimono.jfif",
-    15: "/images/memes/attiré.jfif",
+    15: "/images/memes/enzo.png",
     16: "/images/memes/mon_sac_fait.jfif",
     17: "/images/memes/kayakobeme.jfif",
     18: "/images/memes/giroud.jfif",
@@ -106,7 +106,7 @@ const Trivia = () => {
         case 10:
           return { question: 'Moi j adore ca le jus d orange', answer: '' }; 
         case 13:
-          return { question: `Enzo je coupe la vidéo`, answer: '' };
+          return { question: `Attention je suis peut etre attiré `, answer: '' };
         case 16:
           return { question: `Mon sac est  `, answer: '' };
         case 19:
@@ -136,7 +136,7 @@ const Trivia = () => {
         case 12:
           return { question: `Vous aussi vous attendez l ouverture de fitness park`, answer: '' };
         case 15:
-          return { question: `Attention je suis peut etre attiré `, answer: '' };
+          return { question: `Enzo je coupe la vidéo`, answer: '' };
         case 18:
           return { question: `Why giroud is the best player`, answer: '' };
         case 21:
