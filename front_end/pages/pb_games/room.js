@@ -1,3 +1,5 @@
+import styles from "./RoomPage.module.css";
+import NavigationBar from "../../src/navBar";
 import { useEffect, useState } from "react";
 
 function getClientId() {
@@ -47,6 +49,12 @@ export default function RoomPage() {
       });
   }, []);
 
+  useEffect(() => {
+    if (gameStarted && !votingFinished) {
+      setHasVoted(false);
+    }
+  }, [question]);
+
   // Polling game status, including voting
   useEffect(() => {
     if (!roomId) return;
@@ -67,6 +75,7 @@ export default function RoomPage() {
             setPlayers(data.players);
             setRemaining(data.remaining);
             setVotesCount(data.votes_count);
+            
             setMessages((msgs) => {
               if (!msgs.includes("Game has started!")) {
                 return [...msgs, "Game has started!"];
@@ -105,10 +114,12 @@ export default function RoomPage() {
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Room</h1>
+    <div className={`${styles['centered-cell']} ${styles['background-image']}`}>
+    <NavigationBar />
+    <div className={styles.roomContainer}>
+      <h1 className={styles.roomHeader}>Room</h1>
 
-      <div>
+      <div className={styles.messageLog}>
         {messages.length === 0 ? (
           <p>No messages yet</p>
         ) : (
@@ -117,42 +128,65 @@ export default function RoomPage() {
       </div>
 
       {!gameStarted && isCreator && (
-        <button onClick={startGame} style={{ marginTop: "1rem" }}>
-          Start Game
-        </button>
+        <div className={styles.buttonWrapper}>
+          <button onClick={startGame} className={styles.button}>
+            Start Game
+          </button>
+        </div>
       )}
 
       {gameStarted && !votingFinished && (
-        <div>
+        <div className={styles.questionBox}>
           <h2>{question}</h2>
           <p>Time remaining: {remaining}s</p>
-          {players.map((p) => (
-            <button
-              key={p}
-              onClick={() => castVote(p)}
-              disabled={hasVoted}
-              style={{ margin: "0.5rem" }}
-            >
-              {p} ({votesCount[p] || 0})
-            </button>
-          ))}
+
+          <div className={styles.voteButtons}>
+            {players.map((p) => (
+              <button
+                key={p}
+                onClick={() => castVote(p)}
+                disabled={hasVoted}
+                className={styles.button}
+              >
+                {p} ({votesCount[p] || 0})
+              </button>
+            ))}
+          </div>
+
           {hasVoted && <p>Thanks for voting!</p>}
         </div>
       )}
 
       {votingFinished && (
-        <div>
+        <div className={styles.resultBox}>
           <h2>Voting finished!</h2>
           <p>Winner(s): {winners.join(", ")}</p>
-          <ul>
+          <ul className={styles.voteCount}>
             {Object.entries(votesCount).map(([player, count]) => (
               <li key={player}>
                 {player}: {count} vote{count !== 1 ? "s" : ""}
               </li>
             ))}
           </ul>
+
+          {isCreator && (
+            <div className={styles.buttonWrapper}>
+              <button
+                onClick={() => {
+                  fetch(`http://localhost:8000/next_question/${roomId}`, {
+                    method: "POST",
+                    headers: { "x-client-id": clientId },
+                  });
+                }}
+                className={styles.button}
+              >
+                Next Question
+              </button>
+            </div>
+          )}
         </div>
       )}
+    </div>
     </div>
   );
 }

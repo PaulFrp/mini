@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import styles from "./HomePage.module.css";
+import NavigationBar from "../../src/navBar";
+
 
 export default function Home() {
   const [roomId, setRoomId] = useState("");
@@ -90,44 +93,68 @@ export default function Home() {
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Room System</h1>
-
-      <button onClick={handleCreate} disabled={!clientId}>
-        Create Room
-      </button>
-
-      <div style={{ marginTop: "1rem" }}>
+    <div className={`${styles['centered-cell']} ${styles['background-image']}`}>
+    <NavigationBar />
+    <div className={styles.homeContainer}>
+      <h1 className={styles.title}>Room System</h1>
+  
+      <div className={styles.buttonWrapper}>
+        <button
+          className={styles.button}
+          onClick={handleCreate}
+          disabled={!clientId}
+        >
+          Create Room
+        </button>
+      </div>
+  
+      <div className={styles.inputGroup}>
         <input
+          className={styles.textInput}
           type="text"
           placeholder="Enter Room ID"
           value={joinInput}
           onChange={(e) => setJoinInput(e.target.value)}
         />
-        <button onClick={handleJoin} disabled={!clientId || !joinInput}>
+        
+        <button
+          className={styles.button}
+          onClick={handleJoin}
+          disabled={!clientId || !joinInput}
+        >
           Join Room
         </button>
       </div>
-
+  
       {showUsernameInput && (
-        <div style={{ marginTop: "1rem" }}>
+        <div className={styles.buttonWrapper}>
+        <div style={{ marginTop: "1.5rem" }}>
           <input
+            className={styles.textInput}
             type="text"
             placeholder="Enter your username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
-          <button onClick={submitUsername} disabled={!username}>
+          <button
+            className={styles.button}
+            onClick={submitUsername}
+            disabled={!username}
+          >
             Submit Username
           </button>
+          </div>
         </div>
       )}
-
+  
       {roomId && !showUsernameInput && (
-        <div style={{ marginTop: "1rem" }}>
+        <div className={styles.buttonWrapper}>
+        <div className={styles.linkBox}>
           <Link href="pb_games/room">Go to Room</Link>
         </div>
+        </div>
       )}
+    </div>
     </div>
   );
 }

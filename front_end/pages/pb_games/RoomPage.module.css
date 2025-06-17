@@ -1,0 +1,78 @@
+.background-image {
+    background-image: url('/images/picolo/green.jpg');
+    background-size: cover;
+    /* Cover the entire container */
+    background-position: center;
+    /* Center the image */
+    background-repeat: no-repeat;
+    /* Do not repeat the background image */
+    height: 100vh;
+    /* 100% of the viewport height */
+    width: 100vw;
+    /* 100% of the viewport width */
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.roomContainer {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.roomHeader {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.messageLog {
+    background: #f5f5f5;
+    padding: 1rem;
+    border-radius: 8px;
+    min-height: 100px;
+    margin-bottom: 1.5rem;
+}
+
+.buttonWrapper {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+
+.button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.button:disabled {
+    background-color: #a5d6a7;
+    cursor: not-allowed;
+}
+
+.questionBox {
+    margin-top: 2rem;
+}
+
+.voteButtons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 1rem 0;
+}
+
+.resultBox {
+    margin-top: 2rem;
+}
+
+.voteCount {
+    list-style: none;
+    padding: 0;
+}

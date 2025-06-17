@@ -24,6 +24,16 @@ self.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
+    "/memes": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/memes.js"
+    ],
+    "/never": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/never.js"
+    ],
     "/pb_games": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
@@ -33,6 +43,21 @@ self.__BUILD_MANIFEST = {
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/pb_games/room.js"
+    ],
+    "/pendu/pendu_one": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/pendu/pendu_one.js"
+    ],
+    "/picolo": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/picolo.js"
+    ],
+    "/trivia": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/trivia.js"
     ]
   },
   "ampFirstPages": []
