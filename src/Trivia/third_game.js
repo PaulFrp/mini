@@ -65,7 +65,7 @@ const Trivia = () => {
         case 17:
           return { question: `Si tu vas 24 900 MILES à l'est du brésil ou arrives-tu ?`, answer: 'Brésil' };
         case 25:
-          return { question: 'A quelle point Paul est intelligent ?', answer: 'Il est plutot con' };
+          return { question: 'A quel point Paul est intelligent ?', answer: 'Il est plutot con' };
         case 33:
           return { question: `Ce pays est connu pour être une soupe avec de la viande, de la tomate etc...`, answer: 'Chilie' };
         

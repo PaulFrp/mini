@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Card from "./cardPicolo.js"
 import styles from "./cardPicolo.module.css"
-import NavigationBar from '../navBar';
+import NavigationBar from '../navBar.js';
 
 import q_hot from "./question_hot.json"; 
 import q_meuf from "./question_meuf.json"
@@ -152,7 +152,7 @@ const Introduction = ({ onStart }) => {
   return (
     
     <div>
-    <NavigationBar/>  
+    <NavigationBar/>
     {!started && (
     
     <div className={`${styles['confetti-background']}`}>
