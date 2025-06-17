@@ -27,7 +27,7 @@ export default function RoomPage() {
   const [votingFinished, setVotingFinished] = useState(false);
   const [winners, setWinners] = useState([]);
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+  const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, '');
 
   useEffect(() => {
     const id = getClientId();
