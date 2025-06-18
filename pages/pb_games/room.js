@@ -178,7 +178,20 @@ export default function RoomPage() {
                   fetch(`${BACKEND_URL}/next_question/${roomId}`, {
                     method: "POST",
                     headers: { "x-client-id": clientId },
-                  });
+                  })
+                    .then((res) => res.json())
+                    .then((data) => {
+                      if (data.status === "voting") {
+                        setQuestion(data.question);
+                        setPlayers(data.players);
+                        setVotesCount({});
+                        setRemaining(data.remaining);
+                        setVotingFinished(false);
+                        setHasVoted(false);
+                      } else if (data.status === "game_over") {
+                        setMessages((msgs) => [...msgs, "Game Over!"]);
+                      }
+                    });
                 }}
                 className={styles.button}
               >
