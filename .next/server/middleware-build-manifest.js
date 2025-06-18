@@ -28,6 +28,11 @@ self.__BUILD_MANIFEST = {
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/pb_games.js"
+    ],
+    "/pb_games/room": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/pb_games/room.js"
     ]
   },
   "ampFirstPages": []
