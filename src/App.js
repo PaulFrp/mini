@@ -19,11 +19,11 @@ const newGames = [
 
 function App() {
   return (
-    <div className={styles['background-image']}>
-      <div className={styles.container}>
+    <>
+      <div className={styles['background-image']}></div>  {/* Background layer */}
+      <div className={styles.container}>  {/* Scrollable content */}
         <NavigationBar />
 
-        {/* Nouveautés Banner */}
         <div className={styles.newBanner}>
           <h2>🆕 Nouveautés</h2>
           <div className={styles.newGamesContainer}>
@@ -35,7 +35,6 @@ function App() {
           </div>
         </div>
 
-        {/* Categories */}
         <div className={styles.cardsContainer}>
           {categories.map((cat, index) => (
             <a key={index} href={cat.link} className={`${styles.card} ${styles[cat.color]}`}>
@@ -44,8 +43,9 @@ function App() {
           ))}
         </div>
       </div>
-    </div>
+    </>
   );
 }
+
 
 export default App;

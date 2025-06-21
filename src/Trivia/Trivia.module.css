@@ -6,8 +6,8 @@
 }
 
 .centered-cell {
-    text-align: center;
-    overflow: auto
+  text-align: center;
+  overflow: auto;
 }
 
 .centered-table {
@@ -15,7 +15,8 @@
   max-width: 900px;
   margin: 40px auto;
   border-collapse: collapse;
-  table-layout: fixed; /* 👈 ensures equal column widths */
+  table-layout: fixed;
+  /* Equal column widths */
 }
 
 .centered-table th {
@@ -34,7 +35,7 @@
 
 .centered-table th,
 .centered-table td {
-  border: 1px solid #5a5a5a; /* light gray border for visible separation */
+  border: 1px solid #5a5a5a;
   text-align: center;
 }
 
@@ -69,4 +70,33 @@
 
 .card-container {
   margin-top: 30px;
+}
+
+/* 📱 Mobile Responsive Styles */
+@media (max-width: 600px) {
+  .background-image {
+    padding: 15px;
+  }
+
+  .centered-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    margin: 20px auto;
+  }
+
+  .centered-table th,
+  .centered-table td {
+    font-size: 0.85rem;
+    padding: 10px;
+  }
+
+  .triviaButton {
+    font-size: 0.95rem;
+    padding: 10px 0;
+  }
+
+  .card-container {
+    margin-top: 20px;
+  }
 }

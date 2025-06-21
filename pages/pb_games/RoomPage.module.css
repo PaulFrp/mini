@@ -1,15 +1,10 @@
 .background-image {
     background-image: url('/images/picolo/green.jpg');
     background-size: cover;
-    /* Cover the entire container */
     background-position: center;
-    /* Center the image */
     background-repeat: no-repeat;
-    /* Do not repeat the background image */
     height: 100vh;
-    /* 100% of the viewport height */
     width: 100vw;
-    /* 100% of the viewport width */
     position: fixed;
     top: 0;
     left: 0;
@@ -40,6 +35,8 @@
     display: flex;
     justify-content: center;
     margin: 1.5rem 0;
+    flex-wrap: wrap;
+    gap: 0.75rem;
 }
 
 .button {
@@ -50,6 +47,9 @@
     border: none;
     border-radius: 8px;
     cursor: pointer;
+    width: auto;
+    min-width: 120px;
+    text-align: center;
 }
 
 .button:disabled {
@@ -66,6 +66,7 @@
     flex-wrap: wrap;
     gap: 10px;
     margin: 1rem 0;
+    justify-content: center;
 }
 
 .resultBox {
@@ -75,4 +76,44 @@
 .voteCount {
     list-style: none;
     padding: 0;
+}
+
+
+/* 📱 Mobile Responsive Enhancements */
+@media (max-width: 600px) {
+    .roomContainer {
+        padding: 1rem;
+    }
+
+    .roomHeader {
+        font-size: 1.5rem;
+    }
+
+    .messageLog {
+        padding: 0.75rem;
+        font-size: 0.95rem;
+    }
+
+    .button {
+        font-size: 0.95rem;
+        padding: 0.6rem 1rem;
+        width: 100%;
+        max-width: 240px;
+    }
+
+    .buttonWrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .voteButtons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .questionBox,
+    .resultBox {
+        font-size: 1rem;
+        text-align: center;
+    }
 }

@@ -1,15 +1,10 @@
 .background-image {
     background-image: url('/images/picolo/green.jpg');
     background-size: cover;
-    /* Cover the entire container */
     background-position: center;
-    /* Center the image */
     background-repeat: no-repeat;
-    /* Do not repeat the background image */
     height: 100vh;
-    /* 100% of the viewport height */
     width: 100vw;
-    /* 100% of the viewport width */
     position: fixed;
     top: 0;
     left: 0;
@@ -25,6 +20,7 @@
     background: linear-gradient(to bottom right, #f5f7fa, #c3cfe2);
     padding: 2rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
 }
 
 .title {
@@ -32,13 +28,14 @@
     color: #343a40;
     margin-bottom: 2rem;
     text-shadow: 1px 1px 2px #ccc;
-    text-align: center;
 }
 
 .buttonWrapper {
     display: flex;
     justify-content: center;
     margin: 20px 0;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .button {
@@ -100,4 +97,38 @@
 
 .linkBox a:hover {
     color: #0056b3;
+}
+
+/* 📱 Mobile Adjustments */
+@media (max-width: 600px) {
+    .title {
+        font-size: 2rem;
+    }
+
+    .button {
+        font-size: 0.95rem;
+        padding: 10px 20px;
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .textInput {
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .buttonWrapper,
+    .inputGroup {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .home-container {
+        padding: 1.5rem 1rem;
+    }
+
+    .linkBox {
+        font-size: 1rem;
+    }
 }

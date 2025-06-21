@@ -130,15 +130,14 @@ export default function Home() {
       </div>
   
       {showUsernameInput && (
-        <div className={styles.buttonWrapper}>
-        <div style={{ marginTop: "1.5rem" }}>
+        <div className={styles.inputGroup} style={{ marginTop: "1.5rem" }}>
           <input
             className={styles.textInput}
             type="text"
             placeholder="Enter your username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-          />
+            />
           <button
             className={styles.button}
             onClick={submitUsername}
@@ -146,7 +145,6 @@ export default function Home() {
           >
             Submit Username
           </button>
-          </div>
         </div>
       )}
   

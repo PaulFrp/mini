@@ -9,11 +9,6 @@ self.__BUILD_MANIFEST = {
   "lowPriorityFiles": [],
   "rootMainFiles": [],
   "pages": {
-    "/": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/index.js"
-    ],
     "/_app": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
@@ -29,10 +24,10 @@ self.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/pb_games.js"
     ],
-    "/pb_games/room": [
+    "/trivia/game1": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/pb_games/room.js"
+      "static/chunks/pages/trivia/game1.js"
     ]
   },
   "ampFirstPages": []

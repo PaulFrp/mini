@@ -91,7 +91,7 @@ const Trivia = () => {
         case 19:
           return { question: `e^(-ln(2)) `, answer: '1/2' };
         case 27:
-          return { question: '172 * 13', answer: '2236' };  
+          return { question: 'Tu es dans une voiture qui va a 80,5km/h tu croises une voiture allant dans la même vitesse dans le sens opposé, à quelle vitesse semble la voiture aller ?', answer: '100mph' };  
         case 35:
           return { question: `Si ta mère ne te voulait pas et que ton père t'apprécie quel est le résultat ?`, answer: 'Sasha' };
         
@@ -120,7 +120,7 @@ const Trivia = () => {
           return { question: `Quel est la première planète que les astronomes ont découvert ?`, answer: 'La terre' };
           // Add picture
         case 37:
-          return { question: 'C est quoi ?', answer: 'Saha equation montre le changement d ionisation des éléments en fonction de la température et de la pression d une étoile' };  
+          return { question: 'Quel est le vrai nom de la lune ?', answer: 'La Lune' };  
         
 
            //5ème columne (jeux vidéo)
