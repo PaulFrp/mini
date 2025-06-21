@@ -2,7 +2,8 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/trivia/game1": "pages/trivia/game1.js",
+  "/": "pages/index.js",
+  "/trivia": "pages/trivia.js",
   "/memes": "pages/memes.js",
-  "/pb_games": "pages/pb_games.js"
+  "/trivia/game3": "pages/trivia/game3.js"
 }
