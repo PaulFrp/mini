@@ -120,18 +120,27 @@ export default function RoomPage() {
   };
 
   return (
-    <div className={`${styles['centered-cell']} ${styles['background-image']}`}>
+    <div>
+    <div className={styles['background-image']} />
+    <div className={styles['centered-cell']}/>
     <NavigationBar />
     <div className={styles.roomContainer}>
-      <h1 className={styles.roomHeader}>Room</h1>
+      
 
-      <div className={styles.messageLog}>
+      
+      {!gameStarted && (
+        <div>
+        <h1 className={styles.roomHeader}>Room</h1>
+        <div className={styles.messageLog}>
         {messages.length === 0 ? (
           <p>No messages yet</p>
         ) : (
           messages.map((msg, i) => <p key={i}>{msg}</p>)
         )}
-      </div>
+        </div>
+        </div>
+        )}
+      
 
       {!gameStarted && isCreator && (
         <div className={styles.buttonWrapper}>
@@ -165,13 +174,23 @@ export default function RoomPage() {
 
       {votingFinished && (
         <div className={styles.resultBox}>
-          <h2>Voting finished!</h2>
-          <p>Winner(s): {winners.join(", ")}</p>
+          <h2 className={styles.resultTitle}>🏆 Voting Finished!</h2>
+
+          <p className={styles.winnerText}>
+            🎉 Winner{winners.length > 1 ? "s" : ""}:{" "}
+            <strong>{winners.join(", ")}</strong> 🎉
+          </p>
+
           <ul className={styles.voteCount}>
             {Object.entries(votesCount).map(([playerId, count]) => (
-              <li key={playerId}>
-              {console.log(playerMap[String(playerId)])}
-              {playerMap?.[playerId] ?? `Player ${playerId}`}: {count} vote{count !== 1 ? "s" : ""}
+              <li key={playerId} className={styles.voteCountItem}>
+                <span role="img" aria-label="user" className={styles.userEmoji}>🧑‍🤝‍🧑</span>
+                <span className={styles.playerName}>
+                  {playerMap?.[playerId] ?? `Player ${playerId}`}
+                </span>
+                <span className={styles.voteNumber}>
+                  {count} vote{count !== 1 ? "s" : ""}
+                </span>
               </li>
             ))}
           </ul>
@@ -200,7 +219,7 @@ export default function RoomPage() {
                 }}
                 className={styles.button}
               >
-                Next Question
+                ➡️ Next Question
               </button>
             </div>
           )}

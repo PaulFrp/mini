@@ -96,7 +96,9 @@ export default function Home() {
   };
 
   return (
-    <div className={`${styles['centered-cell']} ${styles['background-image']}`}>
+    <div>
+        <div className={styles['background-image']} />
+        <div className={styles['centered-cell']}/>
     <NavigationBar />
     <div className={styles.homeContainer}>
       <h1 className={styles.title}>Room System</h1>
