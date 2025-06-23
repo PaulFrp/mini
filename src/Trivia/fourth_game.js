@@ -10,9 +10,6 @@ const Trivia = () => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [clickedButtons, setClickedButtons] = useState([]);
   const [isFlipped, setIsFlipped] = useState(false);
-  const[question40, setQuestion40] = useState(false)
-  const[question9, setQuestion9] = useState(false)
-  const[question37, setQuestion37] = useState(false)
 
   //Get the card number, add the number that was clicked to the array of clicked buttons and set the card to the question side
   const showCard = (number) => {
@@ -30,28 +27,6 @@ const Trivia = () => {
     }
   };
 
-  //Handle pictures display depending on the question need (executes every time a new card is selected)
-  useEffect(() => {
-    if (selectedCard === 9) {
-      setQuestion9(true)
-      setQuestion37(false)
-      setQuestion40(false)
-    }else if (selectedCard === 37) {
-        setQuestion37(true)
-        setQuestion9(false)
-        setQuestion40(false)
-    }else if (selectedCard === 40) {
-        setQuestion40(true)
-        setQuestion9(false)
-        setQuestion37(false)
-    }else{
-        setQuestion9(false)
-        setQuestion37(false)
-        setQuestion40(false)
-    }
-  }, [selectedCard]);
-
-
   //Questions and answers for the trivia 
   const getCardTexts = (number) => {
     console.log(number);
@@ -60,96 +35,116 @@ const Trivia = () => {
         //1ère colomne  Jeux videos 
         case 1:
           return { question: 'Dans ce jeux le joueur est un cercle jaune qui avale des cercles blancs et est chassé par des phantomes', answer: "Miss Pacman" };
-        case 9: 
-          return { question: `Ce MOBA est connu pour être un anti antidépressant`, answer: 'Leauge of Legends' };
-        case 17:
+        case 7: 
+          return { question: `Ce jeux est connu pour être un anti antidépressant`, answer: 'League of Legends' };
+        case 13:
           return { question: `Réarranges ces lettres pour faire un titre de jeux video "GSOC"`, answer: 'Counter Strike Global Offensive' };
+        case 19:
+          return { question: 'C est un jeux connu pour avoir des pnjs chiants et des quetes répétitives et pas fun mais des graphismes incroyables', answer: 'La vie' };
         case 25:
-          return { question: 'Missing', answer: 'Missing' };
-        case 33:
-          return { question: `Qui est le personnage principal de Mario Bros 2`, answer: 'Mario' };
+          return { question: `Quelle est la série de jeux préférée de Paul`, answer: 'Monster Hunter' };
+        case 31:
+          return { question: `Qu est ce qu un easter egg ?`, answer: 'C est un oeuf en chocolat' };
+        case 37:
+          return { question: `Is the cake a lie ?`, answer: 'Oui.' };
+        case 43:
+          return { question: `Quel a été la plus grande déception dans minecraft ?`, answer: 'Le portail de l aether' };
         
         
         //2ème columne (Astronomy)
         case 2:
-          return { question: 'Quel est le vrai nom de la Lune', answer: 'la Lune' };
-        case 10:
+          return { question: 'Est ce que mercure est en rétrograde ?', answer: 'Faut vérifier tout le monde un shoot si oui' };
+        case 8:
           return { question: `Quel est mon signe astrologique ?`, answer: 'Bélier' };
-        case 18:
-          return { question: 'Sur une échelle de 1 à 10 quelle taille fait l univers', answer: "7" };
+        case 14:
+          return { question: 'Qu est ce que le Big Bang ?', answer: "La bande de Gaza" };
+        case 20:
+          return { question: `Comment prouver que les aliens existent ?`, answer: 'Il faut leur demander' };
         case 26:
-          return { question: `Tu es dans une voiture qui va a 80,5km/h tu croises une voiture allant dans la même vitesse dans le sens opposé, à quelle vitesse semble la voiture aller ?`, answer: '100mph' };
-        case 34:
-          return { question: "Explique l'utilité d'une simulation de monte carlo sur la détermination du prix d'une option ?", answer: 'Simule le prix de l underlying pour tous les chemins possible et calcule les bénéfices de l option dans chaque situation.' };  
+          return { question: "Quel est la plus petite montagne sur terre ? ", answer: 'Le calecon de Paul quand il se réveille' };
+        case 32:
+          return { question: `Qu est ce que le gang bang ?`, answer: 'L explosion qui a crée l univers... Wait' };
+        case 38:
+          return { question: `Combien de lune a la Terre ?`, answer: '7 si vous ouvrez vos chakras' };
+        case 44:
+          return { question: `Quel est un équivalent du mot planète ?`, answer: 'un aplati pas flou (un plat nette)' };  
          
         
-        //3ème columne (Comouter Science)
+        //3ème columne (Computer Science)
         case 3:
           return { question: `if x=23 and x=x+7 quelle est la valeur de x`, answer: '30' };
-        case 11:
+        case 9:
           return { question: "Est ce que les ordinateurs sont de bons nageurs ?", answer: 'Non' };  
-        case 19:
+        case 15:
           return { question: `Que fait cette ligne de code: //function(element){get.id(element)} `, answer: 'Rien c est un commentaire' };
-        case 27:
+        case 21:
           return { question: 'Qu est ce que ca dit: 01010011 01110101 01100011 01100101 00100000 01101101 01100001 00100000 01100010 01101001 01110100 01100101 (vous pouvez utiliser internet)', answer: 'Suce ma bite' };  
-        case 35:
-          return { question: `Si ta mère ne te voulait pas et que ton père t'apprécie quel est le résultat ?`, answer: 'Sasha' };
+        case 27:
+          return { question: `Donnez moi la formule pour calculer Gradient Descent with Momentum ?`, answer: 'Jsp pas non plus faut demander a l autre enculer de X' };
+        case 33:
+          return { question: `Quel est le meilleur moyen de communiquer avec un ordinateur ?`, answer: 'La schizophrénie surement..' };
+        case 39:
+          return { question: `Comment Paul décrit la programmation à des gens qui ni connaissent rien ?`, answer: 'Je demande à un ordinateur de faire qql chose et quand il le fait pas je pleurs' };
+        case 45:
+          return { question: `Est ce que Paul sait programmer ?`, answer: 'J vous emmerde tous, mais vous avez raison.' };
         
 
         //4ème columne (Gambling)
         case 4:
           return { question: 'Distribues 4 gorgées', answer: 'vraiment' };   
-        case 12:
+        case 10:
           return { question: `Distribues 6 grogées`, answer: 'Sérieusement' };
-        case 20:
+        case 16:
           return { question: 'Distribues 8 gorgées', answer: 'Oui' };  
-        case 28:
+        case 22:
           return { question: `Distribues 10 gorgées`, answer: 'Evidemment' };
-        case 36:
+        case 28:
           return { question: 'Prends 4 gorgées', answer: 'Oui' };  
-        case 40:
+        case 34:
            return { question: 'Prends 6 gorgées', answer: 'Oui' };  
         case 40:
           return { question: 'Prends 8 gorgées', answer: 'Oui' };  
-        case 40:
+        case 46:
           return { question: 'Distribues 1 shot', answer: 'Oui' }; 
        
 
         //5ème columne (Health)
         case 5:
-          return { question: `Les docteurs recommendent de le faire toutes les 3 secondes ?`, answer: 'respirer' };
-        case 13:
+          return { question: `Les docteurs recommendent de le faire très souvent ?`, answer: 'respirer' };
+        case 11:
           return { question: `Est ce que l'eau est bien pour enlever le sang d un tapis ?`, answer: 'Bof' };
-        case 21:
-          return { question: 'Paul se bat avec 3 docteurs combien de pommes doit il manger pour gagner ?', answer: '3' };  
-        case 29:
+        case 17:
+          return { question: 'Paul se bat avec 3 docteurs combien de pommes doit il manger pour gagner ?', answer: 'Peu importe c est 3 contre 1 il perd' };  
+        case 23:
           return { question: `Une personne se retrouve avec la tête détaché mais ne meurt pas, pourquoi ?`, answer: 'Il était déjà mort' };
           // Add picture
-        case 37:
-          return { question: 'Missing', answer: 'Missing' };  
-        case 37:
+        case 29:
+          return { question: 'Que faire si une personne est inconsciente sur un pouf ?', answer: 'La trainer dans la chambre de Sasha' };  
+        case 35:
           return { question: 'Quels sont les 3 macronutriments', answer: 'glucides, lipides, protéines' };  
-        case 37:
-          return { question: 'Que fais tu quand tu es appelé pour testifier de ta participation dans un meurte', answer: 'Ne dis rien et appelles un avocat' }; 
+        case 41:
+          return { question: 'Que fais tu quand tu es appelé pour testifier de ta participation dans un meurte', answer: 'Tu plaides coupable. Je vous connais aucune confiance.' }; 
+        case 47:
+          return { question: 'Quel est la manière la plus conne de se faire une déchirure musculaire ?', answer: 'éternuer' }; 
         
 
-           //5ème columne (Shrek)
+           //5ème columne (Shenanigans)
         case 6:
-            return { question: `Est ce que tu penses que je suis schizophrène ?`, answer: 'Je ne te parlais pas prends 3 gorgées.' };
-          case 14:
-            return { question: `Ce filme est une suite de shrek`, answer: 'Shrek 3' };
-          case 22:
-            return { question: 'Est ce que le raisin est un fruit', answer: 'Non' };  
-          case 30:
-            return { question: `Qui est le personnage principal du premier jeux Donkey Kong`, answer: 'Donkey Kong' };
-          case 38:
-            return { question: 'Cette personne est mauvaise au lit', answer: 'Paul' };  
-        case 38:
-            return { question: 'Pierre, papier, ciseaux', answer: 'Je choisis ciseaux' };  
-        case 38:
-            return { question: 'Quel est l animé préférée de Paul', answer: 'That time I got reincarnated as a slime' };
-        case 38:
-            return { question: 'Pourquoi les planetes du cercle extérieur sont toutes gazeuse ?', answer: 'Temperature du soleil trop chaude pour avoir des planetes gazeuse proches' };
+          return { question: `Est ce que tu penses que je suis schizophrène ?`, answer: 'Je ne te parlais pas prends 3 gorgées.' };
+        case 12:
+          return { question: `Ce filme est une suite de shrek`, answer: 'Shrek 3' };
+        case 18:
+          return { question: 'Est ce que la bite est un fruit', answer: 'Non' };  
+        case 24:
+          return { question: `Quel est le QI le plus faible jamais enregistré pendant un test ?`, answer: 'On ne peut pas savoir Sasha n en a pas passé' };
+        case 30:
+          return { question: 'Cette personne est mauvaise au lit', answer: 'Paul' };  
+        case 36:
+            return { question: 'Qu est ce que l agachienne ?', answer: 'Une technique de chasse sous marine qui mélange l agachon et l indienne' };  
+        case 42:
+            return { question: 'Quel est le Fursona de Paul ?', answer: 'Le bernacle (if you know you know )' };
+        case 48:
+            return { question: 'Qui est la meilleur waifu ? Nami, Hinata, Yor, Yumeko, Robin ?', answer: 'Personne ne battera jamais Nami' };
           
         
 
@@ -166,25 +161,25 @@ const Trivia = () => {
     <div className={`${styles['centered-cell']} ${stylesCard['background-image']}`}>
     <NavigationBar/>
       <h1 style={{ textAlign: 'center', marginTop: '20px', fontSize: '2rem' }}>
-        🎓 Welcome to Trivia 2
+        🎓 Welcome to Trivia 4
       </h1>
       <table className={styles['centered-table']}>
       <thead>
         <tr>
-          <th className={styles["space-columns"]}>🗺️ Jeux videos</th>
-          <th className={styles["space-columns"]}>💰 Astronomy</th>
+          <th className={styles["space-columns"]}>🎮 Jeux videos</th>
+          <th className={styles["space-columns"]}>🌕 Astronomy</th>
           <th className={styles["space-columns"]}>🧮 Computer Science</th>
-          <th className={styles["space-columns"]}>🧲 Gambling</th>
-          <th className={styles["space-columns"]}>🚀 Health</th>
-          <th className={styles["space-columns"]}>🎮 Shrek</th>
+          <th className={styles["space-columns"]}>🎰 Gambling</th>
+          <th className={styles["space-columns"]}>👨‍⚕️ Health</th>
+          <th className={styles["space-columns"]}>❓ Shenanigans</th>
         </tr>
       </thead>
         <tbody>
         
-          {Array.from({ length: 5 }, (_, rowIndex) => (
+          {Array.from({ length: 8 }, (_, rowIndex) => (
             <tr key={rowIndex}>
-            {Array.from({ length: 8 }, (_, colIndex) => {
-              const buttonNumber = (colIndex + rowIndex * 8) + 1;
+            {Array.from({ length: 6 }, (_, colIndex) => {
+              const buttonNumber = (colIndex + rowIndex * 6) + 1;
               const isButtonClicked = clickedButtons.includes(buttonNumber);
 
               return (
@@ -193,7 +188,7 @@ const Trivia = () => {
                     onClick={() => showCard(buttonNumber)}
                     className={`${styles.triviaButton} ${isButtonClicked ? styles['red-button'] : ''}`}
                   >
-                  {rowIndex}
+                  {rowIndex + 1}
                   </button>
                   </td>
                    );
@@ -210,12 +205,6 @@ const Trivia = () => {
         </div>
       )}
     </div>
-    <div className={stylesCard['scroll']}>
-      {question40 && <img src='/images/trivia/code.png'></img>}
-      {question37 && <img src='/images/trivia/equationsaha.png'></img>}
-      {question9 && <img src='/images/trivia/corée.png'></img>}
-    </div>
-      
     </div>
   );
 };

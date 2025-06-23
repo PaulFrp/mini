@@ -3,7 +3,7 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/": "pages/index.js",
+  "/trivia/game3": "pages/trivia/game3.js",
   "/trivia": "pages/trivia.js",
-  "/memes": "pages/memes.js",
-  "/trivia/game3": "pages/trivia/game3.js"
+  "/trivia/game4": "pages/trivia/game4.js"
 }

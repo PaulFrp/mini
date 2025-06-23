@@ -12,8 +12,9 @@ const categories = [
 ];
 
 const newGames = [
+  { name: "🔍 Trivia 3", link: "/trivia/game3" },
+  { name: "🔍 Trivia 4", link: "/trivia/game4" },
   { name: "😂 Memes culture", link: "/memes",},
-  { name: "🔍 Trivia 2", link: "/trivia/game3" },
   { name: "🤔 Jeux des problemes", link: "/pb_games" }
 ];
 

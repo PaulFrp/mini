@@ -151,7 +151,7 @@ const Trivia = () => {
                     onClick={() => showCard(buttonNumber)}
                     className={`${styles.triviaButton} ${isButtonClicked ? styles['red-button'] : ''}`}
                   >
-                  {rowIndex}
+                  {rowIndex + 1}
                   </button>
                   </td>
                    );

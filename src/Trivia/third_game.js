@@ -10,9 +10,6 @@ const Trivia = () => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [clickedButtons, setClickedButtons] = useState([]);
   const [isFlipped, setIsFlipped] = useState(false);
-  const[question40, setQuestion40] = useState(false)
-  const[question9, setQuestion9] = useState(false)
-  const[question37, setQuestion37] = useState(false)
 
   //Get the card number, add the number that was clicked to the array of clicked buttons and set the card to the question side
   const showCard = (number) => {
@@ -30,26 +27,7 @@ const Trivia = () => {
     }
   };
 
-  //Handle pictures display depending on the question need (executes every time a new card is selected)
-  useEffect(() => {
-    if (selectedCard === 9) {
-      setQuestion9(true)
-      setQuestion37(false)
-      setQuestion40(false)
-    }else if (selectedCard === 37) {
-        setQuestion37(true)
-        setQuestion9(false)
-        setQuestion40(false)
-    }else if (selectedCard === 40) {
-        setQuestion40(true)
-        setQuestion9(false)
-        setQuestion37(false)
-    }else{
-        setQuestion9(false)
-        setQuestion37(false)
-        setQuestion40(false)
-    }
-  }, [selectedCard]);
+
 
 
   //Questions and answers for the trivia 
@@ -59,28 +37,28 @@ const Trivia = () => {
         
         //1ère colomne  géographie 
         case 1:
-          return { question: 'Donne le nom de 4 régions francaise', answer: "Le groupe jugera" };
+          return { question: 'Est ce que Lyon est considéré comme le Sud ?', answer: "Oui" };
         case 9: 
-          return { question: `Quel est ce pays ?`, answer: 'Corée du Nord' };
+          return { question: `Mont Saint michel, Normandie ou Bretagne ?`, answer: 'Battez-vous, mais en vrai Normandie' };
         case 17:
           return { question: `Si tu vas 24 900 MILES à l'est du brésil ou arrives-tu ?`, answer: 'Brésil' };
         case 25:
-          return { question: 'A quel point Paul est intelligent ?', answer: 'Il est plutot con' };
+          return { question: 'Pourquoi il y a des marées en Normandie mais pas méditerranée ?', answer: 'L énorme daronne de Sash ne se baigne pas en méditerranée donc elle ne fait pas monter le niveau de l eau' };
         case 33:
           return { question: `Ce pays est connu pour être une soupe avec de la viande, de la tomate etc...`, answer: 'Chilie' };
         
         
         //2ème columne (Economie)
         case 2:
-          return { question: 'Choisi un joueur qui prendra autant de gorgées que de stratégies d investissement que tu peux citer', answer: '...' };
+          return { question: 'Est ce que le porteufeuille de Paul a gagné ou perdu ajd ? Faites des paris', answer: 'Ceux qui ont raison distribuent une gorgée chacun' };
         case 10:
-          return { question: `Tout le monde joue, comme à la roulette (rouge ou noir). Pariez un nombre de gorgées`, answer: 'Rouge (si bonne réponse distribue les gorgées parié sinon bois les' };
+          return { question: `Tout le monde joue, comme à la roulette (rouge ou noir). Pariez un nombre de gorgées`, answer: 'Rouge (si bonne réponse distribue les gorgées parié si noir bois les' };
         case 18:
-          return { question: 'Venez on imprime plus d argent comme ca y aura plus de pauvreté ?', answer: "Inflation" };
+          return { question: 'Quels pourcentage de la gen Z cherche des conseils financiers sur tik tok ?', answer: "34%... On est FOUTU" };
         case 26:
           return { question: `Qu'est ce qu'un ETF`, answer: 'Un NFT à une lettre près' };
         case 34:
-          return { question: "Explique l'utilité d'une simulation de monte carlo sur la détermination du prix d'une option ?", answer: 'Simule le prix de l underlying pour tous les chemins possible et calcule les bénéfices de l option dans chaque situation.' };  
+          return { question: "Est ce que le pizza index a prévu l opération midnight hammer ?", answer: 'Oui, comme d habitude' };  
          
         
         //3ème columne (Math)
@@ -102,11 +80,11 @@ const Trivia = () => {
         case 12:
           return { question: `Combien de temps prend la lumière à voyager une année lumière ?`, answer: '1 an' };
         case 20:
-          return { question: 'Qu est ce que la vitesse maximal de l univers ?', answer: 'lumière' };  
+          return { question: 'A quel point est ce que Sasha est attirant physiquement', answer: 'Le mec est obèse il a une attraction très forte ' };  
         case 28:
           return { question: `Combien de protons y a-t-il dans le carbon ?`, answer: '6' };
         case 36:
-          return { question: 'Pourquoi un cercle fait 360 degrès ?', answer: 'Ca vient à peu près du nombre de jours que la terre prend à faire une rotation autour du soleil' };  
+          return { question: 'Quel est la taille a partir de laquelle un humain est considéré comme nain ?', answer: '0.9999 Maïa' };  
        
 
         //5ème columne (Espace)
@@ -131,8 +109,7 @@ const Trivia = () => {
           case 22:
             return { question: 'Quel est la réponse à la question Jeux vidéo 2 ?', answer: 'haut, haut, bas, bas, gauche, droite, gauche, droite, B, A' };  
           case 30:
-            return { question: `On fait une game de tic tac toe`, answer: 'Perdant prend 2 grogées' };
-            //Missing this one
+            return { question: `Quel est la signification de word.exe ?`, answer: 'Scandale de triche le plus connu de CS' };
           case 38:
             return { question: 'De quelle livre les auteurs de Minecraft se sont inspiré ?', answer: 'Mein Kampf' };  
           
@@ -145,7 +122,7 @@ const Trivia = () => {
           case 23:
             return { question: 'Si le mont everest fait la taille des chiffres de ta carte de crédit et que la tour eiffel fait la taille des 3 chiffres de derrière quelle taille font ils respectivement ?', answer: 'Si t as répondu t es sacrément con' };  
           case 31:
-            return { question: `Quelle est le plus gros cailloux sur terre ?`, answer: 'La terre' };
+            return { question: `A quel point Paul est intelligent ?`, answer: 'Il est plutot con...' };
           case 39:
             return { question: 'La réponse à cette question est A ( A.)B B.)B C.)F D.)D E.)C F.)A )', answer: 'E.)C' };  
          
@@ -160,7 +137,7 @@ const Trivia = () => {
           case 32:
             return { question: `let x = 50 if(x=10){console.log("Nique ta mère")} else {x-5}`, answer: 'manque un signe =' };
           case 40:
-            return { question: 'Que fait ce code ?', answer: 'Une racine carrée plus vite' };  
+            return { question: 'Qu est ce qu un 1.58 bit pour un LLM ?', answer: 'Un bit qui prend -1,0,1 donc comme la daronne de cléa (Non Binaire)' };  
         
         
 
@@ -177,7 +154,7 @@ const Trivia = () => {
     <div className={`${styles['centered-cell']} ${stylesCard['background-image']}`}>
     <NavigationBar/>
       <h1 style={{ textAlign: 'center', marginTop: '20px', fontSize: '2rem' }}>
-        🎓 Welcome to Trivia 2
+        🎓 Welcome to Trivia 3
       </h1>
       <table className={styles['centered-table']}>
       <thead>
@@ -206,7 +183,7 @@ const Trivia = () => {
                     onClick={() => showCard(buttonNumber)}
                     className={`${styles.triviaButton} ${isButtonClicked ? styles['red-button'] : ''}`}
                   >
-                  {rowIndex}
+                  {rowIndex + 1}
                   </button>
                   </td>
                    );
@@ -222,11 +199,6 @@ const Trivia = () => {
           <Card question={question} answer={answer} isFlipped={isFlipped} handleCardClick={handleCardClick} />
         </div>
       )}
-    </div>
-    <div className={stylesCard['scroll']}>
-      {question40 && <img src='/images/trivia/code.png'></img>}
-      {question37 && <img src='/images/trivia/equationsaha.png'></img>}
-      {question9 && <img src='/images/trivia/corée.png'></img>}
     </div>
       
     </div>
