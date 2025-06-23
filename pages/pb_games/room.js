@@ -14,6 +14,7 @@ function getClientId() {
 export default function RoomPage() {
   const [messages, setMessages] = useState([]);
   const [roomId, setRoomId] = useState(null);
+  const [playerMap, setPlayerMap] = useState(null);
   const [isCreator, setIsCreator] = useState(false);
   const [clientId, setClientId] = useState(null);
   const [gameStarted, setGameStarted] = useState(false);
@@ -41,9 +42,11 @@ export default function RoomPage() {
     })
       .then((res) => res.json())
       .then((data) => {
+        console.log("Room messages response:", data);
         if (data.messages) {
           setMessages(data.messages);
           setRoomId(data.room_id);
+          setPlayerMap(data.player_map)
           setIsCreator(data.is_creator);
         } else {
           setMessages(["You are not in a room or session expired."]);
@@ -52,6 +55,7 @@ export default function RoomPage() {
   }, []);
 
   useEffect(() => {
+    console.log("playerMap:", playerMap);
     if (gameStarted && !votingFinished) {
       setHasVoted(false);
     }
@@ -164,9 +168,10 @@ export default function RoomPage() {
           <h2>Voting finished!</h2>
           <p>Winner(s): {winners.join(", ")}</p>
           <ul className={styles.voteCount}>
-            {Object.entries(votesCount).map(([player, count]) => (
-              <li key={player}>
-                {player}: {count} vote{count !== 1 ? "s" : ""}
+            {Object.entries(votesCount).map(([playerId, count]) => (
+              <li key={playerId}>
+              {console.log(playerMap[String(playerId)])}
+              {playerMap?.[playerId] ?? `Player ${playerId}`}: {count} vote{count !== 1 ? "s" : ""}
               </li>
             ))}
           </ul>

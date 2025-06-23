@@ -24,20 +24,15 @@ self.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/trivia": [
+    "/pb_games": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/trivia.js"
+      "static/chunks/pages/pb_games.js"
     ],
-    "/trivia/game3": [
+    "/pb_games/room": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/trivia/game3.js"
-    ],
-    "/trivia/game4": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/trivia/game4.js"
+      "static/chunks/pages/pb_games/room.js"
     ]
   },
   "ampFirstPages": []
