@@ -4,11 +4,11 @@ import styles from "./App.module.css";
 
 const categories = [
   { name: "🧠 Trivia", link: "/trivia", color: "blue" },
-  { name: "🍻 Je n'ai jamais", link: "/never", color: "orange" },
   { name: "🎉 Picolo", link: "/picolo", color: "pink" },
-  { name: "🪢 Pendu", link: "/pendu/pendu_one", color: "red" },
   { name: "😂 Memes culture", link: "/memes", color: "indigo" },
   { name: "🤔 Jeux des problemes", link: "/pb_games", color: "green" },
+  { name: "🍻 Je n'ai jamais", link: "/never", color: "orange" },
+  { name: "🪢 Pendu", link: "/pendu/pendu_one", color: "red" },
 ];
 
 const newGames = [

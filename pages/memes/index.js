@@ -1,4 +1,4 @@
-import App from '../../src/Memes/index.js';
+import App from '../../src/Memes/home.js';
 
 const Memes = () => {
   return <App />;

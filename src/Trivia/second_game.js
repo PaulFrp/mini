@@ -67,47 +67,47 @@ const Trivia = () => {
         case 8:
           return { question: "Tu as un date ce soir, qu est ce que tu fais ?", answer: 'Tu bois, personne ne veut de toi c était ton imagination' };  
         case 13:
-          return { question: `Qulle serait la première phrase Paul en arrivant sur la Lune ? `, answer: 'Y a pas de bar j me casse' };
+          return { question: `Quelle serait la première phrase Paul en arrivant sur la Lune ? `, answer: 'Y a pas de bar j me casse' };
         case 18:
-          return { question: 'Quoicou -?', answer: 'Baka' };  
+          return { question: 'Missing', answer: 'Missing' };  
         case 23:
-          return { question: `Enzo je coupe la vidéo`, answer: 'J t encule' };
+          return { question: `Missing`, answer: 'Missing' };
         case 28:
-          return { question: 'Tu crois que c est du respect ? ', answer: 'Tu crois que c est du respect mon garcon ? ' }; 
+          return { question: 'Missing', answer: 'Missing' }; 
         case 33:
           return { question: `Quel est le nom du dragon de hagrid dans harry potter ?`, answer: 'Norbert' };
 
-        //4ème columne (meme culture)
+        //4ème columne (Alcool)
         case 4:
-          return { question: '8 morts 6 blessés ?', answer: 'Je pète ma bière, MA "LUBELLULE"' };   
+          return { question: 'Missing', answer: 'Missing' };   
         case 9:
-          return { question: `Grigny la grande borne -?`, answer: 'Une bite sur l épaule (si toute la chanson distribue 2 shoots)' };
+          return { question: `Missing`, answer: 'Missing' };
         case 14:
-          return { question: 'Tu as mis le ', answer: 'Kimonon' };  
+          return { question: 'Missing', answer: 'Missing' };  
         case 19:
-          return { question: `La rue la vrai que de la fumée ya ya`, answer: 'Tu vois c est pour ca t as pas de meuf ' };
+          return { question: `Missing`, answer: 'Missing' };
         case 24:
-          return { question: 'Moi j adore ca le jus d orange', answer: 'C est bien éléonore on est content' };  
+          return { question: 'Missing', answer: 'Missing' };  
         case 29:
-          return { question: `Bébou est que tu m'aimes ? Est ce que tu me ? `, answer: "Gnoni" };
+          return { question: `Missing`, answer: "Missing" };
         case 34:
-          return { question: 'Il est lent ce', answer: 'Lait' }; 
+          return { question: 'Missing', answer: 'Missing' }; 
 
         //5ème columne (compléter)
         case 5:
-          return { question: `Nig-`, answer: 'Nigeria' };
+          return { question: `Missing`, answer: 'Missing' };
         case 10:
-          return { question: `je te ba- quand tu veux`, answer: 'je te bats quand tu veux' };
+          return { question: `Missing`, answer: 'Missing' };
         case 15:
-          return { question: 'va te faire foutre sale clo-', answer: 'clo- porte' };  
+          return { question: 'Missing', answer: 'Missing' };  
         case 20:
-          return { question: `une conn-`, answer: 'une conn- ection ' };
+          return { question: `Missing`, answer: 'Missing' };
         case 25:
-          return { question: 'J ai une trèèèèès grande bi-', answer: 'bi- bliothèque' };  
+          return { question: 'Missing', answer: 'Missing' };  
         case 30:
-          return { question: "Je prends ma bi- pour rentrer dans ton a-", answer: "Je prends ma bi-cyclette pour rentrer dans ton a-ppartement" };
+          return { question: "Missing", answer: "Missing" };
         case 35:
-          return { question: "Grosse me-", answer: 'Grosse me- rde' };
+          return { question: "Missing", answer: 'Missing' };
         
 
         // Add more cases as needed
