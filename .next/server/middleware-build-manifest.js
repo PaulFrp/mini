@@ -19,15 +19,15 @@ self.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/memes/game2": [
+    "/make_it_meme": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/memes/game2.js"
+      "static/chunks/pages/make_it_meme.js"
     ],
-    "/trivia/game1": [
+    "/make_it_meme/room": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/trivia/game1.js"
+      "static/chunks/pages/make_it_meme/room.js"
     ]
   },
   "ampFirstPages": []

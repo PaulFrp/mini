@@ -2,7 +2,6 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js",
-  "/memes/game2": "pages/memes/game2.js",
-  "/trivia/game1": "pages/trivia/game1.js"
+  "/make_it_meme": "pages/make_it_meme.js",
+  "/make_it_meme/room": "pages/make_it_meme/room.js"
 }

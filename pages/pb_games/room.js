@@ -66,7 +66,7 @@ export default function RoomPage() {
     if (!roomId) return;
 
     const interval = setInterval(() => {
-      fetch(`${BACKEND_URL}/game_status/${roomId}`)
+      fetch(`${BACKEND_URL}/voting/game_status/${roomId}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.status === "waiting") {
@@ -101,7 +101,7 @@ export default function RoomPage() {
 
   const startGame = () => {
     if (!roomId) return;
-    fetch(`${BACKEND_URL}/start_game/${roomId}`, {
+    fetch(`${BACKEND_URL}/voting/start_game/${roomId}`, {
       method: "POST",
       headers: {
         "x-client-id": clientId,
@@ -112,7 +112,7 @@ export default function RoomPage() {
   const castVote = (player) => {
     if (hasVoted || votingFinished) return;
 
-    fetch(`${BACKEND_URL}/vote/${roomId}`, {
+    fetch(`${BACKEND_URL}/voting/vote/${roomId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ voter_id: clientId, vote_for: player }),
@@ -156,16 +156,16 @@ export default function RoomPage() {
           <p>Time remaining: {remaining}s</p>
 
           <div className={styles.voteButtons}>
-            {players.map((p) => (
-              <button
-                key={p}
-                onClick={() => castVote(p)}
-                disabled={hasVoted}
-                className={styles.button}
-              >
-                {p} ({votesCount[p] || 0})
-              </button>
-            ))}
+          {players?.map((p) => (
+  <button
+    key={p}
+    onClick={() => castVote(p)}
+    disabled={hasVoted}
+    className={styles.button}
+  >
+    {p} ({votesCount[p] || 0})
+  </button>
+))}
           </div>
 
           {hasVoted && <p>Thanks for voting!</p>}
@@ -199,7 +199,7 @@ export default function RoomPage() {
             <div className={styles.buttonWrapper}>
               <button
                 onClick={() => {
-                  fetch(`${BACKEND_URL}/next_question/${roomId}`, {
+                  fetch(`${BACKEND_URL}/voting/next_question/${roomId}`, {
                     method: "POST",
                     headers: { "x-client-id": clientId },
                   })
