@@ -138,49 +138,55 @@ export default function MemeGame() {
   };
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>🖼️ Make It Meme!</h1>
+    <div>
+    <div className={styles['background-image']} />
+    <div className={styles['centered-cell']} />
+    <NavigationBar />
+    <div className={styles.roomContainer}>
+      <h1 className={styles.roomHeader}>🖼️ Make It Meme!</h1>
 
       {!gameStarted && isCreator && (
+        <div className={styles.buttonWrapper}>
         <button className={styles.button} onClick={startGame}>
           ▶️ Start Game
         </button>
+        </div>
       )}
 
       {!gameStarted && !isCreator && <p>Waiting for host to start the game...</p>}
 
       {gameStarted && memeStatus?.status === "captioning" && (
         <div>
-          <h2>📝 Add your captions!</h2>
+          <h2 className={styles.roomHeader}>📝 Add your captions!</h2>
           <MemeCanvas
             meme={memeStatus.current_meme}
             captions={captions}
             setCaptions={setCaptions}
           />
+          <div className={styles.buttonWrapper}>
           <button className={styles.button} onClick={submitCaptions}>
             ✅ Submit
           </button>
-          <p>⏳ {memeStatus.remaining}s left</p>
+          </div>
+          <p>⏳ {memeStatus.remaining}s left</p> 
         </div>
       )}
 
       {gameStarted && memeStatus?.status === "voting" && (
         <div>
-          <h2>🗳️ Vote for the best caption!</h2>
-          <MemeCanvas
-            meme={memeStatus.current_meme}
-            captions={captions}
-            setCaptions={setCaptions}
-          />
-          {Object.entries(memeStatus.captions).map(([playerId, caption], i) => (
-            <button
-              key={i}
-              onClick={() => castVote(playerId)}
-              disabled={hasVoted}
-              className={styles.button}
-            >
-              {caption.join(" / ")}
-            </button>
+          <h2 className={styles.roomHeader}>🗳️ Vote for the best caption!</h2>
+          {memeStatus.submissions.map((submission, index) => (
+            <div key = {submission.user_id} className={styles.captionSubmission}>
+            <h3>{submission.username}</h3>
+            <MemeCanvas
+              meme={submission.meme}
+              captions={submission.captions}
+              setCaptions={() => {}} // No editing during voting
+            />
+            <div className={styles.buttonWrapper}>
+            <button className={styles.button} onClick={() => castVote(submission.user_id)}>Vote</button>
+            </div>
+            </div>
           ))}
           {hasVoted && <p>✅ Vote submitted</p>}
           <p>⏳ {memeStatus.remaining}s left</p>
@@ -189,7 +195,7 @@ export default function MemeGame() {
 
       {gameStarted && memeStatus?.status === "results" && (
         <div>
-          <h2>🏆 Results</h2>
+          <h2 className={styles.roomHeader}>🏆 Results</h2>
           {memeStatus.winners?.length ? (
             <p>
               🎉 Winner{memeStatus.winners.length > 1 ? "s" : ""}:{" "}
@@ -199,7 +205,7 @@ export default function MemeGame() {
             <p>No votes received</p>
           )}
 
-          <h3>All Captions</h3>
+          <h3 className={styles.roomHeader}>All Captions</h3>
           <ul>
             {Object.entries(memeStatus.captions).map(([playerId, caption]) => {
               const votes = Object.values(memeStatus.votes).filter(
@@ -215,9 +221,11 @@ export default function MemeGame() {
           </ul>
 
           {isCreator && memeStatus.can_proceed && (
+            <div className={styles.buttonWrapper}>
             <button className={styles.button} onClick={advanceMeme}>
               ➡️ Next Meme
             </button>
+            </div>
           )}
         </div>
       )}
@@ -228,6 +236,7 @@ export default function MemeGame() {
           <p key={i}>{msg}</p>
         ))}
       </div>
+    </div>
     </div>
   );
 }
