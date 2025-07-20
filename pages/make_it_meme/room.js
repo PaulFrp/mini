@@ -200,6 +200,7 @@ export default function MemeGame() {
             <p>
               🎉 Winner{memeStatus.winners.length > 1 ? "s" : ""}:{" "}
               {memeStatus.winners.join(", ")}
+              
             </p>
           ) : (
             <p>No votes received</p>

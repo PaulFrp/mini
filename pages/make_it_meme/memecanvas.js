@@ -17,9 +17,8 @@ const MemeCanvas = ({ meme, captions, setCaptions }) => {
         const heightPercent = (slot.height / DESIGN_HEIGHT) * 100;
 
         return (
-          <input
+          <textarea
             key={i}
-            type="text"
             placeholder={`Caption ${i + 1}`}
             value={captions[i] || ""}
             onChange={(e) => {
@@ -40,6 +39,9 @@ const MemeCanvas = ({ meme, captions, setCaptions }) => {
               border: '1px solid #ccc',
               borderRadius: '4px',
               textAlign: 'center',
+              resize: 'none', 
+              overflowWrap: 'break-word', 
+              whiteSpace: 'pre-wrap', 
             }}
           />
         );
