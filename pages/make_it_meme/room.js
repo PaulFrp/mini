@@ -56,7 +56,8 @@ export default function MemeGame() {
     if (!roomId || !clientId) return;
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${process.env.REACT_APP_WS_BASE_URL}/ws/${roomId}?client_id=${clientId}`);
+    console.log("WS Base URL:", process.env.NEXT_PUBLIC_WS_BASE_URL);
+    const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_BASE_URL}/ws/${roomId}?client_id=${clientId}`);
     wsRef.current = ws;
 
     ws.onopen = () => {
