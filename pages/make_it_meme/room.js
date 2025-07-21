@@ -13,6 +13,7 @@ function getClientId() {
 }
 
 const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, '');
+const baseUrl = "back-end-mini-games-1cb46d8ecc75.herokuapp.com";
 
 export default function MemeGame() {
   const wsRef = useRef(null);
@@ -56,7 +57,7 @@ export default function MemeGame() {
     if (!roomId || !clientId) return;
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//${BACKEND_URL}/ws/${roomId}?client_id=${clientId}`);
+    const ws = new WebSocket(`${protocol}//${baseUrl}/ws/${roomId}?client_id=${clientId}`);
     wsRef.current = ws;
 
     ws.onopen = () => {
