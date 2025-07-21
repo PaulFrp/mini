@@ -103,17 +103,42 @@ export default function MemeGame() {
   }, [remaining]);
 
   useEffect(() => {
-  if (memeStatus?.status === "captioning") {
-    // Clear captions only if it's a new meme
-    setCaptions([]); 
-    setHasVoted(false); // Optional: reset vote status too
+  if (remaining === 0) {
+    // Refresh game status when timer hits zero
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: "get_status" }));
+    } else {
+      // fallback: fetch directly if websocket not ready
+      fetch(`${BACKEND_URL}/game_status?room_id=${roomId}`, {
+        headers: { "x-client-id": clientId },
+      })
+        .then(res => res.json())
+        .then(data => {
+          // update your memeStatus and related states accordingly
+          if (data.status) {
+            setMemeStatus(data);
+            setGameStarted(data.status !== "no_game");
+            if (typeof data.remaining === "number") setRemaining(data.remaining);
+            if (typeof data.is_creator !== "undefined") setIsCreator(data.is_creator);
+          }
+        })
+        .catch(console.error);
+    }
   }
-  if (memeStatus?.status === "voting") {
-    setCurrentVoteIndex(0);
-    setHasVoted(false);
-    setHasFinishedVoting(false);
-  }
-}, [memeStatus?.status, memeStatus?.current_meme?.filename]);
+}, [remaining, roomId, clientId]);
+
+  useEffect(() => {
+    if (memeStatus?.status === "captioning") {
+      // Clear captions only if it's a new meme
+      setCaptions([]); 
+      setHasVoted(false); // Optional: reset vote status too
+    }
+    if (memeStatus?.status === "voting") {
+      setCurrentVoteIndex(0);
+      setHasVoted(false);
+      setHasFinishedVoting(false);
+    }
+  }, [memeStatus?.status, memeStatus?.current_meme?.filename]);
       
 
   // === Game Start ===
