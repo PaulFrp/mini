@@ -9,13 +9,12 @@ const categories = [
   { name: "🤔 Jeux des problemes", link: "/pb_games", color: "green" },
   { name: "🍻 Je n'ai jamais", link: "/never", color: "orange" },
   { name: "🪢 Pendu", link: "/pendu/pendu_one", color: "red" },
+  { name: "😂 Make it Meme", link: "/make_it_meme", color: "indigo" },
 ];
 
 const newGames = [
-  { name: "🔍 Trivia 3", link: "/trivia/game3" },
-  { name: "🔍 Trivia 4", link: "/trivia/game4" },
-  { name: "😂 Memes culture", link: "/memes",},
-  { name: "🤔 Jeux des problemes", link: "/pb_games" }
+  { name: "🤔 Jeux des problemes", link: "/pb_games" },
+  { name: "😂 Make it Meme", link: "/make_it_meme" }
 ];
 
 function App() {

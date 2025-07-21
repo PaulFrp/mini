@@ -12,6 +12,7 @@ function NavigationBar() {
         <li><a href="/pb_games">🤔Jeux des problemes</a></li>
         <li><a href="/never">🍻Je n'ai jamais</a></li>
         <li><a href="/pendu/pendu_one">🪢Pendu</a></li>
+        <li><a href="/make_it_meme">😂Make It Meme</a></li>
       </ul>
     </nav>
   );
