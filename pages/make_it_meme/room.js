@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef  } from "react";
 import styles from "./RoomPage.module.css";
 import NavigationBar from "../../src/navBar";
 import MemeCanvas from "./memecanvas";
@@ -15,6 +15,7 @@ function getClientId() {
 const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, '');
 
 export default function MemeGame() {
+  const wsRef = useRef(null);
   const [messages, setMessages] = useState([]);
   const [captions, setCaptions] = useState([]);
   const [hasVoted, setHasVoted] = useState(false);
@@ -24,6 +25,7 @@ export default function MemeGame() {
   const [isCreator, setIsCreator] = useState(false);
   const [clientId, setClientId] = useState(null);
   const [roomId, setRoomId] = useState(null);
+  const [remaining, setRemaining] = useState(null);
 
   // === Polling ===
   useEffect(() => {
@@ -32,44 +34,79 @@ export default function MemeGame() {
 
     fetch(`${BACKEND_URL}/room_messages`, {
       credentials: "include",
-      headers: {
-        "x-client-id": id,
-      },
+      headers: { "x-client-id": id },
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log("Room messages response:", data);
+        console.log("📦 /room_messages data:", data);
         if (data.messages) {
           setMessages(data.messages);
           setRoomId(data.room_id);
-          setPlayerMap(data.player_map)
+          setPlayerMap(data.player_map);
           setIsCreator(data.is_creator);
         } else {
           setMessages(["You are not in a room or session expired."]);
         }
+      }); 
+  }, []);
+
+  useEffect(() => {
+    if (!roomId || !clientId) return;
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//localhost:8000/ws/${roomId}?client_id=${clientId}`);
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ type: "get_status" }));
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("📦 data:", data);
+      if (data.type === "game_update") {
+        setGameStarted(data.status !== "no_game");
+        setMemeStatus(data);
+        if (typeof data.is_creator !== "undefined") {
+          setIsCreator(data.is_creator);
+        }
+        if (typeof data.remaining === "number") {
+        setRemaining(data.remaining);
+      }
+      }
+    };
+
+        ws.onclose = () => console.log("WebSocket disconnected");
+
+        return () => {
+          ws.close();
+        };
+      }, [roomId, clientId]);
+
+  useEffect(() => {
+    if (remaining === null || remaining <= 0) return;
+
+    const timerId = setInterval(() => {
+      setRemaining((r) => {
+        if (r <= 1) {
+          clearInterval(timerId);
+          return 0;
+        }
+        return r - 1;
       });
+    }, 1000);
 
-    console.log("isCreator:", isCreator, "gameStarted:", gameStarted);
-    const interval = setInterval(() => {
-      if (!roomId) return;
+    return () => clearInterval(timerId);
+  }, [remaining]);
 
-      fetch(`${BACKEND_URL}/meme/game_status/${roomId}`, {
-        headers: { "x-client-id": clientId },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.status === "no_game") {
-            setGameStarted(false);
-            setMemeStatus(null);
-          } else {
-            setGameStarted(true);
-            setMemeStatus(data); 
-          }
-        });
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [roomId, clientId]);
+  useEffect(() => {
+  if (memeStatus?.status === "captioning") {
+    // Clear captions only if it's a new meme
+    setCaptions([]); 
+    setHasVoted(false); // Optional: reset vote status too
+  }
+}, [memeStatus?.status, memeStatus?.current_meme?.filename]);
+      
 
   // === Game Start ===
   const startGame = async () => {
@@ -84,57 +121,35 @@ export default function MemeGame() {
     console.log("Game started:", data);
   };
 
-  // === Caption Submission ===
   const submitCaptions = () => {
-    if (!roomId || !captions.length) return;
+    if (!captions.length || !wsRef.current) return;
 
-    fetch(`${BACKEND_URL}/meme/submit_caption/${roomId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        player_id: clientId,
-        captions: captions,
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setMessages((msgs) => [...msgs, "📝 Captions submitted!"]);
-      });
+    wsRef.current.send(JSON.stringify({
+      type: "submit_caption",
+      caption: captions,
+    }));
+
+    setMessages((msgs) => [...msgs, "📝 Captions submitted!"]);
   };
 
   // === Vote Submission ===
   const castVote = (targetId) => {
-    fetch(`${BACKEND_URL}/meme/vote/${roomId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        voter_id: clientId,
-        vote_for: targetId,
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setHasVoted(true);
-        setMessages((msgs) => [...msgs, "🗳️ Vote cast!"]);
-      });
+    if (!wsRef.current) return;
+
+    wsRef.current.send(JSON.stringify({
+      type: "submit_vote",
+      vote_for: targetId,
+    }));
+
+    setHasVoted(true);
+    setMessages((msgs) => [...msgs, "🗳️ Vote cast!"]);
   };
 
   // === Advance to next meme ===
   const advanceMeme = () => {
-    fetch(`${BACKEND_URL}/meme/next_meme/${roomId}`, {
-      method: "POST",
-      headers: { "x-client-id": clientId },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === "next_meme") {
-          setCaptions([]);
-          setHasVoted(false);
-          setMessages((msgs) => [...msgs, "➡️ Next meme!"]);
-        } else if (data.status === "game_over") {
-          setMessages((msgs) => [...msgs, "🎉 Meme game over!"]);
-        }
-      });
+    if (!wsRef.current) return;{
+      wsRef.current.send(JSON.stringify({ type: "next_meme" }));
+    }
   };
 
   return (
@@ -144,6 +159,10 @@ export default function MemeGame() {
     <NavigationBar />
     <div className={styles.roomContainer}>
       <h1 className={styles.roomHeader}>🖼️ Make It Meme!</h1>
+      <p>DEBUG: isCreator={isCreator.toString()}, gameStarted={gameStarted.toString()}</p>
+      <button onClick={() => setIsCreator((prev) => !prev)}>
+  Toggle isCreator (Current: {isCreator.toString()})
+</button>
 
       {!gameStarted && isCreator && (
         <div className={styles.buttonWrapper}>
@@ -168,7 +187,7 @@ export default function MemeGame() {
             ✅ Submit
           </button>
           </div>
-          <p>⏳ {memeStatus.remaining}s left</p> 
+          <p>⏳ {remaining}s left</p> 
         </div>
       )}
 
@@ -189,7 +208,7 @@ export default function MemeGame() {
             </div>
           ))}
           {hasVoted && <p>✅ Vote submitted</p>}
-          <p>⏳ {memeStatus.remaining}s left</p>
+          <p>⏳ {remaining}s left</p>
         </div>
       )}
 

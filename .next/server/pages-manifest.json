@@ -2,5 +2,7 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/make_it_meme/dev_preview": "pages/make_it_meme/dev_preview.js"
+  "/": "pages/index.js",
+  "/make_it_meme/room": "pages/make_it_meme/room.js",
+  "/make_it_meme": "pages/make_it_meme.js"
 }
