@@ -28,16 +28,6 @@ self.__BUILD_MANIFEST = {
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/make_it_meme.js"
-    ],
-    "/make_it_meme/dev_preview": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/make_it_meme/dev_preview.js"
-    ],
-    "/make_it_meme/room": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/make_it_meme/room.js"
     ]
   },
   "ampFirstPages": []

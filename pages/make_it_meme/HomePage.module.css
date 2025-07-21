@@ -1,5 +1,4 @@
 .homeContainer {
-    
     padding: 3rem 1rem;
     font-family: 'Comic Sans MS', cursive, sans-serif;
     display: flex;
@@ -8,19 +7,19 @@
     color: #222;
     text-align: center;
     background-image: url('/images/picolo/green.jpg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        height: 100vh;
-        width: 100vw;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: -1;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    width: 100%;
+    position: relative;
+    z-index: 0;
+    box-sizing: border-box;
 }
 
 .memeHero {
     margin-bottom: 2rem;
+    max-width: 100%;
 }
 
 .title {
@@ -35,6 +34,7 @@
     font-size: 1.25rem;
     color: #636e72;
     font-style: italic;
+    padding: 0 1rem;
 }
 
 .buttonsGroup {
@@ -56,6 +56,7 @@
     font-weight: 700;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
 }
 
 .createBtn {
@@ -78,6 +79,7 @@
     flex: 1 1 100%;
     max-width: 480px;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 .textInput {
@@ -87,6 +89,8 @@
     border-radius: 8px;
     flex: 1;
     max-width: 220px;
+    width: 100%;
+    box-sizing: border-box;
     transition: border-color 0.3s ease;
 }
 
@@ -99,9 +103,7 @@
     background: linear-gradient(45deg, #098d63, #00b894);
     color: white;
     padding: 12px 20px;
-    font-weight: 700;
     font-size: 1rem;
-    border-radius: 8px;
     flex-shrink: 0;
 }
 
@@ -117,6 +119,7 @@
     margin-bottom: 2rem;
     flex-wrap: wrap;
     max-width: 480px;
+    width: 100%;
 }
 
 .submitBtn {
@@ -124,6 +127,7 @@
     color: white;
     padding: 12px 28px;
     font-size: 1.1rem;
+    width: 100%;
 }
 
 .submitBtn:hover:not(:disabled) {
@@ -144,6 +148,9 @@
     border: 3px dashed #d63031;
     border-radius: 12px;
     transition: background-color 0.3s, color 0.3s;
+    display: inline-block;
+    word-break: break-word;
+    max-width: 90vw;
 }
 
 .roomLink:hover {
@@ -151,25 +158,38 @@
     color: white;
 }
 
+/* 📱 Mobile styles */
 @media (max-width: 600px) {
     .title {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
+        padding: 0 1rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
     }
 
     .buttonsGroup,
     .usernameGroup,
     .joinGroup {
         flex-direction: column;
+        align-items: center;
     }
 
     .createBtn,
     .joinBtn,
-    .submitBtn {
+    .submitBtn,
+    .textInput {
         width: 100%;
-        max-width: none;
+        max-width: 100%;
     }
 
-    .textInput {
-        max-width: 100%;
+    .homeContainer {
+        padding: 2rem 1rem;
+    }
+
+    .roomLink {
+        font-size: 1.2rem;
+        padding: 10px 16px;
     }
 }
