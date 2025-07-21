@@ -24,6 +24,10 @@ const MemeCanvas = ({ meme, captions, setCaptions }) => {
     return () => window.removeEventListener('resize', updateFontSize);
   }, []);
 
+  if (!meme || !meme.filename || !Array.isArray(meme.caption_slots)) {
+  return <div>Loading meme...</div>;
+  }
+
   return (
     <div style={{ position: 'relative', display: 'inline-block', width: '100%', maxWidth: `${DESIGN_WIDTH}px` }}>
       <img
