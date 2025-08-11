@@ -45,27 +45,50 @@ export default function MemeGame() {
   const [hasFinishedVoting, setHasFinishedVoting] = useState(false);
 
   // === Polling ===
-  useEffect(() => {
-    const id = getClientId();
-    setClientId(id);
+  // First effect: load client ID
+useEffect(() => {
+  if (typeof window === "undefined") return;
 
-    fetch(`${BACKEND_URL}/room_messages`, {
-      credentials: "include",
-      headers: { "x-client-id": id },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("📦 /room_messages data:", data);
-        if (data.messages) {
-          setMessages(data.messages);
-          setRoomId(data.room_id);
-          setPlayerMap(data.player_map);
-          setIsCreator(data.is_creator);
-        } else {
-          setMessages(["You are not in a room or session expired."]);
-        }
-      }); 
-  }, []);
+  let id = localStorage.getItem("client_id");
+  if (!id) {
+    if (window.crypto && crypto.randomUUID) {
+      id = crypto.randomUUID();
+    } else {
+      id = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+        (
+          c ^ (window.crypto && crypto.getRandomValues
+            ? crypto.getRandomValues(new Uint8Array(1))[0]
+            : Math.random() * 16
+          ) & 15 >> c / 4
+        ).toString(16)
+      );
+    }
+    localStorage.setItem("client_id", id);
+  }
+  setClientId(id);
+}, []);
+
+// Second effect: fetch messages only when we have a clientId
+useEffect(() => {
+  if (!clientId) return; // wait until ready
+
+  fetch(`${BACKEND_URL}/room_messages`, {
+    credentials: "include",
+    headers: { "x-client-id": clientId },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("📦 /room_messages data:", data);
+      if (data.messages) {
+        setMessages(data.messages);
+        setRoomId(data.room_id);
+        setPlayerMap(data.player_map);
+        setIsCreator(data.is_creator);
+      } else {
+        setMessages(["You are not in a room or session expired."]);
+      }
+    });
+}, [clientId]);
 
   useEffect(() => {
     if (!roomId || !clientId) return;
