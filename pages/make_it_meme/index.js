@@ -15,10 +15,26 @@ export default function Home() {
 
   const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, '');
 
+  //Solve the problem when using crypto random UUID in browsers that do not support it
   useEffect(() => {
+    if (typeof window === "undefined") return; // Ensure client-side
+
     let id = localStorage.getItem("client_id");
     if (!id) {
-      id = crypto.randomUUID();
+      if (window.crypto && crypto.randomUUID) {
+        id = crypto.randomUUID();
+      } else {
+        // Fallback for older browsers
+        id = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+          (
+            c ^
+            (window.crypto && crypto.getRandomValues
+              ? crypto.getRandomValues(new Uint8Array(1))[0]
+              : Math.random() * 16
+            ) & 15 >> c / 4
+          ).toString(16)
+        );
+      }
       localStorage.setItem("client_id", id);
     }
     setClientId(id);

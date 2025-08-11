@@ -4,6 +4,7 @@ import stylesCard from './card.module.css'; // Correct import statement
 import NavigationBar from '../navBar';
 import styles from "./Memes.module.css"; 
 
+
 const Trivia = () => {
 
   //Create relevant variables 

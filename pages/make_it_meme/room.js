@@ -3,10 +3,25 @@ import styles from "./RoomPage.module.css";
 import NavigationBar from "../../src/navBar";
 import MemeCanvas from "./memecanvas";
 
+//Solve the problem when using crypto random UUID in browsers that do not support it
 function getClientId() {
   let id = localStorage.getItem("client_id");
   if (!id) {
-    id = crypto.randomUUID();
+    if (window.crypto && crypto.randomUUID) {
+      // Use modern API when available
+      id = crypto.randomUUID();
+    } else {
+      // Fallback for older browsers
+      id = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+        (
+          c ^
+          (window.crypto && crypto.getRandomValues
+            ? crypto.getRandomValues(new Uint8Array(1))[0]
+            : Math.random() * 16
+          ) & 15 >> c / 4
+        ).toString(16)
+      );
+    }
     localStorage.setItem("client_id", id);
   }
   return id;
@@ -55,9 +70,13 @@ export default function MemeGame() {
   useEffect(() => {
     if (!roomId || !clientId) return;
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    console.log("WS Base URL:", process.env.NEXT_PUBLIC_WS_BASE_URL);
-    const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_BASE_URL}/ws/${roomId}?client_id=${clientId}`);
+    console.log("WS Base URL:", process.env.NEXT_PUBLIC_WS_BASE_URL, "http://localhost:8000//ws/${roomId}?client_id=${clientId}");
+    // For prod  use this:
+    // const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_BASE_URL}/ws/${roomId}?client_id=${clientId}`);
+
+    // For local dev use this:
+    const ws = new WebSocket(`http://localhost:8000/ws/${roomId}?client_id=${clientId}`);
+    console.log(ws)
     wsRef.current = ws;
 
     ws.onopen = () => {
@@ -152,7 +171,9 @@ export default function MemeGame() {
 
     const data = await res.json();
     console.log("Game started:", data);
-  };
+
+
+  }
 
   const submitCaptions = () => {
     if (!captions.length || !wsRef.current) return;
