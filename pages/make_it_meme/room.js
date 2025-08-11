@@ -162,18 +162,36 @@ export default function MemeGame() {
 
   // === Game Start ===
   const startGame = async () => {
-    if (!roomId) return;
+  if (!roomId) return;
 
-    const res = await fetch(`${BACKEND_URL}/meme/start_game/${roomId}`, {
-      method: "POST",
+  const res = await fetch(`${BACKEND_URL}/meme/start_game/${roomId}`, {
+    method: "POST",
+    headers: { "x-client-id": clientId },
+  });
+
+  const data = await res.json();
+  console.log("Game started:", data);
+
+  // Immediately request updated status for all clients
+  if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+    wsRef.current.send(JSON.stringify({ type: "get_status" }));
+  } else {
+    // fallback: fetch directly
+    fetch(`${BACKEND_URL}/game_status?room_id=${roomId}`, {
       headers: { "x-client-id": clientId },
-    });
-
-    const data = await res.json();
-    console.log("Game started:", data);
-
-
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status) {
+          setMemeStatus(data);
+          setGameStarted(data.status !== "no_game");
+          if (typeof data.remaining === "number") setRemaining(data.remaining);
+          if (typeof data.is_creator !== "undefined") setIsCreator(data.is_creator);
+        }
+      })
+      .catch(console.error);
   }
+};
 
   const submitCaptions = () => {
     if (!captions.length || !wsRef.current) return;
