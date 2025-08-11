@@ -72,10 +72,10 @@ export default function MemeGame() {
 
     console.log("WS Base URL:", process.env.NEXT_PUBLIC_WS_BASE_URL, "http://localhost:8000//ws/${roomId}?client_id=${clientId}");
     // For prod  use this:
-    // const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_BASE_URL}/ws/${roomId}?client_id=${clientId}`);
+    const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_BASE_URL}/ws/${roomId}?client_id=${clientId}`);
 
     // For local dev use this:
-    const ws = new WebSocket(`http://localhost:8000/ws/${roomId}?client_id=${clientId}`);
+    // const ws = new WebSocket(`http://localhost:8000/ws/${roomId}?client_id=${clientId}`);
     console.log(ws)
     wsRef.current = ws;
 
