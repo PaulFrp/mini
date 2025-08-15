@@ -8,8 +8,8 @@ const categories = [
   { name: "🔍 Memes Culture 3", link: "/memes/game3", color: "indigo" },
   { name: "🔍 Memes Culture 4", link: "/memes/game4", color: "indigo" },
   { name: "🔍 Memes Culture 5", link: "/memes/game5", color: "indigo" },
-  { name: "🔍 Memes Culture 6", link: "/memes/game6", color: "indigo" },
-  { name: "🔍 Memes Culture 7", link: "/memes/game7", color: "indigo" }
+  { name: "🔍 Memes Culture 6", link: "/memes/game6", color: "indigo" }
+  
 ];
 
 function App() {

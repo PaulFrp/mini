@@ -46,6 +46,7 @@ export default function MemeGame() {
 
   // === Polling ===
   // First effect: load client ID
+  //Probably need to nuke the next two UseEffects Because shit don t work no more in prod apparently
 useEffect(() => {
   if (typeof window === "undefined") return;
 
@@ -89,6 +90,9 @@ useEffect(() => {
       }
     });
 }, [clientId]);
+
+// -------------- Nuke until here 
+
 
   useEffect(() => {
     if (!roomId || !clientId) return;

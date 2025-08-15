@@ -78,27 +78,27 @@ const Trivia = () => {
   };
 
   const imageUrls = {
-    1: "/images/memes/panneau.png", //done
-    2: "/images/memes/decollete.png",//done
-    3: "/images/memes/quick.png", //done
-    4: "/images/memes/bzez.png", //done
-    5: "/images/memes/mamadou.png", //done
-    6: "/images/memes/sida.png", //done
-    7: "/images/memes/souffrir.png", //done
-    8: "/images/memes/princesse.png", //done
-    9: "/images/memes/bougnoul.png", //done
-    10: "/images/memes/wallah.png", //done
-    11: "/images/memes/etranger.png", //done
-    12: "/images/memes/raciste.png", //done
-    13: "/images/memes/partout.png", //done
-    14: "/images/memes/charbon.png", //done
-    15: "/images/memes/naruto.png", //done
-    16: "/images/memes/encore.png", //done
-    17: "/images/memes/cousine.png", //done
-    18: "/images/memes/mefiez.png", //done
-    19: "/images/memes/delinquant.png", //done
-    20: "/images/memes/bon.png", //done
-    21: "/images/memes/glace.png", //done
+    1: "/images/memes/game2/panneau.png", //done
+    2: "/images/memes/game2/decollete.png",//done
+    3: "/images/memes/game2/quick.png", //done
+    4: "/images/memes/game2/bzez.png", //done
+    5: "/images/memes/game2/mamadou.png", //done
+    6: "/images/memes/game2/sida.png", //done
+    7: "/images/memes/game2/souffrir.png", //done
+    8: "/images/memes/game2/princesse.png", //done
+    9: "/images/memes/game2/bougnoul.png", //done
+    10: "/images/memes/game2/wallah.png", //done
+    11: "/images/memes/game2/etranger.png", //done
+    12: "/images/memes/game2/raciste.png", //done
+    13: "/images/memes/game2/partout.png", //done
+    14: "/images/memes/game2/charbon.png", //done
+    15: "/images/memes/game2/naruto.png", //done
+    16: "/images/memes/game2/encore.png", //done
+    17: "/images/memes/game2/cousine.png", //done
+    18: "/images/memes/game2/mefiez.png", //done
+    19: "/images/memes/game2/delinquant.png", //done
+    20: "/images/memes/game2/bon.png", //done
+    21: "/images/memes/game2/glace.png", //done
     // Add more mappings as needed
   };
 
