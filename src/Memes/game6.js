@@ -129,7 +129,7 @@ const Trivia = () => {
           {Array.from({ length: 7 }, (_, rowIndex) => (
             <tr key={rowIndex}>
             {Array.from({ length: 3 }, (_, colIndex) => {
-              const buttonNumber = (rowIndex + colIndex * 3) + 1;
+              const buttonNumber = rowIndex + colIndex * 7 + 1;
               const isButtonClicked = clickedButtons.includes(buttonNumber);
 
               return (

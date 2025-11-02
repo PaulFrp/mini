@@ -19,15 +19,25 @@ self.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/make_it_meme": [
+    "/memes": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/make_it_meme.js"
+      "static/chunks/pages/memes.js"
     ],
-    "/make_it_meme/room": [
+    "/memes/game3": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/make_it_meme/room.js"
+      "static/chunks/pages/memes/game3.js"
+    ],
+    "/memes/game4": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/memes/game4.js"
+    ],
+    "/memes/game6": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/memes/game6.js"
     ]
   },
   "ampFirstPages": []

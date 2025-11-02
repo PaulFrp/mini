@@ -84,20 +84,20 @@ const Trivia = () => {
         case 12:
           return { question: 'Une chenilleeeeee', answer: '' }; 
         case 13:
-          return { question: ``, answer: '' };
+          return { question: `Faker what was that`, answer: '' };
         case 14:
-          return { question: ``, answer: '' };
+          return { question: `Nigger dans l'avion`, answer: '' };
         //3ème columne Hard
         case 15:
-          return { question: ``, answer: '' };
+          return { question: `J aime pas ton chapeau"`, answer: '' };
         case 16:
-          return { question: '', answer: '' }; 
+          return { question: 'kher a mojito', answer: '' }; 
         case 17:
-          return { question: ``, answer: "" };
+          return { question: `C est honteux`, answer: "" };
         case 18:
-          return { question: ``, answer: '' };
+          return { question: `issou`, answer: '' };
         case 19:
-          return { question: ``, answer: '' };
+          return { question: `arrete la drogue`, answer: '' };
         case 20:
           return { question: ``, answer: '' };
         case 21:
@@ -129,7 +129,7 @@ const Trivia = () => {
           {Array.from({ length: 7 }, (_, rowIndex) => (
             <tr key={rowIndex}>
             {Array.from({ length: 3 }, (_, colIndex) => {
-              const buttonNumber = (rowIndex + colIndex * 3) + 1;
+              const buttonNumber = rowIndex + colIndex * 7 + 1;
               const isButtonClicked = clickedButtons.includes(buttonNumber);
 
               return (
