@@ -74,8 +74,8 @@
     {
         "id": "13",
         "name": "Faker what was that",
-        "video": "https://www.youtube.com/watch?v=ZPCfoCVCx3U",
-        "image": "/images/memes/game7/"
+        "video": "https://www.youtube.com/embed/ZPCfoCVCx3U",
+        "image": "/images/memes/game7/faker.png"
     },
     {
         "id": "14",
@@ -116,14 +116,14 @@
     {
         "id": "20",
         "name": "Technoviking",
-        "video": "https://www.youtube.com/watch?v=UjCdB5p2v0Y?start=90",
+        "video": "https://www.youtube.com/embed/UjCdB5p2v0Y?start=90",
         "image": "/images/memes/game7/technoviking.png"
     },
     {
         "id": "21",
         "name": "Trololo",
         "video": "https://www.youtube.com/embed/sTSA_sWGM44",
-        "image": "/images/memes/game7/trololo.png"
+        "image": "/images/memes/game7/trolo.png"
     }
 
 
