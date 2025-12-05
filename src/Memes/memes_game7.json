@@ -2,128 +2,128 @@
     {
         "id": "1",
         "name": "Nyan cat",
-        "video": "",
-        "image": "/images/memes/"
+        "video": "https://www.youtube.com/embed/2yJgwwDcgV8",
+        "image": "/images/memes/game7/nyan.png"
     },
     {
         "id": "2",
         "name": "Peanut butter jelly time",
-        "video": "",
-        "image": "/images/memes/"
+        "video": "https://www.youtube.com/embed/Z3ZAGBL6UBA",
+        "image": "/images/memes/game7/jelly.png"
     },
     {
         "id": "3",
         "name": "Il m a dit ta mere la caissiere",
-        "video": "",
-        "image": "/images/memes/"
+        "video": "https://www.youtube.com/embed/moh7bzL53oI",
+        "image": "/images/memes/game7/caissiere.png"
     },
     {
         "id": "4",
         "name": "surprise motherfucker",
-        "video": "",
-        "image": "/images/memes/"
+        "video": "https://www.youtube.com/embed/zRDqRuOLlrg",
+        "image": "/images/memes/game7/surprise.png"
     },
     {
         "id": "5",
         "name": "Pates au sucre",
-        "video": "",
-        "image": "/images/memes/"
+        "video": "https://www.youtube.com/embed/3ZGbnlrloW0",
+        "image": "/images/memes/game7/sucre.png"
     },
     {
         "id": "6",
         "name": "Madame Zizi je vais la taper",
         "video": "",
-        "image": "/images/memes/"
+        "image": "/images/memes/game7/"
     },
     {
         "id": "7",
         "name": "On collabore pas nous",
-        "video": "",
-        "image": "/images/memes/"
+        "video": "https://www.tiktok.com/@_takezoo_/video/7448320838673222934",
+        "image": "/images/memes/game7/collabore.png"
     },
     {
         "id": "8",
         "name": "PTDR t es qui ?",
-        "video": "",
-        "image": "/images/memes/"
+        "video": "https://www.youtube.com/embed/C6Ny4g0738Q",
+        "image": "/images/memes/game7/ki.png"
     },
     {
         "id": "9",
         "name": "Bing chilling",
-        "video": "",
-        "image": "/images/memes/"
+        "video": "https://www.youtube.com/embed/e4ZQqZvNOe0",
+        "image": "/images/memes/game7/bing.png"
     },
     {
         "id": "10",
-        "name": "Des paillettes dans ma vie",
+        "name": "",
         "video": "",
-        "image": "/images/memes/"
+        "image": "/images/memes/game7/"
     },
     {
         "id": "11",
         "name": "Ca m'émeut ca me met en syncope",
-        "video": "",
-        "image": "/images/memes/"
+        "video": "https://www.youtube.com/embed/0bNfToXsx50",
+        "image": "/images/memes/game7/syncope.png"
     },
     {
         "id": "12",
         "name": "Une chenilleeeeee",
-        "video": "",
-        "image": "/images/memes/"
+        "video": "https://www.tiktok.com/@demsetdems/video/7019733241389255941?lang=fr",
+        "image": "/images/memes/game7/chenille.png"
     },
     {
         "id": "13",
         "name": "Faker what was that",
         "video": "https://www.youtube.com/watch?v=ZPCfoCVCx3U",
-        "image": "/images/memes/"
+        "image": "/images/memes/game7/"
     },
     {
         "id": "14",
         "name": "Nigger dans l'avion",
-        "video": "",
-        "image": "/images/memes/"   
+        "video": "https://www.youtube.com/embed/onib3bDo6Z0",
+        "image": "/images/memes/game7/nigger.png"
     },
     {
         "id": "15",
         "name": "J aime pas ton chapeau",
-        "video": "",
-        "image": "/images/memes/"
+        "video": "https://www.youtube.com/embed/-cNFfwW575Q",
+        "image": "/images/memes/game7/chapeau.png"
     },
     {
         "id": "16",
         "name": "kher a mojito",
         "video": "",
-        "image": "/images/memes/"
+        "image": "/images/memes/game7/"
     },
     {
         "id": "17",
         "name": "C est honteux",
-        "video": "",
-        "image": "/images/memes/"
+        "video": "https://www.youtube.com/embed/PZSEXOMuO58",
+        "image": "/images/memes/game7/honteux.png"
     },
     {
         "id": "18",
         "name": "issou",
-        "video": "",
-        "image": "/images/memes/"
+        "video": "https://www.youtube.com/embed/3y5H4XINDEU",
+        "image": "/images/memes/game7/issou.png"
     },
     {
         "id": "19",
         "name": "arrete la drogue",
-        "video": "",
-        "image": "/images/memes/"
+        "video": "https://www.youtube.com/embed/E0GikSsNEy8",
+        "image": "/images/memes/game7/drogue.png"
     },
     {
         "id": "20",
         "name": "Technoviking",
-        "video": "",
-        "image": "/images/memes/"
+        "video": "https://www.youtube.com/watch?v=UjCdB5p2v0Y?start=90",
+        "image": "/images/memes/game7/technoviking.png"
     },
     {
         "id": "21",
         "name": "Trololo",
-        "video": "",
-        "image": "/images/memes/"
+        "video": "https://www.youtube.com/embed/sTSA_sWGM44",
+        "image": "/images/memes/game7/trololo.png"
     }
 
 
