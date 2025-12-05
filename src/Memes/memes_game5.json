@@ -2,19 +2,19 @@
     {
         "id": "1",
         "name": "Le gateau est sec t es pas une menteuse toi",
-        "video": "https://www.youtube.com/watch?v=yG-1v-_1NVM",
+        "video": "https://www.youtube.com/embed/yG-1v-_1NVM",
         "image": "/images/memes/game5/sec.png"
     },
     {
         "id": "2",
         "name": "Pas le temps de niaiser",
-        "video": "https://www.youtube.com/watch?v=WKuaf3nepF0",
+        "video": "https://www.youtube.com/embed/WKuaf3nepF0",
         "image": "/images/memes/game5/niaiser.png"
     },
     {
         "id": "3",
         "name": "Attention les chaisesss",
-        "video": "https://www.youtube.com/shorts/iFFXMBfeGNg",
+        "video": "https://www.youtube.com/embed/iFFXMBfeGNg",
         "image": "/images/memes/game5/chaises.png"
     },
     {
@@ -26,31 +26,31 @@
     {
         "id": "5",
         "name": "Ton gros front la",
-        "video": "https://www.youtube.com/watch?v=vnjy-35Lxjg",
+        "video": "https://www.youtube.com/embed/vnjy-35Lxjg",
         "image": "/images/memes/game5/front.png"
     },
     {
         "id": "6",
         "name": "Un peu de gazouze un peu de limonade",
-        "video": "https://www.youtube.com/watch?v=O1f31IMviLU&t=49s",
+        "video": "https://www.youtube.com/embed/O1f31IMviLU",
         "image": "/images/memes/game5/gazouze.png"
     },
     {
         "id": "7",
         "name": "12+12 J habite pas ici",
-        "video": "https://www.youtube.com/shorts/aFBZpsrCIpk",
+        "video": "https://www.youtube.com/embed/aFBZpsrCIpk",
         "image": "/images/memes/game5/habite.png"
     },
     {
         "id": "8",
         "name": "Ca va peter",
-        "video": "https://www.youtube.com/watch?v=tX0oyVX8KWE",
+        "video": "https://www.youtube.com/embed/tX0oyVX8KWE",
         "image": "/images/memes/game5/peter.png"
     },
     {
         "id": "9",
         "name": "Oh je suis foutu",
-        "video": "https://www.youtube.com/shorts/yijlOv1mLqQ",
+        "video": "https://www.youtube.com/embed/yijlOv1mLqQ",
         "image": "/images/memes/game5/foutu.png"
     },
     {
@@ -68,19 +68,19 @@
     {
         "id": "12",
         "name": "Ils ont fait pipi dans votre tête",
-        "video": "https://www.youtube.com/watch?v=PTx6Fc3P34o&t=10",
+        "video": "https://www.youtube.com/embed/PTx6Fc3P34o",
         "image": "/images/memes/game5/pipi.png"
     },
     {
         "id": "13",
         "name": "Chante skype",
-        "video": "https://www.youtube.com/shorts/axaHERjE834",
+        "video": "https://www.youtube.com/embed/axaHERjE834",
         "image": "/images/memes/game5/skype.png"
     },
     {
         "id": "14",
         "name": "Oh nom du ciel éternel",
-        "video": "https://www.youtube.com/watch?v=3v23FXKT3Yg",
+        "video": "https://www.youtube.com/embed/3v23FXKT3Yg",
         "image": "/images/memes/game5/ciel.png"
     },
     {
@@ -98,40 +98,31 @@
     {
         "id": "17",
         "name": "La place de la femme c est a la cuisine",
-        "video": "https://www.youtube.com/watch?v=kRF4Wrb0zbo",
+        "video": "https://www.youtube.com/embed/kRF4Wrb0zbo",
         "image": "/images/memes/game5/cuisine.png"
     },
     {
         "id": "18",
         "name": "Tema l immeuble il est anorexique",
-        "video": "https://www.youtube.com/shorts/Ajj6bVJGpgk",
+        "video": "https://www.youtube.com/embed/Ajj6bVJGpgk",
         "image": "/images/memes/game5/anorexique.png"
     },
     {
         "id": "19",
         "name": "On a fait la guerre",
-        "video": "https://www.youtube.com/shorts/7zSsZF8RSfM",
+        "video": "https://www.youtube.com/embed/7zSsZF8RSfM",
         "image": "/images/memes/game5/guerre.png"
     },
     {
         "id": "20",
         "name": "Des keufs qui appellent des keufs",
-        "video": "https://www.youtube.com/shorts/4Ooy5IHEFnY",
+        "video": "https://www.youtube.com/embed/4Ooy5IHEFnY",
         "image": "/images/memes/game5/cheval.png"
     },
     {
         "id": "21",
         "name": "Mirroir connecté: comment tu vis",
-        "video": "https://www.youtube.com/shorts/IjNnnFON5_Y",
+        "video": "https://www.youtube.com/embed/IjNnnFON5_Y",
         "image": "/images/memes/game5/mirroir.png"
     }
-
-
-
-
-
-
-
 ]
-
-
