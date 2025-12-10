@@ -63,45 +63,45 @@ const Trivia = () => {
         case 2: 
           return { question: 'Peanut butter jelly time', answer: '' }; 
         case 3:
-          return { question: 'Il m a dit ta mere la caissiere ', answer: '' }; 
+          return { question: 'C est honteux', answer: '' }; 
         case 4:
           return { question: 'surprise motherfucker', answer: '' }; 
         case 5:
-          return { question: `Mange avant que bassirou il arrive ??`, answer: '' };
+          return { question: `Pate au sucre`, answer: '' };
         case 6:
-          return { question: `Madame Zizi je vais la taper`, answer: '' };
+          return { question: `Pépite de chocolat`, answer: '' };
         case 7:
-          return { question: 'On collabore pas nous', answer: '' }; 
+          return { question: 'Trololo', answer: '' }; 
         //2ème columne Medium
         case 8:
-           return { question: "Les pieds a sonic", answer: '' }; 
+           return { question: "PTDR t es qui ?", answer: '' }; 
         case 9:
-          return { question: `Il dort ? Réveille avec une claque`, answer: '' };
+          return { question: `Bing chilling`, answer: '' };
         case 10:
-          return { question: `Tu viens de quel pays ? 1m50`, answer: '' };
+          return { question: `issou`, answer: '' };
         case 11:
           return { question: `Ca m'émeut ca me met en syncope`, answer: '' };
         case 12:
           return { question: 'Une chenilleeeeee', answer: '' }; 
         case 13:
-          return { question: `Faker what was that`, answer: '' };
+          return { question: `voiture`, answer: '' };
         case 14:
           return { question: `Nigger dans l'avion`, answer: '' };
         //3ème columne Hard
         case 15:
           return { question: `J aime pas ton chapeau"`, answer: '' };
         case 16:
-          return { question: 'kher a mojito', answer: '' }; 
+          return { question: 'square hole', answer: '' }; 
         case 17:
-          return { question: `C est honteux`, answer: "" };
+          return { question: `Il m a dit ta mere la caissiere`, answer: "" };
         case 18:
-          return { question: `issou`, answer: '' };
+          return { question: `In the benining`, answer: '' };
         case 19:
           return { question: `arrete la drogue`, answer: '' };
         case 20:
-          return { question: ``, answer: '' };
+          return { question: `Technoviking`, answer: '' };
         case 21:
-          return { question: ``, answer: '' };
+          return { question: `On collabore pas nous`, answer: '' };
         // Add more cases as needed
         default:
           return { question: 'Default Question', answer: 'Default Answer' };

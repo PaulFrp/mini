@@ -69,7 +69,7 @@ const Trivia = () => {
         case 5:
           return { question: `On est au cambodge ou quoi`, answer: '' };
         case 6:
-          return { question: `Chante Quand tu revienneees`, answer: '' };
+          return { question: `araignée`, answer: '' };
         case 7:
           return { question: 'Oh bah t es surement pas francais', answer: '' }; 
         //2ème columne Medium
@@ -91,7 +91,7 @@ const Trivia = () => {
         case 15:
           return { question: `C est qui le patron`, answer: '' };
         case 16:
-          return { question: 'le respect le respect, the voice', answer: '' }; 
+          return { question: 'Really -', answer: '' }; 
         case 17:
           return { question: `Ca y est nous y est`, answer: "" };
         case 18:
@@ -99,7 +99,7 @@ const Trivia = () => {
         case 19:
           return { question: `Coca bien frais chacal`, answer: '' };
         case 20:
-          return { question: `Quand qql un nous pousser c est une brute, une pute`, answer: '' };
+          return { question: `Quand qql un nous pousse c est une brute, une pute`, answer: '' };
         case 21:
           return { question: `j me sens radiateur ascendant chèvre. `, answer: '' };
         // Add more cases as needed

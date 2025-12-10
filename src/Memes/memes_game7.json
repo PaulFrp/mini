@@ -12,7 +12,7 @@
         "image": "/images/memes/game7/jelly.png"
     },
     {
-        "id": "3",
+        "id": "17",
         "name": "Il m a dit ta mere la caissiere",
         "video": "https://www.youtube.com/embed/moh7bzL53oI",
         "image": "/images/memes/game7/caissiere.png"
@@ -31,12 +31,12 @@
     },
     {
         "id": "6",
-        "name": "Madame Zizi je vais la taper",
-        "video": "",
-        "image": "/images/memes/game7/"
+        "name": "Pépite de chocolat",
+        "video": "https://www.youtube.com/embed/S45qArulSTU",
+        "image": "/images/memes/game7/pepite.png"
     },
     {
-        "id": "7",
+        "id": "21",
         "name": "On collabore pas nous",
         "video": "https://www.tiktok.com/@_takezoo_/video/7448320838673222934",
         "image": "/images/memes/game7/collabore.png"
@@ -54,10 +54,10 @@
         "image": "/images/memes/game7/bing.png"
     },
     {
-        "id": "10",
-        "name": "",
-        "video": "",
-        "image": "/images/memes/game7/"
+        "id": "18",
+        "name": "In the benining",
+        "video": "https://www.youtube.com/embed/s03qNQVNuyk",
+        "image": "/images/memes/game7/benining.png"
     },
     {
         "id": "11",
@@ -73,9 +73,9 @@
     },
     {
         "id": "13",
-        "name": "Faker what was that",
-        "video": "https://www.youtube.com/embed/ZPCfoCVCx3U",
-        "image": "/images/memes/game7/faker.png"
+        "name": "voitrue screamer",
+        "video": "https://www.youtube.com/embed/681m9FZWTTg",
+        "image": "/images/memes/game7/voiture.png"
     },
     {
         "id": "14",
@@ -91,18 +91,18 @@
     },
     {
         "id": "16",
-        "name": "kher a mojito",
-        "video": "",
-        "image": "/images/memes/game7/"
+        "name": "square hole",
+        "video": "https://www.youtube.com/embed/6pDH66X3ClA",
+        "image": "/images/memes/game7/square.png"
     },
     {
-        "id": "17",
+        "id": "3",
         "name": "C est honteux",
         "video": "https://www.youtube.com/embed/PZSEXOMuO58",
         "image": "/images/memes/game7/honteux.png"
     },
     {
-        "id": "18",
+        "id": "10",
         "name": "issou",
         "video": "https://www.youtube.com/embed/3y5H4XINDEU",
         "image": "/images/memes/game7/issou.png"
@@ -120,16 +120,13 @@
         "image": "/images/memes/game7/technoviking.png"
     },
     {
-        "id": "21",
+        "id": "7",
         "name": "Trololo",
         "video": "https://www.youtube.com/embed/sTSA_sWGM44",
         "image": "/images/memes/game7/trolo.png"
     }
 
-
-
-
-
+    
 
 
 ]

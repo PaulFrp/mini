@@ -80,7 +80,7 @@ const Trivia = () => {
         case 10:
           return { question: `On est ou on est au paradis`, answer: '' };
         case 11:
-          return { question: `Supplément cordon bleu `, answer: '' };
+          return { question: `Paillettes dans ma vie`, answer: '' };
         case 12:
           return { question: 'Ils ont fait pipi dans votre tête', answer: '' }; 
         case 13:

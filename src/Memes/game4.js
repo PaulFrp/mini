@@ -59,19 +59,19 @@ const Trivia = () => {
     switch (number) {
         //1ère colomne Easy 
         case 1:
-          return { question: `Un entonnoir un entonnoir`, answer: '' };
+          return { question: `Pen, pineapple pen`, answer: '' };
         case 2: 
-          return { question: 'Bah j m appelle fati', answer: '' }; 
+          return { question: 'On m a demandé de rendre service', answer: '' }; 
         case 3:
           return { question: 'pepper spray', answer: '' }; 
         case 4:
-          return { question: 'Ah non c est jason', answer: '' }; 
+          return { question: 'megotcule', answer: '' }; 
         case 5:
           return { question: `Enorme Jammy`, answer: '' };
         case 6:
-          return { question: `Matière a l école cantine`, answer: '' };
+          return { question: `ICE guy`, answer: '' };
         case 7:
-          return { question: 'bah dakor (need to cut la video)', answer: '' }; 
+          return { question: 'Et vous paul ?', answer: '' }; 
         //2ème columne Medium
         case 8:
            return { question: "bruit du camion de police", answer: '' }; 
