@@ -28,6 +28,11 @@ function getClientId() {
 }
 
 const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, '');
+// Safe fallback for WebSocket base: derive from BACKEND_URL if NEXT_PUBLIC_WS_BASE_URL isn't set
+const WS_BASE_URL = (process.env.NEXT_PUBLIC_WS_BASE_URL || BACKEND_URL
+  .replace(/^http:\/\//, 'ws://')
+  .replace(/^https:\/\//, 'wss://'))
+  .replace(/\/$/, '');
 
 export default function MemeGame() {
   const wsRef = useRef(null);
@@ -67,15 +72,23 @@ useEffect(() => {
     localStorage.setItem("client_id", id);
   }
   setClientId(id);
+  // Try to restore room id from localStorage (Safari cross-site cookie fallback)
+  try {
+    const rid = localStorage.getItem("room_id");
+    if (rid) setRoomId(rid);
+  } catch {}
 }, []);
 
 // Second effect: fetch messages only when we have a clientId
 useEffect(() => {
   if (!clientId) return; // wait until ready
 
+  const headers = { "x-client-id": clientId };
+  if (roomId) headers["x-room-id"] = roomId;
+
   fetch(`${BACKEND_URL}/room_messages`, {
     credentials: "include",
-    headers: { "x-client-id": clientId },
+    headers,
   })
     .then((res) => res.json())
     .then((data) => {
@@ -89,7 +102,7 @@ useEffect(() => {
         setMessages(["You are not in a room or session expired."]);
       }
     });
-}, [clientId]);
+}, [clientId, roomId]);
 
 // -------------- Nuke until here 
 
@@ -103,9 +116,9 @@ useEffect(() => {
 
     const connectWebSocket = () => {
       try {
-        console.log("WS Base URL:", process.env.NEXT_PUBLIC_WS_BASE_URL);
-        // For prod use this:
-        const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_BASE_URL}/ws/${roomId}?client_id=${clientId}`);
+        console.log("WS Base URL:", WS_BASE_URL);
+        // Use configured WS base or fallback derived from BACKEND_URL
+        const ws = new WebSocket(`${WS_BASE_URL}/ws/${roomId}?client_id=${clientId}`);
 
         // For local dev use this:
         // const ws = new WebSocket(`http://localhost:8000/ws/${roomId}?client_id=${clientId}`);
@@ -196,7 +209,7 @@ useEffect(() => {
       wsRef.current.send(JSON.stringify({ type: "get_status" }));
     } else {
       // fallback: fetch directly if websocket not ready
-      fetch(`${BACKEND_URL}/game_status?room_id=${roomId}`, {
+      fetch(`${BACKEND_URL}/meme/game_status?room_id=${roomId}`, {
         headers: { "x-client-id": clientId },
       })
         .then(res => res.json())
@@ -245,7 +258,7 @@ useEffect(() => {
     wsRef.current.send(JSON.stringify({ type: "get_status" }));
   } else {
     // fallback: fetch directly
-    fetch(`${BACKEND_URL}/game_status?room_id=${roomId}`, {
+    fetch(`${BACKEND_URL}/meme/game_status?room_id=${roomId}`, {
       headers: { "x-client-id": clientId },
     })
       .then(res => res.json())

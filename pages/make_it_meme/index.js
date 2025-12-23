@@ -67,6 +67,7 @@ export default function Home() {
       if (res.ok) {
         setShowUsernameInput(false);
         setRoomId(room_id);
+        try { localStorage.setItem("room_id", String(room_id)); } catch {}
       }
     } catch (err) {
       console.error(err);
@@ -86,6 +87,7 @@ export default function Home() {
         if (!res.ok) throw new Error("Error creating room");
 
         const data = await res.json();
+        try { localStorage.setItem("room_id", String(data.room_id)); } catch {}
         await registerUsername(data.room_id);
       } catch (err) {
         console.error(err);
