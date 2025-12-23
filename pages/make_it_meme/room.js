@@ -97,40 +97,81 @@ useEffect(() => {
   useEffect(() => {
     if (!roomId || !clientId) return;
 
-    console.log("WS Base URL:", process.env.NEXT_PUBLIC_WS_BASE_URL, "http://localhost:8000//ws/${roomId}?client_id=${clientId}");
-    // For prod  use this:
-    const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_BASE_URL}/ws/${roomId}?client_id=${clientId}`);
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
+    let reconnectTimer = null;
 
-    // For local dev use this:
-    // const ws = new WebSocket(`http://localhost:8000/ws/${roomId}?client_id=${clientId}`);
-    console.log(ws)
-    wsRef.current = ws;
+    const connectWebSocket = () => {
+      try {
+        console.log("WS Base URL:", process.env.NEXT_PUBLIC_WS_BASE_URL);
+        // For prod use this:
+        const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_BASE_URL}/ws/${roomId}?client_id=${clientId}`);
 
-    ws.onopen = () => {
-      ws.send(JSON.stringify({ type: "get_status" }));
-    };
+        // For local dev use this:
+        // const ws = new WebSocket(`http://localhost:8000/ws/${roomId}?client_id=${clientId}`);
+        console.log("WebSocket connecting...", ws);
+        wsRef.current = ws;
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log("📦 data:", data);
-      if (data.type === "game_update") {
-        setGameStarted(data.status !== "no_game");
-        setMemeStatus(data);
-        if (typeof data.is_creator !== "undefined") {
-          setIsCreator(data.is_creator);
-        }
-        if (typeof data.remaining === "number") {
-        setRemaining(data.remaining);
-      }
-      }
-    };
-
-        ws.onclose = () => console.log("WebSocket disconnected");
-
-        return () => {
-          ws.close();
+        ws.onopen = () => {
+          console.log("✅ WebSocket connected");
+          reconnectAttempts = 0; // Reset attempts on successful connection
+          ws.send(JSON.stringify({ type: "get_status" }));
         };
-      }, [roomId, clientId]);
+
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            console.log("📦 data:", data);
+            if (data.type === "game_update") {
+              setGameStarted(data.status !== "no_game");
+              setMemeStatus(data);
+              if (typeof data.is_creator !== "undefined") {
+                setIsCreator(data.is_creator);
+              }
+              if (typeof data.remaining === "number") {
+                setRemaining(data.remaining);
+              }
+            } else if (data.error) {
+              console.error("❌ Server error:", data.error);
+              setMessages(data.error);
+            }
+          } catch (e) {
+            console.error("❌ Failed to parse WebSocket message:", e);
+          }
+        };
+
+        ws.onerror = (error) => {
+          console.error("❌ WebSocket error:", error);
+          setMessages("Connection error. Attempting to reconnect...");
+        };
+
+        ws.onclose = () => {
+          console.log("⚠️ WebSocket disconnected. Reconnect attempts:", reconnectAttempts);
+          if (reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts++;
+            const delay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 10000); // exponential backoff, max 10s
+            console.log(`Retrying connection in ${delay}ms...`);
+            reconnectTimer = setTimeout(connectWebSocket, delay);
+          } else {
+            console.error("❌ Max reconnection attempts reached");
+            setMessages("Connection lost. Please refresh the page.");
+          }
+        };
+      } catch (e) {
+        console.error("❌ WebSocket creation error:", e);
+        setMessages("Failed to connect. Retrying...");
+      }
+    };
+
+    connectWebSocket();
+
+    return () => {
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, [roomId, clientId]);
 
   useEffect(() => {
     if (remaining === null || remaining <= 0) return;
@@ -233,7 +274,7 @@ useEffect(() => {
 
   // === Vote Submission ===
   const castVote = (targetId, points) => {
-    if (!wsRef.current) return;
+    if (!wsRef.current || hasFinishedVoting) return;
 
     wsRef.current.send(JSON.stringify({
       type: "submit_vote",
@@ -242,19 +283,8 @@ useEffect(() => {
     }));
 
     setHasVoted(true);
-    setMessages( `🗳️ Vote cast with ${points} points!`);
-
-    // After voting, advance to next meme after a short delay
-    setTimeout(() => {
-      setHasVoted(false);
-      if (currentVoteIndex + 1 < memeStatus.submissions.length) {
-        setCurrentVoteIndex(currentVoteIndex + 1);
-      } else {
-        // All memes voted, maybe notify backend or show waiting screen
-        setMessages("✅ All votes submitted! Waiting for results...");
-        setHasFinishedVoting(true);
-      }
-    }, 1000); // 1 second delay to show confirmation before next
+    setHasFinishedVoting(true);  // Prevent any further voting
+    setMessages( `🗳️ Vote cast with ${points} points! Waiting for results...`);
   };
 
   // === Advance to next meme ===
@@ -303,59 +333,67 @@ useEffect(() => {
 
     {gameStarted && memeStatus?.status === "voting" && memeStatus.submissions.length > 0 && (
       <div>
-        <h2 className={styles.roomHeader}>🗳️ Vote for the caption!</h2>
-        {/* Show only the current meme to vote */}
-        {memeStatus.submissions[currentVoteIndex] && (
-          <div key={memeStatus.submissions[currentVoteIndex].user_id} className={styles.captionSubmission}>
-            <h3>{memeStatus.submissions[currentVoteIndex].username}</h3>
-            <MemeCanvas
-              meme={memeStatus.submissions[currentVoteIndex].meme}
-              captions={memeStatus.submissions[currentVoteIndex].captions}
-              setCaptions={() => {}} // No editing during voting
-            />
-            <div className={styles.buttonWrapper}>
-              {isOwnMeme ? (
-                <>
-                  <p>👤 This is your own meme — you can't vote.</p>
-                  <button
-                    className={styles.button}
-                    onClick={() => {
-                      setMessages("⏩ Skipped your own meme.");
-                      if (currentVoteIndex + 1 < memeStatus.submissions.length) {
-                        setCurrentVoteIndex(currentVoteIndex + 1);
-                      } else {
-                        setMessages("✅ All votes submitted! Waiting for results...");
-                        setHasFinishedVoting(true);
-                      }
-                    }}
-                  >
-                    ⏭️ Skip
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    className={styles.button}
-                    onClick={() => castVote(currentSubmission.user_id, 100)}
-                    disabled={hasVoted || hasFinishedVoting}
-                  >
-                    👍 Upvote (+100)
-                  </button>
-                  <button
-                    className={styles.button}
-                    onClick={() => castVote(currentSubmission.user_id, -50)}
-                    disabled={hasVoted || hasFinishedVoting}
-                  >
-                    👎 Downvote (-50)
-                  </button>
-                </>
-              )}
-            </div>
-
+        <h2 className={styles.roomHeader}>🗳️ Vote for your favorite!</h2>
+        
+        {hasFinishedVoting ? (
+          <div>
+            <p>✅ Vote submitted! Waiting for other players...</p>
+            <p>⏳ {remaining}s left</p>
           </div>
+        ) : (
+          <>
+            {/* Show only the current meme to vote */}
+            {memeStatus.submissions[currentVoteIndex] && (
+              <div key={memeStatus.submissions[currentVoteIndex].user_id} className={styles.captionSubmission}>
+                <h3>{memeStatus.submissions[currentVoteIndex].username}</h3>
+                <MemeCanvas
+                  meme={memeStatus.submissions[currentVoteIndex].meme}
+                  captions={memeStatus.submissions[currentVoteIndex].captions}
+                  setCaptions={() => {}} // No editing during voting
+                />
+                <div className={styles.buttonWrapper}>
+                  {isOwnMeme ? (
+                    <>
+                      <p>👤 This is your own meme — you can't vote.</p>
+                      <button
+                        className={styles.button}
+                        onClick={() => {
+                          setMessages("⏩ Skipped your own meme.");
+                          if (currentVoteIndex + 1 < memeStatus.submissions.length) {
+                            setCurrentVoteIndex(currentVoteIndex + 1);
+                          } else {
+                            setMessages("✅ No more memes to view! Waiting for results...");
+                            setHasFinishedVoting(true);
+                          }
+                        }}
+                      >
+                        ⏭️ Skip
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        className={styles.button}
+                        onClick={() => castVote(currentSubmission.user_id, 100)}
+                        disabled={hasVoted || hasFinishedVoting}
+                      >
+                        👍 Upvote (+100)
+                      </button>
+                      <button
+                        className={styles.button}
+                        onClick={() => castVote(currentSubmission.user_id, -50)}
+                        disabled={hasVoted || hasFinishedVoting}
+                      >
+                        👎 Downvote (-50)
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+            <p>⏳ {remaining}s left</p>
+          </>
         )}
-        {hasVoted && <p>✅ Vote submitted</p>}
-        <p>⏳ {remaining}s left</p>
       </div>
     )}
 
@@ -366,14 +404,17 @@ useEffect(() => {
         {/* Display player points */}
         {memeStatus.player_points && (
           <div>
-          {console.log("Player points:", memeStatus.player_points)}
             <h3 className={styles.roomHeader}>💯 Scores</h3>
             <ul>
-              {Object.entries(memeStatus.player_points).map(([playerId, points]) => (
-                <li key={playerId}>
-                  {playerMap[playerId] || playerId}: {points} points
-                </li>
-              ))}
+              {Object.entries(memeStatus.player_points).map(([playerId, points]) => {
+                // Try to get username from submissions first (includes DB lookup), then fallback to playerMap
+                const username = memeStatus.submissions?.[playerId]?.username || playerMap[playerId] || playerId;
+                return (
+                  <li key={playerId}>
+                    {username}: {points} points
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
@@ -386,8 +427,9 @@ useEffect(() => {
               const submission = memeStatus.submissions?.[id];
               if (!submission) return null;
 
-              const { meme, captions } = submission;
-              const authorName = playerMap[id] || id;
+              const { meme, captions, username } = submission;
+              // Use username from submission (which comes from DB), fallback to playerMap
+              const authorName = username || playerMap[id] || id;
 
               return (
                 <div key={id} className={styles.winnerMemeCard}>
@@ -413,9 +455,11 @@ useEffect(() => {
             const votes = Object.values(memeStatus.votes || {}).filter(
               (v) => v === playerId
             ).length;
+            // Try to get username from submissions first (includes DB lookup), then fallback to playerMap
+            const username = memeStatus.submissions?.[playerId]?.username || playerMap[playerId] || playerId;
             return (
               <li key={playerId}>
-                {playerMap[playerId] || playerId}: {caption.join(" / ")} (
+                {username}: {caption.join(" / ")} (
                 {votes} vote{votes === 1 ? "" : "s"})
               </li>
             );
