@@ -134,22 +134,39 @@ useEffect(() => {
         ws.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
-            console.log("📦 data:", data);
+            console.log("📦 WebSocket message received:", data);
+            console.log("📦 Message type:", data.type, "Status:", data.status);
+            
+            // Respond to ping to keep connection alive on Heroku
+            if (data.type === "ping") {
+              ws.send(JSON.stringify({ type: "pong" }));
+              console.log("🏓 Sent pong response");
+              return;
+            }
+            
             if (data.type === "game_update") {
+              console.log("🎮 Processing game_update - status:", data.status);
               setGameStarted(data.status !== "no_game");
               setMemeStatus(data);
+              console.log("🎮 Updated gameStarted:", data.status !== "no_game");
+              console.log("🎮 Current meme:", data.current_meme);
+              
               if (typeof data.is_creator !== "undefined") {
                 setIsCreator(data.is_creator);
               }
               if (typeof data.remaining === "number") {
                 setRemaining(data.remaining);
+                console.log("⏳ Timer set to:", data.remaining);
               }
             } else if (data.error) {
               console.error("❌ Server error:", data.error);
               setMessages(data.error);
+            } else {
+              console.warn("⚠️ Unknown message type:", data.type);
             }
           } catch (e) {
             console.error("❌ Failed to parse WebSocket message:", e);
+            console.error("❌ Raw message:", event.data);
           }
         };
 
@@ -253,24 +270,34 @@ useEffect(() => {
   const data = await res.json();
   console.log("Game started:", data);
 
-  // Immediately request updated status for all clients
+  // Immediately poll for status (fallback if WS broadcast is delayed on Heroku)
+  const pollStatus = async () => {
+    try {
+      const statusRes = await fetch(`${BACKEND_URL}/meme/game_status?room_id=${roomId}`, {
+        headers: { "x-client-id": clientId },
+      });
+      const statusData = await statusRes.json();
+      console.log("🔄 Polled game status:", statusData);
+      
+      if (statusData.status && statusData.status !== "no_game") {
+        setMemeStatus(statusData);
+        setGameStarted(true);
+        if (typeof statusData.remaining === "number") setRemaining(statusData.remaining);
+        if (typeof statusData.is_creator !== "undefined") setIsCreator(statusData.is_creator);
+      }
+    } catch (err) {
+      console.error("❌ Poll status error:", err);
+    }
+  };
+
+  // Poll immediately and after short delays
+  pollStatus();
+  setTimeout(pollStatus, 1000);
+  setTimeout(pollStatus, 2000);
+
+  // Also try WebSocket get_status if connected
   if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
     wsRef.current.send(JSON.stringify({ type: "get_status" }));
-  } else {
-    // fallback: fetch directly
-    fetch(`${BACKEND_URL}/meme/game_status?room_id=${roomId}`, {
-      headers: { "x-client-id": clientId },
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status) {
-          setMemeStatus(data);
-          setGameStarted(data.status !== "no_game");
-          if (typeof data.remaining === "number") setRemaining(data.remaining);
-          if (typeof data.is_creator !== "undefined") setIsCreator(data.is_creator);
-        }
-      })
-      .catch(console.error);
   }
 };
 
