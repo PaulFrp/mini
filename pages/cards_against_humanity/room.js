@@ -88,12 +88,33 @@ export default function CardsAgainstHumanityRoom() {
       .then((data) => {
         if (data.messages) {
           setMessages(data.messages);
-          setPlayerMap(data.player_map);
+          setPlayerMap(data.player_map || {});
           setIsCreator(data.is_creator);
         }
       })
       .catch(err => console.error("Failed to fetch room messages:", err));
   }, [clientId, roomId]);
+
+  // Poll for updated player list in waiting room (every 1 second)
+  useEffect(() => {
+    if (!roomId || !clientId || gameStarted) return;
+
+    const pollInterval = setInterval(() => {
+      fetch(`${BACKEND_URL}/room_players/${roomId}`, {
+        credentials: "include",
+        headers: { "x-client-id": clientId },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.player_map) {
+            setPlayerMap(data.player_map);
+          }
+        })
+        .catch(err => console.error("Failed to poll players:", err));
+    }, 1000);
+
+    return () => clearInterval(pollInterval);
+  }, [roomId, clientId, gameStarted]);
 
   // WebSocket connection - stable, only reconnects on mount or when roomId/clientId actually changes
   useEffect(() => {
@@ -125,6 +146,12 @@ export default function CardsAgainstHumanityRoom() {
             // Handle ping/pong
             if (data.type === "ping") {
               ws.send(JSON.stringify({ type: "pong" }));
+              return;
+            }
+
+            if (data.type === "player_joined") {
+              console.log("✅ New player joined:", data.player);
+              setPlayerMap(data.player_map || {});
               return;
             }
 
@@ -164,6 +191,7 @@ export default function CardsAgainstHumanityRoom() {
     connectWebSocket();
 
     // Poll for status updates every 2 seconds (ensures non-creator clients see game start)
+    // Also polls for player list updates in waiting room
     const pollInterval = setInterval(() => {
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({ type: "get_status" }));
@@ -180,6 +208,21 @@ export default function CardsAgainstHumanityRoom() {
             }
           })
           .catch((err) => console.error("HTTP poll game_status failed", err));
+      }
+
+      // Also poll for player list updates if in waiting room
+      if (!gameStarted) {
+        fetch(`${BACKEND_URL}/room_players/${roomId}`, {
+          headers: { "x-client-id": clientId },
+          credentials: "include",
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.player_map) {
+              setPlayerMap(data.player_map);
+            }
+          })
+          .catch((err) => console.error("HTTP poll players failed", err));
       }
     }, 2000);
 
