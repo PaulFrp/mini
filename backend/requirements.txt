@@ -1,8 +1,0 @@
-fastapi
-uvicorn[standard]
-sqlalchemy
-pydantic
-python-dotenv
-pytz
-itsdangerous
-psycopg2-binary
