@@ -67,10 +67,13 @@ export default function CardsAgainstHumanityRoom() {
     setClientId(id);
     
     const rid = router.query.room_id || localStorage.getItem("room_id");
-    if (rid) setRoomId(rid);
+    if (rid) {
+      setRoomId(rid);
+      localStorage.setItem("room_id", rid);
+    }
   }, [router.query.room_id]);
 
-  // Fetch initial room messages
+  // Fetch initial room messages - only run once on mount
   useEffect(() => {
     if (!clientId || !roomId) return;
 
@@ -91,14 +94,18 @@ export default function CardsAgainstHumanityRoom() {
       .catch(err => console.error("Failed to fetch room messages:", err));
   }, [clientId, roomId]);
 
-  // WebSocket connection
+  // WebSocket connection - stable, only reconnects on mount or when roomId/clientId actually changes
   useEffect(() => {
     if (!roomId || !clientId) return;
 
+    console.log("🔌 Initializing WebSocket for room", roomId, "client", clientId);
     let reconnectAttempts = 0;
     const maxReconnectAttempts = 5;
+    let isUnmounting = false;
 
     const connectWebSocket = () => {
+      if (isUnmounting) return;
+      
       try {
         const ws = new WebSocket(`${WS_BASE_URL}/ws/cah/${roomId}?client_id=${clientId}`);
         wsRef.current = ws;
@@ -124,8 +131,6 @@ export default function CardsAgainstHumanityRoom() {
               handleGameUpdate(data);
             } else if (data.type === "player_submitted") {
               console.log(`Player submitted: ${data.player}`);
-              // Trigger a status poll to check if game has transitioned to voting
-              // This will be handled by the regular polling interval, no need to manually trigger
             } else if (data.type === "game_over") {
               setGameOver(true);
               setWinners(data.winners);
@@ -144,7 +149,7 @@ export default function CardsAgainstHumanityRoom() {
 
         ws.onclose = () => {
           console.log("🔌 WebSocket closed");
-          if (reconnectAttempts < maxReconnectAttempts) {
+          if (!isUnmounting && reconnectAttempts < maxReconnectAttempts) {
             reconnectAttempts++;
             console.log(`Reconnecting... (${reconnectAttempts}/${maxReconnectAttempts})`);
             setTimeout(connectWebSocket, 2000);
@@ -162,13 +167,15 @@ export default function CardsAgainstHumanityRoom() {
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({ type: "get_status" }));
       }
-      // Only rely on WebSocket when it's available
     }, 2000);
 
     return () => {
+      console.log("🧹 Cleaning up WebSocket");
+      isUnmounting = true;
       clearInterval(pollInterval);
       if (wsRef.current) {
         wsRef.current.close();
+        wsRef.current = null;
       }
     };
   }, [roomId, clientId]);
