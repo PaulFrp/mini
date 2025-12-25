@@ -34,6 +34,7 @@ export default function CardsAgainstHumanityRoom() {
   const wsRef = useRef(null);
   const currentGameStatusRef = useRef(null); // Track current status to avoid stale closures
   const handleGameUpdateRef = useRef(null); // Callback ref for handleGameUpdate
+  const noGameCountRef = useRef(0); // Guard against transient 'no_game' after start
   
   const [clientId, setClientId] = useState(null);
   const [roomId, setRoomId] = useState(null);
@@ -213,15 +214,35 @@ export default function CardsAgainstHumanityRoom() {
     console.log("Handling game update:", data);
     console.log("Current state before update:", { isCzar, hasVoted, gameStatus, hasSubmitted, selectedCardsCount: selectedCards.length });
     
-    const statusChanged = data.status && data.status !== currentGameStatusRef.current;
-    
-    setGameStatus(data.status);
-    currentGameStatusRef.current = data.status; // Update ref immediately
-    setGameStarted(data.status !== "no_game");
+    const incomingStatus = data.status;
+    const prevStatus = currentGameStatusRef.current;
+    const statusChanged = incomingStatus && incomingStatus !== prevStatus;
+
+    // Guard: ignore a few transient 'no_game' statuses if we already had a game
+    if (incomingStatus === "no_game" && prevStatus && prevStatus !== "no_game") {
+      noGameCountRef.current = (noGameCountRef.current || 0) + 1;
+      console.log("⚠️ Transient 'no_game' (", noGameCountRef.current, ") after having status:", prevStatus);
+      if (noGameCountRef.current <= 2) {
+        // Don't flip back to lobby immediately; request a fresh status
+        try {
+          if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+            wsRef.current.send(JSON.stringify({ type: "get_status" }));
+          }
+        } catch {}
+        return; // Skip applying 'no_game' transiently
+      }
+    } else {
+      // Reset the transient counter when we get a normal status
+      noGameCountRef.current = 0;
+    }
+
+    setGameStatus(incomingStatus);
+    currentGameStatusRef.current = incomingStatus; // Update ref immediately
+    setGameStarted(incomingStatus !== "no_game");
     
     if (data.current_question) setCurrentQuestion(data.current_question);
-    // Only update player hand on phase transitions or at game start
-    if (data.player_hand && (statusChanged || gameStatus === null)) {
+    // Always update player hand when server provides it (fixes missing cards when first message lacked hand)
+    if (data.player_hand) {
       setPlayerHand(data.player_hand);
     }
     if (data.scores) setScores(data.scores);
