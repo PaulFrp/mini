@@ -157,10 +157,23 @@ export default function CardsAgainstHumanityRoom() {
 
     connectWebSocket();
 
-    // Poll for status updates every 2 seconds
+    // Poll for status updates every 2 seconds (ensures non-creator clients see game start)
     const pollInterval = setInterval(() => {
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({ type: "get_status" }));
+      } else {
+        // HTTP fallback if WS is not ready
+        fetch(`${BACKEND_URL}/cah/game_status?room_id=${roomId}`, {
+          headers: { "x-client-id": clientId },
+          credentials: "include",
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.type === "game_update") {
+              handleGameUpdate(data);
+            }
+          })
+          .catch(console.error);
       }
     }, 2000);
 
