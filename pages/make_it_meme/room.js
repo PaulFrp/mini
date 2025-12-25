@@ -38,6 +38,8 @@ export default function MemeGame() {
   const wsRef = useRef(null);
   const [messages, setMessages] = useState([]);
   const [captions, setCaptions] = useState([]);
+  const [isSubmittingCaption, setIsSubmittingCaption] = useState(false);
+  const [hasSubmittedCaptions, setHasSubmittedCaptions] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [memeStatus, setMemeStatus] = useState(null);
@@ -48,6 +50,7 @@ export default function MemeGame() {
   const [remaining, setRemaining] = useState(null);
   const [currentVoteIndex, setCurrentVoteIndex] = useState(0);
   const [hasFinishedVoting, setHasFinishedVoting] = useState(false);
+  const lastStatusSeqRef = useRef(0); // avoid processing stale WS frames if they arrive out of order
 
   // === Polling ===
   // First effect: load client ID
@@ -96,6 +99,7 @@ useEffect(() => {
       if (data.messages) {
         setMessages(data.messages);
         setRoomId(data.room_id);
+        try { localStorage.setItem("room_id", data.room_id); } catch {}
         setPlayerMap(data.player_map);
         setIsCreator(data.is_creator);
       } else {
@@ -141,6 +145,22 @@ useEffect(() => {
             if (data.type === "ping") {
               ws.send(JSON.stringify({ type: "pong" }));
               console.log("🏓 Sent pong response");
+              return;
+            }
+
+            // Drop out-of-order frames if backend includes a monotonically increasing sequence
+            if (typeof data.seq === "number") {
+              if (data.seq <= lastStatusSeqRef.current) {
+                console.log("🔀 Dropping stale frame seq", data.seq);
+                return;
+              }
+              lastStatusSeqRef.current = data.seq;
+            }
+
+            if (data.type === "caption_received") {
+              setHasSubmittedCaptions(true);
+              setIsSubmittingCaption(false);
+              setMessages("📝 Captions received! Waiting for others...");
               return;
             }
             
@@ -228,6 +248,7 @@ useEffect(() => {
       // fallback: fetch directly if websocket not ready
       fetch(`${BACKEND_URL}/meme/game_status?room_id=${roomId}`, {
         headers: { "x-client-id": clientId },
+        credentials: "include",
       })
         .then(res => res.json())
         .then(data => {
@@ -248,6 +269,8 @@ useEffect(() => {
     if (memeStatus?.status === "captioning") {
       // Clear captions only if it's a new meme
       setCaptions([]); 
+      setHasSubmittedCaptions(false);
+      setIsSubmittingCaption(false);
       setHasVoted(false); // Optional: reset vote status too
     }
     if (memeStatus?.status === "voting") {
@@ -265,6 +288,7 @@ useEffect(() => {
   const res = await fetch(`${BACKEND_URL}/meme/start_game/${roomId}`, {
     method: "POST",
     headers: { "x-client-id": clientId },
+    credentials: "include", // ensure session cookie crosses origins (Heroku)
   });
 
   const data = await res.json();
@@ -275,6 +299,7 @@ useEffect(() => {
     try {
       const statusRes = await fetch(`${BACKEND_URL}/meme/game_status?room_id=${roomId}`, {
         headers: { "x-client-id": clientId },
+        credentials: "include",
       });
       const statusData = await statusRes.json();
       console.log("🔄 Polled game status:", statusData);
@@ -302,14 +327,64 @@ useEffect(() => {
 };
 
   const submitCaptions = () => {
-    if (!captions.length || !wsRef.current) return;
+    const cleaned = captions.map((c) => (c || "").trim()).filter((c) => c.length > 0);
+    if (!cleaned.length) {
+      setMessages("Please add a caption before submitting.");
+      return;
+    }
 
-    wsRef.current.send(JSON.stringify({
+    // Prevent submissions when the server isn't expecting captions
+    if (memeStatus?.status !== "captioning") {
+      setMessages("⏳ Not in captioning phase. Please wait for the next round.");
+      return;
+    }
+
+    const ws = wsRef.current;
+    setIsSubmittingCaption(true);
+
+    const payload = {
       type: "submit_caption",
-      caption: captions,
-    }));
+      caption: cleaned,
+    };
 
-    setMessages( "📝 Captions submitted!");
+    const sendOverWs = () => {
+      try {
+        ws.send(JSON.stringify(payload));
+        return true;
+      } catch (err) {
+        console.error("❌ WS send failed:", err);
+        return false;
+      }
+    };
+
+    if (ws && ws.readyState === WebSocket.OPEN && sendOverWs()) {
+      setMessages("📝 Captions submitted!");
+      setHasSubmittedCaptions(true);
+      setIsSubmittingCaption(false);
+      return;
+    }
+
+    // Fallback to HTTP if WS is not ready (Heroku may drop idle connections)
+    fetch(`${BACKEND_URL}/meme/submit_caption/${roomId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-client-id": clientId,
+      },
+      credentials: "include",
+      body: JSON.stringify({ captions: cleaned }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        setMessages("📝 Captions submitted!");
+        setHasSubmittedCaptions(true);
+      })
+      .catch((err) => {
+        console.error("❌ Caption submit fallback failed:", err);
+        setMessages("Failed to submit caption. Please retry.");
+        setHasSubmittedCaptions(false);
+      })
+      .finally(() => setIsSubmittingCaption(false));
   };
 
   // === Vote Submission ===
@@ -366,8 +441,12 @@ useEffect(() => {
             setCaptions={setCaptions}
           />
           <div className={styles.buttonWrapper}>
-          <button className={styles.button} onClick={submitCaptions}>
-            ✅ Submit Captions
+          <button
+            className={styles.button}
+            onClick={submitCaptions}
+            disabled={isSubmittingCaption || hasSubmittedCaptions}
+          >
+            {isSubmittingCaption ? "⏳ Sending..." : hasSubmittedCaptions ? "✅ Submitted" : "✅ Submit Captions"}
           </button>
           </div>
         </div>

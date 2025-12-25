@@ -47,6 +47,10 @@ export default function PBGamesRoom() {
   const [error, setError] = useState(null);
   
   const pollingIntervalRef = useRef(null);
+  const pollRequestSeqRef = useRef(0); // tracks poll requests to drop stale responses
+  const lastProcessedSeqRef = useRef(0); // latest processed poll response
+  const questionRef = useRef(""); // track the active question to detect round changes
+  const votingFinishedRef = useRef(false); // keep latest value inside polling callback
 
   // Initialize client ID
   useEffect(() => {
@@ -96,11 +100,27 @@ export default function PBGamesRoom() {
     };
   }, [clientId]);
 
+  // Keep a fresh reference of votingFinished inside callbacks
+  useEffect(() => {
+    votingFinishedRef.current = votingFinished;
+  }, [votingFinished]);
+
   // Poll game status
   useEffect(() => {
     if (!roomId || !clientId) return;
 
+    const updateRemaining = (newRemaining, isNewQuestion = false) => {
+      if (newRemaining == null || Number.isNaN(newRemaining)) return;
+      const sanitized = Math.max(Math.floor(newRemaining), 0);
+      setRemaining((prev) => {
+        if (prev == null || isNewQuestion) return sanitized;
+        // Prevent timer from jumping backwards because of slow/stale responses
+        return Math.min(prev, sanitized);
+      });
+    };
+
     const pollGameStatus = async () => {
+      const requestSeq = ++pollRequestSeqRef.current;
       try {
         const res = await fetch(`${BACKEND_URL}/voting/game_status/${roomId}`, {
           credentials: "include",
@@ -108,23 +128,44 @@ export default function PBGamesRoom() {
         });
         const data = await res.json();
 
-        if (data.status === "voting") {
+        // Drop out-of-order responses (can happen with higher latency on Heroku)
+        if (requestSeq < lastProcessedSeqRef.current) {
+          return;
+        }
+        lastProcessedSeqRef.current = requestSeq;
+
+        const isVoting = data.status === "voting";
+        const isFinished = data.status === "finished";
+        const nextQuestion = data.question || "";
+        const isNewQuestion = isVoting && nextQuestion !== questionRef.current;
+
+        if (isVoting) {
+          // Avoid regressions: if we already marked the round as finished, only allow
+          // returning to voting when we detect a new question.
+          if (votingFinishedRef.current && !isNewQuestion) {
+            updateRemaining(data.remaining, false);
+            return;
+          }
+
+          questionRef.current = nextQuestion;
           setGameStarted(true);
-          setQuestion(data.question || "");
+          setQuestion(nextQuestion);
           setPlayers(data.players || []);
           setVotesCount(data.votes_count || 0);
-          setRemaining(data.remaining);
           setVotingFinished(false);
           setWinners([]);
-          
-          // Check if current client has voted by looking at voters list from backend
+          setVoteDetails({});
+
           const hasCurrentClientVoted = data.voters && data.voters.includes(clientId);
           setHasVoted(hasCurrentClientVoted || false);
-        } else if (data.status === "finished") {
+          updateRemaining(data.remaining, isNewQuestion);
+        } else if (isFinished) {
+          questionRef.current = nextQuestion || questionRef.current;
           setGameStarted(true);
           setVotingFinished(true);
           setWinners(data.winners || []);
           setVoteDetails(data.vote_counts || {});
+          updateRemaining(0, false);
         } else if (data.status === "no_game") {
           setGameStarted(false);
         }
