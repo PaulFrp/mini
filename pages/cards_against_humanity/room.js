@@ -355,6 +355,47 @@ export default function CardsAgainstHumanityRoom() {
       if (!res.ok) {
         const data = await res.json();
         alert(data.detail || "Failed to start game");
+      } else {
+        // Immediately poll for game status since WebSocket might not be connected yet
+        console.log("Game start request sent, polling for game status...");
+        
+        // Poll aggressively for the first few seconds
+        let attempts = 0;
+        const maxAttempts = 15; // 3 seconds with 200ms delay
+        
+        const pollStatus = async () => {
+          if (attempts >= maxAttempts) return;
+          attempts++;
+          
+          try {
+            const statusRes = await fetch(`${BACKEND_URL}/cah/game_status?room_id=${roomId}`, {
+              headers: { "x-client-id": clientId },
+              credentials: "include",
+            });
+            
+            if (statusRes.ok) {
+              const statusData = await statusRes.json();
+              console.log("Polled game status:", statusData);
+              
+              if (statusData.status && statusData.status !== "no_game") {
+                console.log("✅ Game started! Status:", statusData.status);
+                // Let handleGameUpdate process this
+                handleGameUpdateRef.current?.(statusData);
+              } else if (attempts < maxAttempts) {
+                // Keep polling if game hasn't started yet
+                setTimeout(pollStatus, 200);
+              }
+            }
+          } catch (err) {
+            console.error("Error polling game status:", err);
+            if (attempts < maxAttempts) {
+              setTimeout(pollStatus, 200);
+            }
+          }
+        };
+        
+        // Start polling immediately
+        pollStatus();
       }
     } catch (err) {
       console.error("Failed to start game:", err);
