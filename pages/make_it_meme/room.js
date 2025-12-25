@@ -357,6 +357,9 @@ useEffect(() => {
       {gameStarted && memeStatus?.status === "captioning" && (
         <div>
           <h2 className={styles.roomHeader}>📝 Add your captions!</h2>
+          <div className={`${styles.timer} ${remaining <= 10 ? styles.critical : remaining <= 20 ? styles.warning : ''}`}>
+            ⏳ {remaining}s remaining
+          </div>
           <MemeCanvas
             meme={memeStatus.current_meme}
             captions={captions}
@@ -364,21 +367,22 @@ useEffect(() => {
           />
           <div className={styles.buttonWrapper}>
           <button className={styles.button} onClick={submitCaptions}>
-            ✅ Submit
+            ✅ Submit Captions
           </button>
           </div>
-          <p>⏳ {remaining}s left</p> 
         </div>
       )}
 
     {gameStarted && memeStatus?.status === "voting" && memeStatus.submissions.length > 0 && (
       <div>
         <h2 className={styles.roomHeader}>🗳️ Vote for your favorite!</h2>
+        <div className={`${styles.timer} ${remaining <= 10 ? styles.critical : remaining <= 20 ? styles.warning : ''}`}>
+          ⏳ {remaining}s remaining
+        </div>
         
         {hasFinishedVoting ? (
-          <div>
+          <div className={styles.messages}>
             <p>✅ Vote submitted! Waiting for other players...</p>
-            <p>⏳ {remaining}s left</p>
           </div>
         ) : (
           <>
@@ -394,7 +398,9 @@ useEffect(() => {
                 <div className={styles.buttonWrapper}>
                   {isOwnMeme ? (
                     <>
-                      <p>👤 This is your own meme — you can't vote.</p>
+                      <p style={{ width: '100%', textAlign: 'center', margin: '0.5rem 0' }}>
+                        👤 This is your own meme — you can't vote.
+                      </p>
                       <button
                         className={styles.button}
                         onClick={() => {
@@ -407,7 +413,7 @@ useEffect(() => {
                           }
                         }}
                       >
-                        ⏭️ Skip
+                        ⏭️ Skip to Next
                       </button>
                     </>
                   ) : (
@@ -417,21 +423,20 @@ useEffect(() => {
                         onClick={() => castVote(currentSubmission.user_id, 100)}
                         disabled={hasVoted || hasFinishedVoting}
                       >
-                        👍 Upvote (+100)
+                        👍 Upvote (+100 pts)
                       </button>
                       <button
                         className={styles.button}
                         onClick={() => castVote(currentSubmission.user_id, -50)}
                         disabled={hasVoted || hasFinishedVoting}
                       >
-                        👎 Downvote (-50)
+                        👎 Downvote (-50 pts)
                       </button>
                     </>
                   )}
                 </div>
               </div>
             )}
-            <p>⏳ {remaining}s left</p>
           </>
         )}
       </div>

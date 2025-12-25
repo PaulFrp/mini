@@ -6,34 +6,58 @@ const MemeCanvas = ({ meme, captions, setCaptions }) => {
 
   // Responsive font size state
   const [fontSize, setFontSize] = useState('1rem');
-  const [padding, setPadding] = useState('4px');
+  const [padding, setPadding] = useState('6px');
+  const [borderWidth, setBorderWidth] = useState('2px');
 
   useEffect(() => {
-    const updateFontSize = () => {
-      if (window.innerWidth <= 600) {
-        setFontSize('0.8rem');
-        setPadding('2px');
-      } else {
-        setFontSize('1rem');
+    const updateResponsiveStyles = () => {
+      const width = window.innerWidth;
+      
+      if (width <= 400) {
+        // Very small phones
+        setFontSize('0.7rem');
+        setPadding('3px');
+        setBorderWidth('1px');
+      } else if (width <= 600) {
+        // Small phones and medium devices
+        setFontSize('0.85rem');
         setPadding('4px');
+        setBorderWidth('1.5px');
+      } else {
+        // Desktop and tablets
+        setFontSize('1rem');
+        setPadding('6px');
+        setBorderWidth('2px');
       }
     };
 
-    updateFontSize();
-    window.addEventListener('resize', updateFontSize);
-    return () => window.removeEventListener('resize', updateFontSize);
+    updateResponsiveStyles();
+    window.addEventListener('resize', updateResponsiveStyles);
+    return () => window.removeEventListener('resize', updateResponsiveStyles);
   }, []);
 
   if (!meme || !meme.filename || !Array.isArray(meme.caption_slots)) {
-  return <div>Loading meme...</div>;
+    return <div style={{ padding: '1rem', textAlign: 'center' }}>Loading meme...</div>;
   }
 
   return (
-    <div style={{ position: 'relative', display: 'inline-block', width: '100%', maxWidth: `${DESIGN_WIDTH}px` }}>
+    <div style={{ 
+      position: 'relative', 
+      display: 'inline-block', 
+      width: '100%', 
+      maxWidth: `${DESIGN_WIDTH}px`,
+      margin: '0 auto'
+    }}>
       <img
         src={`/images/mim/${meme.filename}`}
         alt={meme.id}
-        style={{ width: '100%', maxWidth: '100%', height: 'auto', display: 'block' }}
+        style={{ 
+          width: '100%', 
+          maxWidth: '100%', 
+          height: 'auto', 
+          display: 'block',
+          borderRadius: '8px'
+        }}
       />
 
       {meme.caption_slots.map((slot, i) => {
@@ -61,8 +85,8 @@ const MemeCanvas = ({ meme, captions, setCaptions }) => {
               fontSize,
               padding,
               boxSizing: 'border-box',
-              backgroundColor: 'rgba(255,255,255,0.7)',
-              border: '1px solid #ccc',
+              backgroundColor: 'rgba(255,255,255,0.85)',
+              border: `${borderWidth} solid #4caf50`,
               borderRadius: '4px',
               textAlign: 'center',
               resize: 'none',
@@ -70,6 +94,10 @@ const MemeCanvas = ({ meme, captions, setCaptions }) => {
               maxWidth: '100%',
               wordBreak: 'break-word',
               whiteSpace: 'pre-wrap',
+              fontFamily: 'Arial, sans-serif',
+              fontWeight: '600',
+              lineHeight: '1.2',
+              color: '#000',
             }}
           />
         );

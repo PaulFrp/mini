@@ -1,41 +1,208 @@
+/* Background */
 .background-image {
-  min-height: 100vh;
-  background: linear-gradient(to bottom right, #f5f7fa, #c3cfe2);
-  padding: 30px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  background-image: url('/images/picolo/green.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -10;
 }
 
+.container {
+  min-height: 100vh;
+  padding-bottom: 2rem;
+}
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  padding: 3rem 1rem 2rem;
+  background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%);
+  margin: 2rem auto;
+  max-width: 900px;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  backdrop-filter: blur(10px);
+}
+
+.heroTitle {
+  font-size: 3rem;
+  margin: 0 0 0.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+}
+
+.heroSubtitle {
+  font-size: 1.3rem;
+  color: #555;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Cards Container */
+.cardsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 0 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Card Styles */
+.card {
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  padding: 1.75rem;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255,255,255,0.2);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+}
+
+.cardEmoji {
+  font-size: 3.5rem;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+  transition: transform 0.3s ease;
+}
+
+.card:hover .cardEmoji {
+  transform: scale(1.15) rotate(-5deg);
+}
+
+.cardContent {
+  text-align: center;
+  flex: 1;
+}
+
+.cardTitle {
+  font-size: 1.3rem;
+  color: white;
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.cardDescription {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.95);
+  margin: 0;
+  font-weight: 400;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.cardArrow {
+  font-size: 1.5rem;
+  color: white;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
+}
+
+.card:hover .cardArrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Color variants with gradients */
+.gray    { background: linear-gradient(135deg, #6c757d 0%, #495057 100%); }
+.blue    { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); }
+.teal    { background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%); }
+.indigo  { background: linear-gradient(135deg, #6610f2 0%, #5a0fd4 100%); }
+.orange  { background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%); }
+.pink    { background: linear-gradient(135deg, #e83e8c 0%, #d63384 100%); }
+.red     { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); }
+.green   { background: linear-gradient(135deg, #28a745 0%, #218838 100%); }
+.purple  { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); }
+
+/* Game Page Styles */
 .centered-cell {
-    text-align: center;
-    overflow: auto
+  text-align: center;
+  padding: 3.5rem 1rem; /* increased top spacing under navbar */
+  margin-top: 2rem; /* additional margin to ensure spacing */
+}
+
+.gameHeader {
+  background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%);
+  padding: 2rem;
+  border-radius: 16px;
+  margin: 3.5rem auto 2rem; /* increased top margin for more space under navbar */
+  max-width: 900px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  backdrop-filter: blur(10px);
+}
+
+.gameHeader h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
 }
 
 .centered-table {
   width: 100%;
   max-width: 900px;
-  margin: 40px auto;
-  border-collapse: collapse;
-  table-layout: fixed; /* 👈 ensures equal column widths */
+  margin: 2rem auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
 }
 
 .centered-table th {
-  padding: 12px 16px;
-  background-color: #343a40;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  font-size: 1rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .centered-table td {
-  padding: 16px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.centered-table th,
-.centered-table td {
-  border: 1px solid #5a5a5a; /* light gray border for visible separation */
-  text-align: center;
+  padding: 0.5rem;
+  border: 1px solid rgba(0,0,0,0.05);
 }
 
 .space-columns {
@@ -44,31 +211,145 @@
 
 /* Button Styles */
 .triviaButton {
-  background-color: #007bff;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
   color: white;
   border: none;
-  padding: 12px 0;
-  font-size: 1rem;
+  padding: 1.5rem 1rem;
+  font-size: 1.2rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.25s, transform 0.1s;
+  transition: all 0.3s ease;
   width: 100%;
-  height: 100%;
-  border-radius: 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.triviaButton::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.triviaButton:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .triviaButton:hover {
-  background-color: #0056b3;
-  transform: scale(1.05);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.5);
+}
+
+.triviaButton:active {
+  transform: translateY(0);
 }
 
 .red-button {
-  background-color: #dc3545 !important;
-  color: white;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3) !important;
+}
+
+.red-button:hover {
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.5) !important;
 }
 
 .card-container {
-  margin-top: 30px;
+  margin-top: 2rem;
 }
 
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: 2.2rem;
+  }
 
+  .heroSubtitle {
+    font-size: 1.1rem;
+  }
+
+  .hero {
+    padding: 2rem 1rem 1.5rem;
+    margin: 2rem 1rem;
+  }
+
+  .gameHeader {
+    padding: 1.5rem;
+    margin: 1.5rem 1rem;
+  }
+
+  .gameHeader h1 {
+    font-size: 2rem;
+  }
+
+  .cardsContainer {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.25rem;
+    padding: 0 1rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+
+  .cardEmoji {
+    font-size: 3rem;
+  }
+
+  .cardTitle {
+    font-size: 1.15rem;
+  }
+
+  .cardDescription {
+    font-size: 0.9rem;
+  }
+
+  .centered-table {
+    font-size: 0.9rem;
+  }
+
+  .centered-table th {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  .triviaButton {
+    padding: 1.25rem 0.75rem;
+    font-size: 1.1rem;
+  }
+
+  .centered-cell {
+    padding: 2.25rem 0.5rem; /* proportional spacing on mobile */
+  }
+}
+
+@media (max-width: 500px) {
+  .heroTitle {
+    font-size: 1.8rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1rem;
+  }
+
+  .cardsContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .gameHeader h1 {
+    font-size: 1.6rem;
+  }
+
+  .triviaButton {
+    font-size: 1rem;
+    padding: 1rem 0.5rem;
+  }
+}

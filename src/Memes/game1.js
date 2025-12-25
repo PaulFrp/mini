@@ -153,9 +153,13 @@ const Trivia = () => {
   const { question, answer } = selectedCard ? getCardTexts(selectedCard) : { question: '', answer: '' };
  
   return (
-    <div className={`${styles['centered-cell']} ${stylesCard['background-image']}`}>
+    <div className={styles['centered-cell']}>
+      <div className={stylesCard['background-image']}></div>
       <NavigationBar/>
-      <h1>Welcome to Memes culture </h1>
+      <div className={styles['gameHeader']}>
+        <h1>😂 Memes Culture 1</h1>
+      </div>
+      
       <table className={styles['centered-table']}>
         <thead>
           <tr>
@@ -178,7 +182,7 @@ const Trivia = () => {
                     onClick={() => showCard(buttonNumber)}
                     className={`${styles.triviaButton} ${isButtonClicked ? styles['red-button'] : ''}`}
                   >
-                  {rowIndex}
+                  {rowIndex + 1}
                   </button>
                   </td>
                    );
@@ -189,28 +193,28 @@ const Trivia = () => {
       </table>
 
       <div className={stylesCard['card-container']}>
-      {selectedCard && (
-        <div>
-        <div className={`${stylesCard['centered-cell']} ${stylesCard['card']}`}>
-          <Card  
-            image={currentImage} 
-            answer={answer} 
-            isFlipped={isFlipped} 
-            handleCardClick={handleCardClick} 
-            videoUrl={currentVideoUrl} 
-            />
-
-        </div>
-        <div>
-          <button onClick={handleHintClick}>Hint</button>
-          {isHint && <p>{question}</p>}
-        </div>
-        
-        </div>
-        
-      )}
-    </div>
-
+        {selectedCard ? (
+          <div>
+            <div className={stylesCard['centered-cell']}>
+              <Card  
+                image={currentImage} 
+                answer={answer} 
+                isFlipped={isFlipped} 
+                handleCardClick={handleCardClick} 
+                videoUrl={currentVideoUrl} 
+              />
+            </div>
+            <div>
+              <button className={stylesCard['hintButton']} onClick={handleHintClick}>
+                {isHint ? '🙈 Masquer l\'indice' : '💡 Afficher l\'indice'}
+              </button>
+              {isHint ? (
+                <p className={stylesCard['hintText']}>{question}</p>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 };
