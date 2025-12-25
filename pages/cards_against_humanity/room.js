@@ -33,6 +33,7 @@ export default function CardsAgainstHumanityRoom() {
   const router = useRouter();
   const wsRef = useRef(null);
   const currentGameStatusRef = useRef(null); // Track current status to avoid stale closures
+  const handleGameUpdateRef = useRef(null); // Callback ref for handleGameUpdate
   
   const [clientId, setClientId] = useState(null);
   const [roomId, setRoomId] = useState(null);
@@ -128,7 +129,7 @@ export default function CardsAgainstHumanityRoom() {
             }
 
             if (data.type === "game_update") {
-              handleGameUpdate(data);
+              handleGameUpdateRef.current?.(data);
             } else if (data.type === "player_submitted") {
               console.log(`Player submitted: ${data.player}`);
             } else if (data.type === "game_over") {
@@ -194,6 +195,7 @@ export default function CardsAgainstHumanityRoom() {
     return () => clearInterval(timer);
   }, [remaining !== null && remaining > 0]);
 
+  // Define handleGameUpdate and keep it in a ref so WebSocket can access the latest version
   const handleGameUpdate = (data) => {
     console.log("Handling game update:", data);
     console.log("Current state before update:", { isCzar, hasVoted, gameStatus, hasSubmitted, selectedCardsCount: selectedCards.length });
@@ -276,6 +278,11 @@ export default function CardsAgainstHumanityRoom() {
       selectedCardsCount: selectedCards.length
     });
   };
+
+  // Keep handleGameUpdate ref updated
+  useEffect(() => {
+    handleGameUpdateRef.current = handleGameUpdate;
+  });
 
   const startGame = async () => {
     try {
