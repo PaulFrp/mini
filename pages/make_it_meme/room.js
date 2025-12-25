@@ -218,24 +218,10 @@ useEffect(() => {
     // Poll game status periodically as fallback when WS broadcast is missed (common on Heroku)
     const statusPollInterval = setInterval(() => {
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        // When WS is open, use it for polling
         wsRef.current.send(JSON.stringify({ type: "get_status" }));
-      } else {
-        // If WS is not ready, fetch via HTTP
-        fetch(`${BACKEND_URL}/meme/game_status?room_id=${roomId}`, {
-          headers: { "x-client-id": clientId },
-          credentials: "include",
-        })
-          .then(res => res.json())
-          .then(data => {
-            if (data.status && data.status !== "no_game") {
-              setMemeStatus(data);
-              setGameStarted(true);
-              if (typeof data.remaining === "number") setRemaining(data.remaining);
-              if (typeof data.is_creator !== "undefined") setIsCreator(data.is_creator);
-            }
-          })
-          .catch(console.error);
       }
+      // Only use HTTP polling if WS never connected (but don't mix with WS updates)
     }, 2000); // Poll every 2 seconds
 
     return () => {
