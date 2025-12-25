@@ -36,8 +36,6 @@ const WS_BASE_URL = (process.env.NEXT_PUBLIC_WS_BASE_URL || BACKEND_URL
 
 export default function MemeGame() {
   const wsRef = useRef(null);
-  const noGameCountRef = useRef(0); // Guard against transient 'no_game' after start
-  const currentGameStatusRef = useRef(null); // Track game status to detect transient resets
   const [messages, setMessages] = useState([]);
   const [captions, setCaptions] = useState([]);
   const [isSubmittingCaption, setIsSubmittingCaption] = useState(false);
@@ -168,26 +166,6 @@ useEffect(() => {
             
             if (data.type === "game_update") {
               console.log("🎮 Processing game_update - status:", data.status);
-              
-              // Guard: ignore transient 'no_game' after game has started
-              if (data.status === "no_game" && currentGameStatusRef.current && currentGameStatusRef.current !== "no_game") {
-                noGameCountRef.current = (noGameCountRef.current || 0) + 1;
-                console.log("⚠️ Transient 'no_game' (", noGameCountRef.current, ") after having status:", currentGameStatusRef.current);
-                if (noGameCountRef.current <= 2) {
-                  // Don't flip back to lobby immediately; request fresh status
-                  try {
-                    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-                      wsRef.current.send(JSON.stringify({ type: "get_status" }));
-                    }
-                  } catch {}
-                  return; // Skip applying 'no_game' transiently
-                }
-              } else {
-                // Reset counter when we get a normal status
-                noGameCountRef.current = 0;
-              }
-              
-              currentGameStatusRef.current = data.status;
               setGameStarted(data.status !== "no_game");
               setMemeStatus(data);
               console.log("🎮 Updated gameStarted:", data.status !== "no_game");

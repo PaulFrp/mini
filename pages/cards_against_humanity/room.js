@@ -34,7 +34,6 @@ export default function CardsAgainstHumanityRoom() {
   const wsRef = useRef(null);
   const currentGameStatusRef = useRef(null); // Track current status to avoid stale closures
   const handleGameUpdateRef = useRef(null); // Callback ref for handleGameUpdate
-  const noGameCountRef = useRef(0); // Guard against transient 'no_game' after start
   
   const [clientId, setClientId] = useState(null);
   const [roomId, setRoomId] = useState(null);
@@ -217,24 +216,6 @@ export default function CardsAgainstHumanityRoom() {
     const incomingStatus = data.status;
     const prevStatus = currentGameStatusRef.current;
     const statusChanged = incomingStatus && incomingStatus !== prevStatus;
-
-    // Guard: ignore a few transient 'no_game' statuses if we already had a game
-    if (incomingStatus === "no_game" && prevStatus && prevStatus !== "no_game") {
-      noGameCountRef.current = (noGameCountRef.current || 0) + 1;
-      console.log("⚠️ Transient 'no_game' (", noGameCountRef.current, ") after having status:", prevStatus);
-      if (noGameCountRef.current <= 2) {
-        // Don't flip back to lobby immediately; request a fresh status
-        try {
-          if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-            wsRef.current.send(JSON.stringify({ type: "get_status" }));
-          }
-        } catch {}
-        return; // Skip applying 'no_game' transiently
-      }
-    } else {
-      // Reset the transient counter when we get a normal status
-      noGameCountRef.current = 0;
-    }
 
     setGameStatus(incomingStatus);
     currentGameStatusRef.current = incomingStatus; // Update ref immediately
