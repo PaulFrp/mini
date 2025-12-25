@@ -167,6 +167,19 @@ export default function CardsAgainstHumanityRoom() {
     const pollInterval = setInterval(() => {
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({ type: "get_status" }));
+      } else {
+        // HTTP fallback if WS not ready; call the same handler for consistency
+        fetch(`${BACKEND_URL}/cah/game_status?room_id=${roomId}`, {
+          headers: { "x-client-id": clientId },
+          credentials: "include",
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data && data.type === "game_update") {
+              handleGameUpdateRef.current?.(data);
+            }
+          })
+          .catch((err) => console.error("HTTP poll game_status failed", err));
       }
     }, 2000);
 
