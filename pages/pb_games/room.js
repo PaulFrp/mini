@@ -51,6 +51,8 @@ export default function PBGamesRoom() {
   const lastProcessedSeqRef = useRef(0); // latest processed poll response
   const questionRef = useRef(""); // track the active question to detect round changes
   const votingFinishedRef = useRef(false); // keep latest value inside polling callback
+  const currentGameStatusRef = useRef(null); // Track game status to detect transient resets
+  const noGameCountRef = useRef(0); // Guard against transient 'no_game' after start
 
   // Initialize client ID
   useEffect(() => {
@@ -148,6 +150,8 @@ export default function PBGamesRoom() {
           }
 
           questionRef.current = nextQuestion;
+          currentGameStatusRef.current = "voting";
+          noGameCountRef.current = 0;
           setGameStarted(true);
           setQuestion(nextQuestion);
           setPlayers(data.players || []);
@@ -161,12 +165,26 @@ export default function PBGamesRoom() {
           updateRemaining(data.remaining, isNewQuestion);
         } else if (isFinished) {
           questionRef.current = nextQuestion || questionRef.current;
+          currentGameStatusRef.current = "finished";
+          noGameCountRef.current = 0;
           setGameStarted(true);
           setVotingFinished(true);
           setWinners(data.winners || []);
           setVoteDetails(data.vote_counts || {});
           updateRemaining(0, false);
         } else if (data.status === "no_game") {
+          // Guard: ignore transient 'no_game' after game has started
+          if (currentGameStatusRef.current && currentGameStatusRef.current !== "no_game") {
+            noGameCountRef.current = (noGameCountRef.current || 0) + 1;
+            console.log("⚠️ Transient 'no_game' (", noGameCountRef.current, ") after having status:", currentGameStatusRef.current);
+            if (noGameCountRef.current <= 2) {
+              // Don't flip back to lobby immediately; re-poll instead
+              return;
+            }
+          } else {
+            noGameCountRef.current = 0;
+          }
+          currentGameStatusRef.current = "no_game";
           setGameStarted(false);
         }
       } catch (err) {
