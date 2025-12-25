@@ -10,6 +10,7 @@ export default function Home() {
   const [clientId, setClientId] = useState(null);
   const [username, setUsername] = useState("");
   const [showUsernameInput, setShowUsernameInput] = useState(false);
+  const [mode, setMode] = useState(null); // 'create' or 'join'
 
   const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, '');
   console.log("Using backend URL:", BACKEND_URL);
@@ -25,14 +26,18 @@ export default function Home() {
 
   // When user clicks "Create Room", just show username input first
   const handleCreate = () => {
+    setMode('create');
     setShowUsernameInput(true);
     setRoomId(null); // reset roomId for new room
   };
 
   // When user clicks "Join Room", set the roomId and show username input
   const handleJoin = () => {
-    setRoomId(joinInput);
-    setShowUsernameInput(true);
+    if (joinInput.trim()) {
+      setMode('join');
+      setRoomId(joinInput);
+      setShowUsernameInput(true);
+    }
   };
 
   // Helper function to register username in a room
@@ -95,69 +100,131 @@ export default function Home() {
     }
   };
 
+  const handleReset = () => {
+    setMode(null);
+    setShowUsernameInput(false);
+    setUsername("");
+    setJoinInput("");
+    setRoomId("");
+  };
+
   return (
-    <div>
-        <div className={styles['background-image']} />
-        <div className={styles['centered-cell']}/>
-    <NavigationBar />
-    <div className={styles.homeContainer}>
-      <h1 className={styles.title}>Room System</h1>
-  
-      <div className={styles.buttonWrapper}>
-        <button
-          className={styles.button}
-          onClick={handleCreate}
-          disabled={!clientId}
-        >
-          Create Room
-        </button>
+    <div className={styles.container}>
+      <div className={styles['background-image']} />
+      <NavigationBar />
+      
+      <div className={styles.gameContainer}>
+        {!mode ? (
+          <>
+            <p className={styles.subtitle}>Create or join a room to play with friends</p>
+            
+            <div className={styles.cardsWrapper}>
+              {/* Create Room Card */}
+              <div className={styles.card}>
+                <div className={styles.cardIcon}>➕</div>
+                <h2 className={styles.cardTitle}>Create Room</h2>
+                <p className={styles.cardDescription}>
+                  Start a new game and invite your friends to join
+                </p>
+                <button
+                  className={`${styles.cardButton} ${styles.createButton}`}
+                  onClick={handleCreate}
+                  disabled={!clientId}
+                >
+                  Create New Room
+                </button>
+              </div>
+
+              {/* Join Room Card */}
+              <div className={styles.card}>
+                <div className={styles.cardIcon}>🔗</div>
+                <h2 className={styles.cardTitle}>Join Room</h2>
+                <p className={styles.cardDescription}>
+                  Enter a room ID to join an existing game
+                </p>
+                <div className={styles.inputWrapper}>
+                  <input
+                    className={styles.roomInput}
+                    type="text"
+                    placeholder="Enter Room ID"
+                    value={joinInput}
+                    onChange={(e) => setJoinInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleJoin()}
+                  />
+                  <button
+                    className={`${styles.cardButton} ${styles.joinButton}`}
+                    onClick={handleJoin}
+                    disabled={!clientId || !joinInput}
+                  >
+                    Join Room
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : showUsernameInput ? (
+          <div className={styles.modalSection}>
+            <h2 className={styles.modalTitle}>
+              {mode === 'create' ? '🎮 Create New Room' : '🔗 Join Room'}
+            </h2>
+            <p className={styles.modalSubtitle}>
+              {mode === 'create' ? 'Choose your username' : `Enter your username for Room #${roomId}`}
+            </p>
+            
+            <div className={styles.usernameInput}>
+              <input
+                className={styles.inputField}
+                type="text"
+                placeholder="Your Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && submitUsername()}
+                autoFocus
+              />
+            </div>
+
+            <div className={styles.modalButtonGroup}>
+              <button
+                className={`${styles.modalButton} ${styles.submitButton}`}
+                onClick={submitUsername}
+                disabled={!username}
+              >
+                {mode === 'create' ? 'Create & Enter Room' : 'Join Room'}
+              </button>
+              <button
+                className={`${styles.modalButton} ${styles.cancelButton}`}
+                onClick={handleReset}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : roomId && !showUsernameInput ? (
+          <div className={styles.successSection}>
+            <div className={styles.successIcon}>✅</div>
+            <h2 className={styles.successTitle}>Room Ready!</h2>
+            <p className={styles.successText}>
+              Room ID: <span className={styles.roomIdDisplay}>#{roomId}</span>
+            </p>
+            <p className={styles.successDescription}>
+              You're all set. Click below to enter the game
+            </p>
+            
+            <Link href="/pb_games/room" className={styles.successLink}>
+              <button className={styles.successButton}>
+                Enter Game →
+              </button>
+            </Link>
+
+            <button
+              className={styles.newRoomButton}
+              onClick={handleReset}
+            >
+              Create Another Room
+            </button>
+          </div>
+        ) : null}
       </div>
-  
-      <div className={styles.inputGroup}>
-        <input
-          className={styles.textInput}
-          type="text"
-          placeholder="Enter Room ID"
-          value={joinInput}
-          onChange={(e) => setJoinInput(e.target.value)}
-        />
-        
-        <button
-          className={styles.button}
-          onClick={handleJoin}
-          disabled={!clientId || !joinInput}
-        >
-          Join Room
-        </button>
-      </div>
-  
-      {showUsernameInput && (
-        <div className={styles.inputGroup} style={{ marginTop: "1.5rem" }}>
-          <input
-            className={styles.textInput}
-            type="text"
-            placeholder="Enter your username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            />
-          <button
-            className={styles.button}
-            onClick={submitUsername}
-            disabled={!username}
-          >
-            Submit Username
-          </button>
-        </div>
-      )}
-  
-      {roomId && !showUsernameInput && (
-        <div className={styles.buttonWrapper}>
-        <div className={styles.linkBox}>
-          <Link href="pb_games/room">Go to Room</Link>
-        </div>
-        </div>
-      )}
-    </div>
     </div>
   );
 }

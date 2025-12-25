@@ -1,231 +1,356 @@
 import styles from "./RoomPage.module.css";
 import NavigationBar from "../../src/navBar";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 function getClientId() {
+  if (typeof window === "undefined") return null;
   let id = localStorage.getItem("client_id");
   if (!id) {
-    id = crypto.randomUUID();
+    if (window.crypto && crypto.randomUUID) {
+      id = crypto.randomUUID();
+    } else {
+      id = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+        (
+          c ^ (window.crypto && crypto.getRandomValues
+            ? crypto.getRandomValues(new Uint8Array(1))[0]
+            : Math.random() * 16
+          ) & 15 >> c / 4
+        ).toString(16)
+      );
+    }
     localStorage.setItem("client_id", id);
   }
   return id;
 }
 
-export default function RoomPage() {
-  const [messages, setMessages] = useState([]);
-  const [roomId, setRoomId] = useState(null);
-  const [playerMap, setPlayerMap] = useState(null);
-  const [isCreator, setIsCreator] = useState(false);
-  const [clientId, setClientId] = useState(null);
-  const [gameStarted, setGameStarted] = useState(false);
+const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, '');
 
-  // New states for voting
+export default function PBGamesRoom() {
+  const [clientId, setClientId] = useState(null);
+  const [roomId, setRoomId] = useState(null);
+  const [isCreator, setIsCreator] = useState(false);
+  const [playerMap, setPlayerMap] = useState({});
+  const [gameStarted, setGameStarted] = useState(false);
+  
+  // Voting state
   const [question, setQuestion] = useState("");
   const [players, setPlayers] = useState([]);
-  const [remaining, setRemaining] = useState(0);
-  const [votesCount, setVotesCount] = useState({});
+  const [votesCount, setVotesCount] = useState(0);
+  const [remaining, setRemaining] = useState(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [votingFinished, setVotingFinished] = useState(false);
   const [winners, setWinners] = useState([]);
+  const [voteDetails, setVoteDetails] = useState({});
 
-  const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, '');
+  // Loading/error states
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  const pollingIntervalRef = useRef(null);
 
+  // Initialize client ID
   useEffect(() => {
     const id = getClientId();
     setClientId(id);
-
-    fetch(`${BACKEND_URL}/room_messages`, {
-      credentials: "include",
-      headers: {
-        "x-client-id": id,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("Room messages response:", data);
-        if (data.messages) {
-          setMessages(data.messages);
-          setRoomId(data.room_id);
-          setPlayerMap(data.player_map)
-          setIsCreator(data.is_creator);
-        } else {
-          setMessages(["You are not in a room or session expired."]);
-        }
-      });
+    try {
+      const rid = localStorage.getItem("room_id");
+      if (rid) setRoomId(rid);
+    } catch {}
   }, []);
 
+  // Fetch room data and game status
   useEffect(() => {
-    console.log("playerMap:", playerMap);
-    if (gameStarted && !votingFinished) {
-      setHasVoted(false);
-    }
-  }, [question]);
+    if (!clientId) return;
 
-  // Polling game status, including voting
-  useEffect(() => {
-    if (!roomId) return;
+    const headers = { "x-client-id": clientId };
+    if (roomId) headers["x-room-id"] = roomId;
 
-    const interval = setInterval(() => {
-      fetch(`${BACKEND_URL}/voting/game_status/${roomId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.status === "waiting") {
-            setGameStarted(false);
-            setVotingFinished(false);
-            setHasVoted(false);
-            setMessages([`${roomId} Waiting for the game to start...`]);
-          } else if (data.status === "voting") {
-            setGameStarted(true);
-            setVotingFinished(false);
-            setQuestion(data.question);
-            setPlayers(data.players);
-            setRemaining(data.remaining);
-            setVotesCount(data.votes_count);
-            
-            setMessages((msgs) => {
-              if (!msgs.includes("Game has started!")) {
-                return [...msgs, "Game has started!"];
-              }
-              return msgs;
-            });
-          } else if (data.status === "finished") {
-            setVotingFinished(true);
-            setWinners(data.winners);
-            setVotesCount(data.votes_count);
-          }
+    const fetchRoomData = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/room_messages`, {
+          credentials: "include",
+          headers,
         });
-    }, 2000);
+        const data = await res.json();
+        
+        if (data.room_id) {
+          setRoomId(data.room_id);
+          localStorage.setItem("room_id", data.room_id);
+          setIsCreator(data.is_creator);
+          setPlayerMap(data.player_map || {});
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Error fetching room data:", err);
+        setError("Failed to load room data");
+        setLoading(false);
+      }
+    };
 
-    return () => clearInterval(interval);
-  }, [roomId]);
+    fetchRoomData();
+    // Poll room data every 1.5 seconds to refresh player list
+    const roomDataIntervalRef = setInterval(fetchRoomData, 1500);
 
-  const startGame = () => {
-    if (!roomId) return;
-    fetch(`${BACKEND_URL}/voting/start_game/${roomId}`, {
-      method: "POST",
-      headers: {
-        "x-client-id": clientId,
-      },
-    });
+    return () => {
+      clearInterval(roomDataIntervalRef);
+    };
+  }, [clientId]);
+
+  // Poll game status
+  useEffect(() => {
+    if (!roomId || !clientId) return;
+
+    const pollGameStatus = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/voting/game_status/${roomId}`, {
+          credentials: "include",
+          headers: { "x-client-id": clientId },
+        });
+        const data = await res.json();
+
+        if (data.status === "voting") {
+          setGameStarted(true);
+          setQuestion(data.question || "");
+          setPlayers(data.players || []);
+          setVotesCount(data.votes_count || 0);
+          setRemaining(data.remaining);
+          setVotingFinished(false);
+          setWinners([]);
+          
+          // Check if current client has voted by looking at voters list from backend
+          const hasCurrentClientVoted = data.voters && data.voters.includes(clientId);
+          setHasVoted(hasCurrentClientVoted || false);
+        } else if (data.status === "finished") {
+          setGameStarted(true);
+          setVotingFinished(true);
+          setWinners(data.winners || []);
+          setVoteDetails(data.vote_counts || {});
+        } else if (data.status === "no_game") {
+          setGameStarted(false);
+        }
+      } catch (err) {
+        console.error("Error polling game status:", err);
+      }
+    };
+
+    pollGameStatus();
+    pollingIntervalRef.current = setInterval(pollGameStatus, 1000);
+
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, [roomId, clientId]);
+
+  const handleStartGame = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/voting/start_game/${roomId}`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "x-client-id": clientId },
+      });
+      const data = await res.json();
+      if (data.status === "game started") {
+        setGameStarted(true);
+      }
+    } catch (err) {
+      console.error("Error starting game:", err);
+    }
   };
 
-  const castVote = (player) => {
+  const handleVote = async (player) => {
     if (hasVoted || votingFinished) return;
 
-    fetch(`${BACKEND_URL}/voting/vote/${roomId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ voter_id: clientId, vote_for: player }),
-    }).then(() => setHasVoted(true));
+    // Optimistically set hasVoted to true immediately for better UX
+    setHasVoted(true);
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/voting/vote/${roomId}`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "x-client-id": clientId,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          voter_id: clientId,
+          vote_for: player,
+        }),
+      });
+      if (!res.ok) {
+        // If vote failed, reset the state
+        setHasVoted(false);
+        console.error("Vote submission failed");
+      }
+    } catch (err) {
+      // If vote failed, reset the state
+      setHasVoted(false);
+      console.error("Error voting:", err);
+    }
   };
 
+  const handleNextQuestion = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/voting/next_question/${roomId}`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "x-client-id": clientId },
+      });
+      const data = await res.json();
+      if (data.status === "voting") {
+        setQuestion(data.question);
+        setVotingFinished(false);
+        setHasVoted(false);
+        setVotesCount(0);
+        setWinners([]);
+      } else if (data.status === "game_over") {
+        setGameStarted(false);
+      }
+    } catch (err) {
+      console.error("Error fetching next question:", err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <NavigationBar />
+        <div className={styles.loadingMessage}>Loading room...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <NavigationBar />
+        <div className={styles.errorMessage}>{error}</div>
+      </div>
+    );
+  }
+
   return (
-    <div>
-    <div className={styles['background-image']} />
-    <div className={styles['centered-cell']}/>
-    <NavigationBar />
-    <div className={styles.roomContainer}>
-      
-
-      
-      {!gameStarted && (
-        <div>
-        <h1 className={styles.roomHeader}>Room</h1>
-        <div className={styles.messageLog}>
-        {messages.length === 0 ? (
-          <p>No messages yet</p>
-        ) : (
-          messages.map((msg, i) => <p key={i}>{msg}</p>)
-        )}
-        </div>
-        </div>
-        )}
-      
-
-      {!gameStarted && isCreator && (
-        <div className={styles.buttonWrapper}>
-          <button onClick={startGame} className={styles.button}>
-            Start Game
-          </button>
-        </div>
-      )}
-
-      {gameStarted && !votingFinished && (
-        <div className={styles.questionBox}>
-          <h2>{question}</h2>
-          <p>Time remaining: {remaining}s</p>
-
-          <div className={styles.voteButtons}>
-          {players?.map((p) => (
-  <button
-    key={p}
-    onClick={() => castVote(p)}
-    disabled={hasVoted}
-    className={styles.button}
-  >
-    {p} ({votesCount[p] || 0})
-  </button>
-))}
-          </div>
-
-          {hasVoted && <p>Thanks for voting!</p>}
-        </div>
-      )}
-
-      {votingFinished && (
-        <div className={styles.resultBox}>
-          <h2 className={styles.resultTitle}>🏆 Voting Finished!</h2>
-
-          <p className={styles.winnerText}>
-            🎉 Winner{winners.length > 1 ? "s" : ""}:{" "}
-            <strong>{winners.join(", ")}</strong> 🎉
-          </p>
-
-          <ul className={styles.voteCount}>
-            {Object.entries(votesCount).map(([playerId, count]) => (
-              <li key={playerId} className={styles.voteCountItem}>
-                <span role="img" aria-label="user" className={styles.userEmoji}>🧑‍🤝‍🧑</span>
-                <span className={styles.playerName}>
-                  {playerMap?.[playerId] ?? `Player ${playerId}`}
-                </span>
-                <span className={styles.voteNumber}>
-                  {count} vote{count !== 1 ? "s" : ""}
-                </span>
-              </li>
-            ))}
-          </ul>
-
-          {isCreator && (
-            <div className={styles.buttonWrapper}>
-              <button
-                onClick={() => {
-                  fetch(`${BACKEND_URL}/voting/next_question/${roomId}`, {
-                    method: "POST",
-                    headers: { "x-client-id": clientId },
-                  })
-                    .then((res) => res.json())
-                    .then((data) => {
-                      if (data.status === "voting") {
-                        setQuestion(data.question);
-                        setPlayers(data.players);
-                        setVotesCount({});
-                        setRemaining(data.remaining);
-                        setVotingFinished(false);
-                        setHasVoted(false);
-                      } else if (data.status === "game_over") {
-                        setMessages((msgs) => [...msgs, "Game Over!"]);
-                      }
-                    });
-                }}
-                className={styles.button}
-              >
-                ➡️ Next Question
-              </button>
+    <div className={styles.container}>
+      <NavigationBar />
+      <div className={styles.gameContainer}>
+        <h1 className={styles.title}>PB Games - Voting</h1>
+        
+        {!gameStarted ? (
+          <div className={styles.lobbySection}>
+            <h2 className={styles.roomTitle}>🎮 Room {roomId}</h2>
+            <p className={styles.creatorNote}>
+              {isCreator ? "👑 You are the creator" : "⏳ Waiting for creator to start..."}
+            </p>
+            
+            <div className={styles.playersListSection}>
+              <h3 className={styles.playersTitle}>Players in Room ({Object.keys(playerMap).length})</h3>
+              <div className={styles.playersGrid}>
+                {Object.keys(playerMap).length > 0 ? (
+                  Object.entries(playerMap).map(([clientId, username]) => (
+                    <div key={clientId} className={styles.playerCard}>
+                      <div className={styles.playerAvatar}>
+                        {username.charAt(0).toUpperCase()}
+                      </div>
+                      <div className={styles.playerName}>{username}</div>
+                    </div>
+                  ))
+                ) : (
+                  <p className={styles.noPlayers}>No players yet...</p>
+                )}
+              </div>
             </div>
-          )}
-        </div>
-      )}
-    </div>
+
+            {isCreator && (
+              <button className={styles.startButton} onClick={handleStartGame}>
+                🎬 Start Game
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className={styles.gameSection}>
+            <div className={styles.questionBox}>
+              <h2 className={styles.question}>{question}</h2>
+            </div>
+
+            {!votingFinished ? (
+              <div className={styles.votingSection}>
+                <div className={styles.timerBox}>
+                  <span className={remaining <= 5 ? styles.timerCritical : ""}>
+                    ⏱️ {remaining}s
+                  </span>
+                </div>
+
+                <div className={styles.playersVoting}>
+                  <h3>Vote for a player:</h3>
+                  <div className={styles.playersList}>
+                    {players.map((player) => (
+                      <button
+                        key={player}
+                        className={`${styles.playerButton} ${
+                          hasVoted ? styles.disabled : ""
+                        }`}
+                        onClick={() => handleVote(player)}
+                        disabled={hasVoted}
+                      >
+                        {player}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className={styles.voteStatus}>
+                  {hasVoted ? (
+                    <p className={styles.voted}>✅ You have voted!</p>
+                  ) : (
+                    <p className={styles.notVoted}>Vote for your favorite answer</p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className={styles.resultsSection}>
+                <h3 className={styles.resultsTitle}>🏆 Results</h3>
+                <div className={styles.winners}>
+                  {Object.keys(voteDetails).length > 0 ? (
+                    <>
+                      <p>Vote Results:</p>
+                      {winners.length > 0 && (
+                        <div className={styles.winnersGroup}>
+                          <p className={styles.winnersLabel}>Winners:</p>
+                          {winners.map((winner) => (
+                            <div key={winner} className={styles.winnerBadge}>
+                              👑 {winner} - {voteDetails[winner]} votes
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <div className={styles.allVotesGroup}>
+                        <p className={styles.allVotesLabel}>All Results:</p>
+                        {Object.entries(voteDetails).map(([name, count]) => (
+                          <div key={name} className={styles.voteResultItem}>
+                            {name}: {count} {count === 1 ? 'vote' : 'votes'}
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <p>No votes recorded</p>
+                  )}
+                </div>
+
+                {isCreator && (
+                  <button
+                    className={styles.nextButton}
+                    onClick={handleNextQuestion}
+                  >
+                    Next Question
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
