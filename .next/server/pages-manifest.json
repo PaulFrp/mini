@@ -2,7 +2,5 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js",
-  "/make_it_meme/room": "pages/make_it_meme/room.js",
-  "/make_it_meme": "pages/make_it_meme.js"
+  "/cards_against_humanity/room": "pages/cards_against_humanity/room.js"
 }

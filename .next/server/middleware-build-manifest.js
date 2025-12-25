@@ -9,11 +9,6 @@ self.__BUILD_MANIFEST = {
   "lowPriorityFiles": [],
   "rootMainFiles": [],
   "pages": {
-    "/": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/index.js"
-    ],
     "/_app": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
@@ -24,15 +19,10 @@ self.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/make_it_meme": [
+    "/cards_against_humanity/room": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/make_it_meme.js"
-    ],
-    "/make_it_meme/room": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/make_it_meme/room.js"
+      "static/chunks/pages/cards_against_humanity/room.js"
     ]
   },
   "ampFirstPages": []

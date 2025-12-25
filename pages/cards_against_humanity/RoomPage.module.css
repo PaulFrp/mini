@@ -1,0 +1,485 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  padding: 20px;
+  padding-bottom: 100px;
+}
+
+.header {
+  text-align: center;
+  color: white;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.roomInfo {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+.scoreBoard {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.scoreBoard h3 {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+}
+
+.scores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.scoreItem {
+  background: #f5f5f5;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.scoreItem.czar {
+  background: #ffd700;
+  font-weight: bold;
+}
+
+.lobby {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.lobby h2 {
+  margin-bottom: 20px;
+}
+
+.players {
+  margin: 20px 0;
+}
+
+.players ul {
+  list-style: none;
+  padding: 0;
+}
+
+.players li {
+  padding: 10px;
+  background: #f5f5f5;
+  margin: 5px 0;
+  border-radius: 8px;
+}
+
+.startButton {
+  background: #000;
+  color: white;
+  padding: 15px 40px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.3s;
+}
+
+.startButton:hover {
+  background: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.waitingText {
+  margin-top: 15px;
+  color: #666;
+}
+
+.gameArea {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.czarBanner {
+  background: #ffd700;
+  color: #000;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+}
+
+.questionCard {
+  background: #000;
+  color: white;
+  padding: 30px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.questionText {
+  font-size: 1.4rem;
+  font-weight: bold;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.blank {
+  border-bottom: 3px solid white;
+  padding: 0 10px;
+  display: inline-block;
+  min-width: 80px;
+}
+
+.questionInfo {
+  text-align: center;
+  margin-top: 15px;
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+.filledQuestion {
+  padding: 20px;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  text-align: center;
+  margin-bottom: 0;
+  font-weight: 500;
+  color: #333;
+  word-wrap: break-word;
+}
+
+.filledBlank {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  font-weight: 600;
+  font-style: italic;
+  margin: 0 2px;
+  word-break: break-word;
+}
+
+.submissionQuestion {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eee;
+}
+
+.handContainer {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.handContainer h3 {
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.hand {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.whiteCard {
+  background: white;
+  border: 3px solid #000;
+  border-radius: 12px;
+  padding: 20px;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.whiteCard:hover:not(.disabled) {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  border-color: #333;
+}
+
+.whiteCard.selected {
+  border-color: #4CAF50;
+  background: #f1f8f4;
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+}
+
+.whiteCard.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.submitButton {
+  display: block;
+  margin: 0 auto;
+  background: #4CAF50;
+  color: white;
+  padding: 15px 40px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.submitButton:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+}
+
+.czarWaiting {
+  background: white;
+  border-radius: 15px;
+  padding: 40px;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #666;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.waitingMessage {
+  background: white;
+  border-radius: 15px;
+  padding: 40px;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #666;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.submissionsContainer {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.submissionsContainer h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+}
+
+.submissions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.submission {
+  border: 3px solid #ddd;
+  border-radius: 12px;
+  padding: 15px;
+  transition: all 0.3s;
+  background: #fafafa;
+}
+
+.submission.clickable {
+  cursor: pointer;
+}
+
+.submission.clickable:hover {
+  border-color: #000;
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.submission.winner {
+  border-color: #ffd700;
+  background: #fffdf0;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
+
+.submissionCards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.submissionCards .whiteCard {
+  cursor: inherit;
+  min-height: 80px;
+  font-size: 0.9rem;
+  padding: 15px;
+}
+
+.voteCount {
+  text-align: center;
+  font-weight: bold;
+  color: #666;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.nextRoundButton {
+  display: block;
+  margin: 30px auto 0;
+  background: #000;
+  color: white;
+  padding: 15px 40px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.nextRoundButton:hover {
+  background: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.gameOver {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  max-width: 600px;
+  margin: 50px auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.gameOver h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  color: #ffd700;
+}
+
+.gameOver h2 {
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+}
+
+.finalScores {
+  margin: 30px 0;
+  padding: 20px;
+  background: #f5f5f5;
+  border-radius: 15px;
+}
+
+.finalScores h3 {
+  margin-bottom: 15px;
+}
+
+.finalScores .scoreItem {
+  display: block;
+  padding: 12px;
+  margin: 8px 0;
+  background: white;
+  border-radius: 8px;
+  font-size: 1.1rem;
+}
+
+.backButton {
+  background: #000;
+  color: white;
+  padding: 15px 40px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.3s;
+}
+
+.backButton:hover {
+  background: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+    padding-bottom: 80px;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .questionText {
+    font-size: 1.1rem;
+  }
+
+  .hand {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  .whiteCard {
+    padding: 15px;
+    min-height: 100px;
+    font-size: 0.85rem;
+  }
+
+  .submissions {
+    grid-template-columns: 1fr;
+  }
+
+  .submitButton,
+  .nextRoundButton,
+  .startButton {
+    padding: 12px 30px;
+    font-size: 1rem;
+  }
+
+  .gameOver {
+    padding: 25px;
+  }
+
+  .gameOver h1 {
+    font-size: 2rem;
+  }
+
+  .gameOver h2 {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hand {
+    grid-template-columns: 1fr;
+  }
+
+  .scores {
+    flex-direction: column;
+    align-items: center;
+  }
+}
