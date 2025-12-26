@@ -51,12 +51,35 @@ export default function MemeGame() {
   const [currentVoteIndex, setCurrentVoteIndex] = useState(0);
   const [hasFinishedVoting, setHasFinishedVoting] = useState(false);
   const lastStatusSeqRef = useRef(0); // avoid processing stale WS frames if they arrive out of order
+  const [wsConnected, setWsConnected] = useState(false); // Track WebSocket connection for Safari
 
   // === Polling ===
   // First effect: load client ID
   //Probably need to nuke the next two UseEffects Because shit don t work no more in prod apparently
 useEffect(() => {
   if (typeof window === "undefined") return;
+
+  // Safari fix: Try URL params FIRST (more reliable than localStorage in Private mode)
+  const urlParams = new URLSearchParams(window.location.search);
+  let roomIdFromUrl = urlParams.get("room_id");
+  let roomIdFromStorage = null;
+  
+  try {
+    roomIdFromStorage = localStorage.getItem("room_id");
+  } catch (err) {
+    console.warn("localStorage access blocked (Safari Private mode?)", err);
+  }
+  
+  // Prioritize URL param over localStorage
+  const rid = roomIdFromUrl || roomIdFromStorage;
+  if (rid) {
+    setRoomId(rid);
+    // Update URL if not present (helps Safari persistence across navigations)
+    if (!roomIdFromUrl) {
+      const newUrl = `${window.location.pathname}?room_id=${rid}`;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }
 
   let id = localStorage.getItem("client_id");
   if (!id) {
@@ -75,11 +98,6 @@ useEffect(() => {
     localStorage.setItem("client_id", id);
   }
   setClientId(id);
-  // Try to restore room id from localStorage (Safari cross-site cookie fallback)
-  try {
-    const rid = localStorage.getItem("room_id");
-    if (rid) setRoomId(rid);
-  } catch {}
 }, []);
 
 // Second effect: fetch messages only when we have a clientId
@@ -131,6 +149,7 @@ useEffect(() => {
 
         ws.onopen = () => {
           console.log("✅ WebSocket connected");
+          setWsConnected(true); // Safari: Track connection state
           reconnectAttempts = 0; // Reset attempts on successful connection
           ws.send(JSON.stringify({ type: "get_status" }));
         };
@@ -197,14 +216,15 @@ useEffect(() => {
 
         ws.onclose = () => {
           console.log("⚠️ WebSocket disconnected. Reconnect attempts:", reconnectAttempts);
+          setWsConnected(false); // Safari: Track disconnection
           if (reconnectAttempts < maxReconnectAttempts) {
             reconnectAttempts++;
             const delay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 10000); // exponential backoff, max 10s
-            console.log(`Retrying connection in ${delay}ms...`);
+            console.log(`Retrying connection in ${delay}ms... (Safari may drop connections when backgrounded)`);
             reconnectTimer = setTimeout(connectWebSocket, delay);
           } else {
             console.error("❌ Max reconnection attempts reached");
-            setMessages("Connection lost. Please refresh the page.");
+            setMessages("Connection lost. Please refresh the page if game doesn't sync.");
           }
         };
       } catch (e) {
@@ -444,6 +464,20 @@ useEffect(() => {
     <NavigationBar />
     <div className={styles.roomContainer}>
       <h1 className={styles.roomHeader}>🖼️ Make It Meme!</h1>
+      
+      {/* Safari connection status indicator */}
+      {!wsConnected && (
+        <div style={{ 
+          backgroundColor: '#ff9800', 
+          color: 'white', 
+          padding: '8px', 
+          borderRadius: '4px',
+          marginBottom: '10px',
+          fontSize: '14px'
+        }}>
+          ⚠️ Reconnecting... Game will sync via HTTP polling
+        </div>
+      )}
 
       {!gameStarted && isCreator && (
         <div className={styles.buttonWrapper}>

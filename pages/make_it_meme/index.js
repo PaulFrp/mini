@@ -68,6 +68,8 @@ export default function Home() {
         setShowUsernameInput(false);
         setRoomId(room_id);
         try { localStorage.setItem("room_id", String(room_id)); } catch {}
+        // Safari fix: Redirect with room_id in URL parameter
+        window.location.href = `/make_it_meme/room?room_id=${room_id}`;
       }
     } catch (err) {
       console.error(err);
