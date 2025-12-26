@@ -65,33 +65,31 @@ async def websocket_endpoint(websocket: WebSocket, room_id: int):
 
             # --- 2. Caption submission ---
             elif msg_type == "submit_caption":
-                captions = message.get("caption")
-                game = games.get(room_id)
+                captions = message.get("caption") or []
 
-                if not game or game["phase"] != "captioning":
-                    await websocket.send_json({ "error": "Not in captioning phase" })
+                game_state = db.query(MemeGameState).filter_by(room_id=room_id).first()
+                if not game_state or game_state.phase != "captioning":
+                    await websocket.send_json({"error": "Not in captioning phase"})
                     continue
 
-                if not captions or len(captions) != len(game["current_meme"]["caption_slots"]):
-                    await websocket.send_json({ "error": "Invalid caption count" })
+                current_meme = json.loads(game_state.current_meme)
+                expected_slots = len(current_meme.get("caption_slots", []))
+                if expected_slots and len(captions) != expected_slots:
+                    await websocket.send_json({"error": "Invalid caption count"})
                     continue
 
-                # Ensure 'captions' and 'submissions' dicts are initialized
-                if "captions" not in game:
-                    game["captions"] = {}
+                captions_dict = json.loads(game_state.captions)
+                submissions_dict = json.loads(game_state.submissions)
 
-                if "submissions" not in game:
-                    game["submissions"] = {}
+                captions_dict[client_id] = captions
+                submissions_dict[client_id] = {
+                    "meme": current_meme,
+                    "captions": captions,
+                }
 
-                game["captions"][client_id] = captions
-
-                if client_id not in game["submissions"]:
-                    game["submissions"][client_id] = {
-                        "meme": game["current_meme"],
-                        "captions": captions,
-                    }
-                else:
-                    game["submissions"][client_id]["captions"] = captions
+                game_state.captions = json.dumps(captions_dict)
+                game_state.submissions = json.dumps(submissions_dict)
+                db.commit()
 
                 status = await get_game_status_logic(room_id, client_id, db)
                 await manager.broadcast(room_id, {
@@ -104,32 +102,37 @@ async def websocket_endpoint(websocket: WebSocket, room_id: int):
             elif msg_type == "submit_vote":
                 vote_for = message.get("vote_for")
                 try:
-                    points = int(message.get("points") or 0)
+                    points_awarded = int(message.get("points") or 0)
                 except (ValueError, TypeError):
-                    points = 0  # fallback
-                    
-                print(f"Received vote from {client_id} for {vote_for} with points: {points} (type: {type(points)})")
-                game = games.get(room_id)
+                    points_awarded = 0
 
-                if not game or game["phase"] != "voting":
+                game_state = db.query(MemeGameState).filter_by(room_id=room_id).first()
+                if not game_state or game_state.phase != "voting":
                     await websocket.send_json({"error": "Voting is not active"})
                     continue
 
-                # Check if already voted FIRST
-                if client_id in game["votes"]:
+                votes_dict = json.loads(game_state.votes)
+                submissions_dict = json.loads(game_state.submissions)
+                points_dict = json.loads(game_state.points)
+
+                if client_id in votes_dict:
                     await websocket.send_json({"error": "You already voted"})
+                    continue
+
+                if not vote_for or vote_for not in submissions_dict:
+                    await websocket.send_json({"error": "Invalid vote target"})
                     continue
 
                 if client_id == vote_for:
                     await websocket.send_json({"error": "You can't vote for yourself!"})
                     continue
 
-                # Register the vote
-                game["votes"][client_id] = vote_for
+                votes_dict[client_id] = vote_for
+                points_dict[vote_for] = points_dict.get(vote_for, 0) + points_awarded
 
-                # Apply points
-                game.setdefault("player_points", {})
-                game["player_points"][vote_for] = game["player_points"].get(vote_for, 0) + points
+                game_state.votes = json.dumps(votes_dict)
+                game_state.points = json.dumps(points_dict)
+                db.commit()
 
                 status = await get_game_status_logic(room_id, client_id, db)
                 await manager.broadcast(room_id, {
