@@ -5,8 +5,8 @@ import asyncio
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from ..game.websockets import manager
 from ..db import get_db
-from ..models import Player, Room
-from ..game.meme import games, get_game_status_logic, next_meme_logic, MEME_POOL
+from ..models import Player, Room, MemeGameState
+from ..game.meme import get_game_status_logic, next_meme_logic, MEME_POOL
 from ..game import cah
 
 router = APIRouter()
