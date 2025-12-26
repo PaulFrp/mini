@@ -1,8 +1,9 @@
-import time, json, random
+import time, json, random, os
 from ..models import Player, Room
 from datetime import datetime, timezone
 
-with open("questions.json", encoding="utf-8") as f:
+BACKEND_DIR = os.path.join(os.path.dirname(__file__), "..", "..")
+with open(os.path.join(BACKEND_DIR, "questions.json"), encoding="utf-8") as f:
     QUESTION_POOL = json.load(f)
 
 games = {}

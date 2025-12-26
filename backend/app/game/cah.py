@@ -1,4 +1,4 @@
-import json, random, time
+import json, random, time, os
 from ..models import Player, Room
 from datetime import datetime, timezone
 from .websockets import manager
@@ -8,10 +8,11 @@ import asyncio
 import logging
 
 # Load cards and questions
-with open("cah_cards.json") as f:
+BACKEND_DIR = os.path.join(os.path.dirname(__file__), "..", "..")
+with open(os.path.join(BACKEND_DIR, "cah_cards.json")) as f:
     CARD_POOL = json.load(f)
 
-with open("cah_questions.json") as f:
+with open(os.path.join(BACKEND_DIR, "cah_questions.json")) as f:
     QUESTION_POOL = json.load(f)
 
 games = {}

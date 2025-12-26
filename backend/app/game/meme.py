@@ -1,4 +1,4 @@
-import json, random, time
+import json, random, time, os
 from ..models import Player, Room
 from datetime import datetime, timezone
 from .websockets import manager
@@ -7,7 +7,8 @@ from ..db import get_db
 import asyncio
 import logging
 
-with open("memes.json") as f:
+BACKEND_DIR = os.path.join(os.path.dirname(__file__), "..", "..")
+with open(os.path.join(BACKEND_DIR, "memes.json")) as f:
     MEME_POOL = json.load(f)
 
 games = {}
