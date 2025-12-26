@@ -20,29 +20,34 @@ def start_voting_game(room_id: int, players: list[str]):
         "duration": 20,
         "finished": False
     }
+    print(f"[VOTING] Started game for room {room_id} with players: {players}")
 
 def game_status_logic(room_id, request, db):
     client_id = request.headers.get("x-client-id")
     player = db.query(Player).filter_by(user_id=client_id, room_id=room_id).first()
     room = db.query(Room).filter_by(id=room_id).first()
-    room_creator = room.creator
+    room_creator = room.creator if room else None
     if player:
         player.last_seen = datetime.now(timezone.utc)
         db.commit()
 
     game = games.get(room_id)
     if not game:
+        print(f"[VOTING] No game found for room {room_id}, games dict keys: {list(games.keys())}")
         return {"status": "no_game"}
 
     now = time.time()
-    if not game["finished"] and now - game["start_time"] < game["duration"]:
+    elapsed = now - game["start_time"]
+    if not game["finished"] and elapsed < game["duration"]:
+        remaining = game["duration"] - elapsed
+        print(f"[VOTING] Room {room_id}: voting in progress, {remaining:.1f}s remaining")
         return {
             "status": "voting",
             "question": game["question"],
             "players": game["players"],
             "votes_count": len(game["votes"]),
             "voters": list(game["votes"].keys()),
-            "remaining": int(game["duration"] - (now - game["start_time"]))
+            "remaining": int(remaining)
         }
 
     if not game["finished"]:
@@ -54,7 +59,9 @@ def game_status_logic(room_id, request, db):
         game["finished"] = True
         game["winners"] = winners
         game["vote_counts"] = vote_counts
+        print(f"[VOTING] Room {room_id}: marking game as finished")
 
+    print(f"[VOTING] Room {room_id}: game finished, showing results")
     return {
         "status": "finished",
         "winners": game.get("winners", []),
@@ -67,8 +74,10 @@ def next_question_logic(room_id, request, db):
     client_id = request.headers.get("x-client-id")
     player = db.query(Player).filter_by(user_id=client_id, room_id=room_id).first()
     game = games.get(room_id)
+    
     if not game or not game["finished"]:
         return {"status": "cannot_advance"}
+    
     if game["questions"]:
         question = game["questions"].pop()
         game.update({
@@ -78,6 +87,8 @@ def next_question_logic(room_id, request, db):
             "finished": False
         })
         return {"status": "voting", "question": question}
-    # Clean up the game state when game is over
-    del games[room_id]
+    
+    # Clean up the game state when game is over - no more questions
+    if room_id in games:
+        del games[room_id]
     return {"status": "game_over", "message": "No more questions"}

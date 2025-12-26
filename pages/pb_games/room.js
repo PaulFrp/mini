@@ -169,7 +169,7 @@ export default function PBGamesRoom() {
           setHasNextQuestion(data.has_next_question || false);
           updateRemaining(0, false);
         } else if (data.status === "no_game") {
-          // If no game exists, return to lobby
+          // Only set to false if the game truly doesn't exist
           setGameStarted(false);
         }
       } catch (err) {
@@ -243,12 +243,17 @@ export default function PBGamesRoom() {
       });
       const data = await res.json();
       if (data.status === "voting") {
+        // Reset for new round
         setQuestion(data.question);
         setVotingFinished(false);
         setHasVoted(false);
         setVotesCount(0);
         setWinners([]);
+        setVoteDetails({});
+        setRemaining(20);
+        setHasNextQuestion(true);
       } else if (data.status === "game_over") {
+        // Game is completely over - return to lobby
         setGameStarted(false);
       }
     } catch (err) {
