@@ -86,8 +86,10 @@ if IS_PRODUCTION:
     NEXTJS_BUILD_DIR = Path(__file__).parent.parent.parent / ".next" / "standalone"
     NEXTJS_STATIC_DIR = Path(__file__).parent.parent.parent / ".next" / "static"
     NEXTJS_PUBLIC_DIR = Path(__file__).parent.parent.parent / "public"
+    NEXTJS_PAGES_DIR = NEXTJS_BUILD_DIR / ".next" / "server" / "pages"
     
     print(f"📁 Next.js build dir: {NEXTJS_BUILD_DIR}")
+    print(f"📁 Next.js pages dir: {NEXTJS_PAGES_DIR}")
     print(f"📁 Next.js static dir: {NEXTJS_STATIC_DIR}")
     print(f"📁 Next.js public dir: {NEXTJS_PUBLIC_DIR}")
     
@@ -107,24 +109,25 @@ if IS_PRODUCTION:
         """Serve Next.js pages for all non-API routes"""
         # API and WebSocket routes are already handled above, so this only catches page requests
         
-        # Try to serve the specific Next.js page
-        page_path = NEXTJS_BUILD_DIR / "pages" / f"{full_path}.html"
+        # For root path, serve index
+        if full_path == "" or full_path == "/":
+            root_index = NEXTJS_PAGES_DIR / "index.html"
+            if root_index.exists():
+                return FileResponse(root_index)
+        
+        # Try to serve the specific Next.js page (with trailing slash removed)
+        clean_path = full_path.rstrip('/')
+        page_path = NEXTJS_PAGES_DIR / f"{clean_path}.html"
         if page_path.exists():
             return FileResponse(page_path)
         
         # Try index.html for directory paths
-        index_path = NEXTJS_BUILD_DIR / "pages" / full_path / "index.html"
+        index_path = NEXTJS_PAGES_DIR / clean_path / "index.html"
         if index_path.exists():
             return FileResponse(index_path)
         
-        # For root path, serve index
-        if full_path == "" or full_path == "/":
-            root_index = NEXTJS_BUILD_DIR / "pages" / "index.html"
-            if root_index.exists():
-                return FileResponse(root_index)
-        
         # Fall back to root index.html for client-side routing
-        root_index = NEXTJS_BUILD_DIR / "pages" / "index.html"
+        root_index = NEXTJS_PAGES_DIR / "index.html"
         if root_index.exists():
             return FileResponse(root_index)
         
