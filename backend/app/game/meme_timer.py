@@ -5,7 +5,7 @@ Handles phase transitions in the background instead of during individual player 
 import asyncio
 import time
 import logging
-from app.game.websockets import manager
+from .websockets import manager
 
 logger = logging.getLogger(__name__)
 

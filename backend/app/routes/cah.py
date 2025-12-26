@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends, Header
-from app.db import get_db
-from app.models import Player, Room
-from app.game.websockets import manager
-from app.game.cah import (
+from ..db import get_db
+from ..models import Player, Room
+from ..game.websockets import manager
+from ..game.cah import (
     games, 
     start_cah_game, 
     get_game_status_logic,

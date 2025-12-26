@@ -1,9 +1,9 @@
 import json, random, time
-from app.models import Player, Room
+from ..models import Player, Room
 from datetime import datetime, timezone
-from app.game.websockets import manager
-from app.game.game_timer import start_game_timer, stop_game_timer
-from app.db import get_db
+from .websockets import manager
+from .game_timer import start_game_timer, stop_game_timer
+from ..db import get_db
 import asyncio
 import logging
 

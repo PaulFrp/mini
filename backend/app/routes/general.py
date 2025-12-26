@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Cookie, Header, Query
 from sqlalchemy.orm import Session
-from app.db import get_db
-from app.models import Room, Player
-from app.session import signer
+from ..db import get_db
+from ..models import Room, Player
+from ..session import signer
 import traceback
 
 router = APIRouter()

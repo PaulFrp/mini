@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Response, Depends, Header, Cookie
-from app.schemas import JoinRoomRequest
-from app.db import get_db
-from app.models import Room, Player
+from ..schemas import JoinRoomRequest
+from ..db import get_db
+from ..models import Room, Player
 from sqlalchemy.orm import Session
-from app.session import signer
+from ..session import signer
 import asyncio
-from app.game.websockets import manager
+from ..game.websockets import manager
 
 router = APIRouter()
 

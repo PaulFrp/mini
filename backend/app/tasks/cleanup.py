@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime, timezone, timedelta
-from app.db import SessionLocal
-from app.models import Room
+from ..db import SessionLocal
+from ..models import Room
 from sqlalchemy.orm import joinedload
 import pytz
 

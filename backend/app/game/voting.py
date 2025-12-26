@@ -1,5 +1,5 @@
 import time, json, random
-from app.models import Player, Room
+from ..models import Player, Room
 from datetime import datetime, timezone
 
 with open("questions.json", encoding="utf-8") as f:

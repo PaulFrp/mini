@@ -2,13 +2,7 @@
 Database migration script for Heroku release phase.
 Ensures database schema is initialized before app starts.
 """
-import os
-import sys
-
-# Add backend to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'backend'))
-
-from app.db import init_db
+from backend.app.db import init_db
 
 if __name__ == "__main__":
     print("🗄️ Running database migrations...")

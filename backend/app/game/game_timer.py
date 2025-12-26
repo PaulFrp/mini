@@ -6,7 +6,7 @@ import asyncio
 import time
 import logging
 import random
-from app.game.websockets import manager
+from .websockets import manager
 
 logger = logging.getLogger(__name__)
 

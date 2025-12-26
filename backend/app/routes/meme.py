@@ -1,15 +1,15 @@
 from fastapi import APIRouter, HTTPException
-from app.schemas import CaptionRequest
+from ..schemas import CaptionRequest
 from fastapi import APIRouter, Depends, Request, Header, HTTPException
-from app.db import get_db
-from app.schemas import VoteRequest
-from app.models import Player, Room
-from app.game.websockets import manager
+from ..db import get_db
+from ..schemas import VoteRequest
+from ..models import Player, Room
+from ..game.websockets import manager
 
-from app.game.meme import MEME_POOL  # import it
+from ..game.meme import MEME_POOL  # import it
 
 
-from app.game.meme import games, start_meme_game, get_game_status_logic
+from ..game.meme import games, start_meme_game, get_game_status_logic
 
 
 router = APIRouter()

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Request, Header, HTTPException
-from app.db import get_db
-from app.schemas import VoteRequest
-from app.models import Player, Room
-from app.game.voting import games, start_voting_game
+from ..db import get_db
+from ..schemas import VoteRequest
+from ..models import Player, Room
+from ..game.voting import games, start_voting_game
 
 import time
 from datetime import datetime, timezone
@@ -20,12 +20,12 @@ async def start_game(room_id: int, x_client_id: str = Header(None), db=Depends(g
 
 @router.get("/game_status/{room_id}")
 def game_status(room_id: int, request: Request, db=Depends(get_db)):
-    from app.game.voting import game_status_logic
+    from ..game.voting import game_status_logic
     return game_status_logic(room_id, request, db)
 
 @router.post("/next_question/{room_id}")
 def next_question(room_id: int, request: Request, db=Depends(get_db)):
-    from app.game.voting import next_question_logic
+    from ..game.voting import next_question_logic
     return next_question_logic(room_id, request, db)
 
 @router.post("/vote/{room_id}")
