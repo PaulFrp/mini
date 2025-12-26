@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic
+python-dotenv
+pytz
+itsdangerous
+psycopg2-binary
+websockets>=10.0
