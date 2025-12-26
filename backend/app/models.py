@@ -37,3 +37,19 @@ class VotingGameState(Base):
     winners = Column(Text, nullable=True)  # JSON string of winners
     vote_counts = Column(Text, nullable=True)  # JSON string of vote counts
 
+class MemeGameState(Base):
+    __tablename__ = "meme_game_states"
+    id = Column(Integer, primary_key=True)
+    room_id = Column(Integer, unique=True, index=True)
+    players = Column(Text)  # JSON string of player list
+    creator = Column(String)
+    meme_pool = Column(Text)  # JSON string of remaining memes
+    current_meme = Column(Text)  # JSON string of current meme
+    captions = Column(Text)  # JSON string of captions dict
+    votes = Column(Text)  # JSON string of votes dict
+    phase = Column(String, default="captioning")  # captioning, voting, results
+    start_time = Column(Float)
+    duration = Column(Integer, default=60)
+    points = Column(Text)  # JSON string of points dict
+    submissions = Column(Text)  # JSON string of submissions dict
+
