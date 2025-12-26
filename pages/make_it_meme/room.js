@@ -220,8 +220,24 @@ useEffect(() => {
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         // When WS is open, use it for polling
         wsRef.current.send(JSON.stringify({ type: "get_status" }));
+      } else {
+        // HTTP fallback if WS not connected - critical for game start detection
+        fetch(`${BACKEND_URL}/meme/game_status?room_id=${roomId}`, {
+          headers: { "x-client-id": clientId },
+          credentials: "include",
+        })
+          .then(res => res.json())
+          .then(data => {
+            console.log("🔄 HTTP poll game status:", data);
+            if (data.status && data.status !== "no_game") {
+              setMemeStatus(data);
+              setGameStarted(data.status !== "no_game");
+              if (typeof data.remaining === "number") setRemaining(data.remaining);
+              if (typeof data.is_creator !== "undefined") setIsCreator(data.is_creator);
+            }
+          })
+          .catch(console.error);
       }
-      // Only use HTTP polling if WS never connected (but don't mix with WS updates)
     }, 2000); // Poll every 2 seconds
 
     return () => {
