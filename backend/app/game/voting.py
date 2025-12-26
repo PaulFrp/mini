@@ -60,6 +60,7 @@ def game_status_logic(room_id, request, db):
         "winners": game.get("winners", []),
         "vote_counts": game.get("vote_counts", {}),
         "can_proceed": player and client_id == room_creator,
+        "has_next_question": bool(game.get("questions", [])),
     }
 
 def next_question_logic(room_id, request, db):
@@ -77,4 +78,6 @@ def next_question_logic(room_id, request, db):
             "finished": False
         })
         return {"status": "voting", "question": question}
+    # Clean up the game state when game is over
+    del games[room_id]
     return {"status": "game_over", "message": "No more questions"}

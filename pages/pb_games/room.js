@@ -41,6 +41,7 @@ export default function PBGamesRoom() {
   const [votingFinished, setVotingFinished] = useState(false);
   const [winners, setWinners] = useState([]);
   const [voteDetails, setVoteDetails] = useState({});
+  const [hasNextQuestion, setHasNextQuestion] = useState(true);
 
   // Loading/error states
   const [loading, setLoading] = useState(true);
@@ -165,8 +166,10 @@ export default function PBGamesRoom() {
           setVotingFinished(true);
           setWinners(data.winners || []);
           setVoteDetails(data.vote_counts || {});
+          setHasNextQuestion(data.has_next_question || false);
           updateRemaining(0, false);
         } else if (data.status === "no_game") {
+          // If no game exists, return to lobby
           setGameStarted(false);
         }
       } catch (err) {
@@ -379,7 +382,7 @@ export default function PBGamesRoom() {
                   )}
                 </div>
 
-                {isCreator && (
+                {isCreator && hasNextQuestion && (
                   <button
                     className={styles.nextButton}
                     onClick={handleNextQuestion}
