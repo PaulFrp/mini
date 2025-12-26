@@ -100,17 +100,30 @@ export default function CardsAgainstHumanityRoom() {
     if (!roomId || !clientId || gameStarted) return;
 
     const pollInterval = setInterval(() => {
-      fetch(`${BACKEND_URL}/room_players/${roomId}`, {
-        credentials: "include",
-        headers: { "x-client-id": clientId },
+      // Poll both player list AND game status to detect when game starts
+      Promise.all([
+        fetch(`${BACKEND_URL}/room_players/${roomId}`, {
+          credentials: "include",
+          headers: { "x-client-id": clientId },
+        }).then(res => res.json()),
+        fetch(`${BACKEND_URL}/cah/game_status?room_id=${roomId}`, {
+          credentials: "include",
+          headers: { "x-client-id": clientId },
+        }).then(res => res.json())
+      ])
+      .then(([playersData, statusData]) => {
+        // Update player list
+        if (playersData.player_map) {
+          setPlayerMap(playersData.player_map);
+        }
+        // Check if game started
+        if (statusData.status && statusData.status !== "no_game") {
+          console.log("✅ Game started detected via polling! Status:", statusData.status);
+          handleGameUpdateRef.current?.(statusData);
+          // gameStarted will be true soon, which stops this polling
+        }
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.player_map) {
-            setPlayerMap(data.player_map);
-          }
-        })
-        .catch(err => console.error("Failed to poll players:", err));
+      .catch(err => console.error("Failed to poll room data:", err));
     }, 1000);
 
     return () => clearInterval(pollInterval);
