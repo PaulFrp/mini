@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, Request, Header, HTTPException
 from ..db import get_db
 from ..schemas import VoteRequest
-from ..models import Player, Room
-from ..game.voting import games, start_voting_game, game_status_logic, next_question_logic
+from ..models import Player, Room, VotingGameState
+from ..game.voting import start_voting_game, game_status_logic, next_question_logic
+import json
 
 import time
 from datetime import datetime, timezone
@@ -27,12 +28,18 @@ def next_question(room_id: int, request: Request, db=Depends(get_db)):
     return next_question_logic(room_id, request, db)
 
 @router.post("/vote/{room_id}")
-def vote(room_id: int, vote: VoteRequest):
-    print(f"[VOTING] Vote received for room {room_id}, games dict keys: {list(games.keys())}")
-    game = games.get(room_id)
-    if not game or game["finished"]:
+def vote(room_id: int, vote: VoteRequest, db=Depends(get_db)):
+    game_state = db.query(VotingGameState).filter_by(room_id=room_id).first()
+    print(f"[VOTING] Vote received for room {room_id}, game_state exists: {game_state is not None}")
+    
+    if not game_state or game_state.finished:
         print(f"[VOTING] Game not active or finished for room {room_id}")
         raise HTTPException(status_code=400, detail="Voting is not active")
-    game["votes"][vote.voter_id] = vote.vote_for
-    print(f"[VOTING] Vote registered for room {room_id}, now {len(game['votes'])} votes. Games dict keys after vote: {list(games.keys())}")
+    
+    votes = json.loads(game_state.votes)
+    votes[vote.voter_id] = vote.vote_for
+    game_state.votes = json.dumps(votes)
+    db.commit()
+    
+    print(f"[VOTING] Vote registered for room {room_id}, now {len(votes)} votes")
     return {"message": "Vote registered"}

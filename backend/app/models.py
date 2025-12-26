@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, create_engine, ForeignKey
+from sqlalchemy import Column, Integer, String, create_engine, ForeignKey, Text, Float, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import DateTime
@@ -22,4 +22,18 @@ class Player(Base):
     last_seen = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     room = relationship("Room", back_populates="players")
+
+class VotingGameState(Base):
+    __tablename__ = "voting_game_states"
+    id = Column(Integer, primary_key=True)
+    room_id = Column(Integer, unique=True, index=True)
+    players = Column(Text)  # JSON string of player list
+    questions = Column(Text)  # JSON string of remaining questions
+    current_question = Column(String)
+    votes = Column(Text)  # JSON string of votes dict
+    start_time = Column(Float)
+    duration = Column(Integer, default=20)
+    finished = Column(Boolean, default=False)
+    winners = Column(Text, nullable=True)  # JSON string of winners
+    vote_counts = Column(Text, nullable=True)  # JSON string of vote counts
 
