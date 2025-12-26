@@ -23,7 +23,7 @@ function getClientId() {
   return id;
 }
 
-const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, '');
+const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL !== undefined ? process.env.NEXT_PUBLIC_BACKEND_URL : "http://localhost:8000").replace(/\/$/, '');
 
 export default function PBGamesRoom() {
   const [clientId, setClientId] = useState(null);

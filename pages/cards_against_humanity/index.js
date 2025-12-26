@@ -13,7 +13,7 @@ export default function CardsAgainstHumanityHome() {
   const [mode, setMode] = useState("idle"); // 'idle', 'creating', 'joining'
   const [error, setError] = useState("");
 
-  const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, '');
+  const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL !== undefined ? process.env.NEXT_PUBLIC_BACKEND_URL : "http://localhost:8000").replace(/\/$/, '');
 
   // Initialize client ID
   useEffect(() => {

@@ -13,7 +13,7 @@ export default function Home() {
   // New state to track mode: 'idle', 'creating', 'joining'
   const [mode, setMode] = useState("idle");
 
-  const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, '');
+  const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL !== undefined ? process.env.NEXT_PUBLIC_BACKEND_URL : "http://localhost:8000").replace(/\/$/, '');
 
   //Solve the problem when using crypto random UUID in browsers that do not support it
   useEffect(() => {

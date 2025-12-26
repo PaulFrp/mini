@@ -10,11 +10,11 @@ const nextConfig = {
     // Trailing slashes for static export compatibility
     trailingSlash: true,
   // Environment variables available to the browser
-    // In production (unified deployment), these will be empty/same origin
+  // When NEXT_PUBLIC_BACKEND_URL is set to empty string, it means same-origin (unified deployment)
+  // When undefined, fallback to localhost:8000 for dev
   env: {
-      // Use empty string in production so URLs are relative (same origin)
-    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || '',
-    NEXT_PUBLIC_WS_BASE_URL: process.env.NEXT_PUBLIC_WS_BASE_URL || '',
+    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
+    NEXT_PUBLIC_WS_BASE_URL: process.env.NEXT_PUBLIC_WS_BASE_URL,
   },
 }
 

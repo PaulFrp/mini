@@ -27,7 +27,7 @@ function getClientId() {
   return id;
 }
 
-const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, '');
+const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL !== undefined ? process.env.NEXT_PUBLIC_BACKEND_URL : "http://localhost:8000").replace(/\/$/, '');
 // Safe fallback for WebSocket base: derive from BACKEND_URL if NEXT_PUBLIC_WS_BASE_URL isn't set
 const WS_BASE_URL = (process.env.NEXT_PUBLIC_WS_BASE_URL || BACKEND_URL
   .replace(/^http:\/\//, 'ws://')

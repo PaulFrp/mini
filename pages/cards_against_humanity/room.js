@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import styles from "./RoomPage.module.css";
 import NavigationBar from "../../src/navBar";
 
-const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, '');
+const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL !== undefined ? process.env.NEXT_PUBLIC_BACKEND_URL : "http://localhost:8000").replace(/\/$/, '');
 const WS_BASE_URL = (process.env.NEXT_PUBLIC_WS_BASE_URL || BACKEND_URL
   .replace(/^http:\/\//, 'ws://')
   .replace(/^https:\/\//, 'wss://'))

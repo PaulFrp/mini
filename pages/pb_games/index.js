@@ -12,7 +12,7 @@ export default function Home() {
   const [showUsernameInput, setShowUsernameInput] = useState(false);
   const [mode, setMode] = useState(null); // 'create' or 'join'
 
-  const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, '');
+  const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL !== undefined ? process.env.NEXT_PUBLIC_BACKEND_URL : "http://localhost:8000").replace(/\/$/, '');
   console.log("Using backend URL:", BACKEND_URL);
 
   useEffect(() => {

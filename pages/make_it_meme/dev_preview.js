@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import MemeCanvas from "./memecanvas";
 
-const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, '');
+const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL !== undefined ? process.env.NEXT_PUBLIC_BACKEND_URL : "http://localhost:8000").replace(/\/$/, '');
 
 export default function MemeTemplatePreview() {
   const [memeTemplates, setMemeTemplates] = useState([]);
