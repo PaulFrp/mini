@@ -6,56 +6,56 @@ const categories = [
   { 
     name: "Trivia", 
     emoji: "🧠",
-    description: "Testez vos connaissances",
+    description: "",
     link: "/trivia", 
     color: "blue" 
   },
   { 
     name: "Picolo", 
     emoji: "🎉",
-    description: "Jeu de soirée classique",
+    description: "",
     link: "/picolo", 
     color: "pink" 
   },
   { 
     name: "Memes Culture", 
     emoji: "😂",
-    description: "Pour les connaisseurs",
+    description: "",
     link: "/memes", 
     color: "indigo" 
   },
   { 
     name: "Cards Against Humanity", 
     emoji: "🃏",
-    description: "Humour noir garanti",
+    description: "",
     link: "/cards_against_humanity", 
     color: "purple" 
   },
   { 
     name: "Jeux des Problèmes", 
     emoji: "🤔",
-    description: "Situations impossibles",
+    description: "",
     link: "/pb_games", 
     color: "green" 
   },
   { 
     name: "Je n'ai Jamais", 
     emoji: "🍻",
-    description: "Révélations garanties",
+    description: "",
     link: "/never", 
     color: "orange" 
   },
   { 
     name: "Pendu", 
     emoji: "🪢",
-    description: "Classique revisité",
+    description: "",
     link: "/pendu/pendu_one", 
     color: "red" 
   },
   { 
     name: "Make it Meme", 
     emoji: "😂",
-    description: "Créativité et rires",
+    description: "",
     link: "/make_it_meme", 
     color: "indigo" 
   },

@@ -311,11 +311,19 @@ export default function CardsAgainstHumanityRoom() {
       console.log("Phase changed from", gameStatus, "to", data.status);
       if (data.status === "voting") {
         console.log("Transitioned to voting phase - clearing selections");
-        setSubmissions(data.submissions || []);
+        // Sort submissions by player name to maintain consistent order
+        const sortedSubmissions = (data.submissions || []).sort((a, b) => 
+          (a.username || a.player || '').localeCompare(b.username || b.player || '')
+        );
+        setSubmissions(sortedSubmissions);
         setSelectedCards([]); // Clear selected cards when moving to voting
       } else if (data.status === "results") {
         console.log("Transitioned to results phase");
-        setSubmissions(data.submissions || []);
+        // Sort submissions by player name to maintain consistent order
+        const sortedSubmissions = (data.submissions || []).sort((a, b) => 
+          (a.player || '').localeCompare(b.player || '')
+        );
+        setSubmissions(sortedSubmissions);
         setRoundWinner(data.round_winner);
         setVoteCounts(data.vote_counts || {});
       } else if (data.status === "playing") {
@@ -330,10 +338,18 @@ export default function CardsAgainstHumanityRoom() {
     } else {
       // During same phase, only update specific data, don't touch selectedCards
       if (data.status === "voting" && data.submissions) {
-        setSubmissions(data.submissions);
+        // Sort submissions to maintain consistent order even during updates
+        const sortedSubmissions = (data.submissions || []).sort((a, b) => 
+          (a.username || a.player || '').localeCompare(b.username || b.player || '')
+        );
+        setSubmissions(sortedSubmissions);
         // Do NOT clear selectedCards or hasSubmitted here
       } else if (data.status === "results" && data.submissions) {
-        setSubmissions(data.submissions);
+        // Sort submissions to maintain consistent order
+        const sortedSubmissions = (data.submissions || []).sort((a, b) => 
+          (a.player || '').localeCompare(b.player || '')
+        );
+        setSubmissions(sortedSubmissions);
         if (data.round_winner) setRoundWinner(data.round_winner);
         if (data.vote_counts) setVoteCounts(data.vote_counts);
       }
@@ -712,7 +728,7 @@ export default function CardsAgainstHumanityRoom() {
             <div className={styles.players}>
               <h3>Players ({Object.keys(playerMap).length}):</h3>
               <ul>
-                {Object.values(playerMap).map((username, idx) => (
+                {Object.values(playerMap).sort((a, b) => a.localeCompare(b)).map((username, idx) => (
                   <li key={idx}>{username}</li>
                 ))}
               </ul>
