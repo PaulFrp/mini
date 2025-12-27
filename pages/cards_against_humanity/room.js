@@ -468,12 +468,34 @@ export default function CardsAgainstHumanityRoom() {
     setHasVoted(true);
   };
 
-  const nextRound = () => {
+  const nextRound = async () => {
     if (!wsRef.current) return;
 
     wsRef.current.send(JSON.stringify({
       type: "next_round",
     }));
+
+    // Immediately poll for full game status to prevent visual glitch
+    // where old player_hand and is_czar are briefly rendered
+    const pollFullStatus = async () => {
+      try {
+        const statusRes = await fetch(`${BACKEND_URL}/cah/game_status?room_id=${roomId}`, {
+          headers: { "x-client-id": clientId },
+          credentials: "include",
+        });
+
+        if (statusRes.ok) {
+          const statusData = await statusRes.json();
+          console.log("Polled full status after next round:", statusData);
+          handleGameUpdateRef.current?.(statusData);
+        }
+      } catch (err) {
+        console.error("Error polling status after next round:", err);
+      }
+    };
+
+    // Poll after a short delay to ensure backend has updated
+    setTimeout(pollFullStatus, 100);
   };
 
   const renderQuestion = () => {
