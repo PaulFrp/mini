@@ -875,8 +875,18 @@
     "blanks": 1
   },
   {
-    "id": 175,
+    "id": 176,
     "text": "Je bois pour oublier _____.",
     "blanks": 1
+  },
+  {
+    "id": 177,
+    "text": "_____ m'a convaincu d'aller faire le djihad.",
+    "blanks": 1
+  },
+  {
+    "id": 178,
+    "text": "Les enfants aiment _____, les vraies hommes aiment _____.",
+    "blanks": 2
   }
 ]

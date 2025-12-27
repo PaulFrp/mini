@@ -528,7 +528,8 @@ export default function CardsAgainstHumanityRoom() {
   };
 
   const renderHand = () => {
-    if (!playerHand || playerHand.length === 0) return null;
+    // Don't render hand if we're the card czar OR if hand is empty
+    if (isCzar || !playerHand || playerHand.length === 0) return null;
     
     return (
       <div className={styles.handContainer}>
