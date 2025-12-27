@@ -254,7 +254,7 @@ async def next_round_logic(room_id, db):
     # Check if game should end (first to 5 points wins)
     scores = json.loads(game_state.scores)
     max_score = max(scores.values()) if scores else 0
-    if max_score >= 5:
+    if max_score >= 30:
         winners = [p for p, s in game["scores"].items() if s == max_score]
         # Stop the timer when game ends
         # No separate timer; end game immediately
