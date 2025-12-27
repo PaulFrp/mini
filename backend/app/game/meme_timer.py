@@ -36,32 +36,40 @@ async def meme_timer_loop(room_id: int):
                 remaining = int(game_state.duration - elapsed)
                 
                 # Check for phase transitions
-                if game_state.phase == "captioning" and remaining <= 0:
-                    logger.info(f"[MEME_TIMER] Room {room_id}: Transitioning from 'captioning' to 'voting'")
-                    game_state.phase = "voting"
-                    game_state.start_time = now
-                    game_state.duration = 60
-                    db.commit()
-                    
-                    # Prepare submissions for voting
+                if game_state.phase == "captioning":
+                    # Get players and submissions to check if all submitted
+                    players = json.loads(game_state.players)
                     submissions_dict = json.loads(game_state.submissions)
-                    submissions = [
-                        {
-                            "user_id": player_id,
-                            "meme": sub["meme"],
-                            "captions": sub["captions"],
-                            "username": player_id  # Will be resolved on client side
-                        }
-                        for player_id, sub in submissions_dict.items()
-                    ]
+                    all_submitted = len(submissions_dict) >= len(players)
                     
-                    # Broadcast to all players
-                    await manager.broadcast(room_id, {
-                        "type": "game_update",
-                        "status": "voting",
-                        "submissions": submissions,
-                        "remaining": game_state.duration,
-                    })
+                    if (all_submitted or remaining <= 0):
+                        if all_submitted:
+                            logger.info(f"[MEME_TIMER] Room {room_id}: All captions submitted, transitioning to 'voting'")
+                        else:
+                            logger.info(f"[MEME_TIMER] Room {room_id}: Timer expired, transitioning from 'captioning' to 'voting'")
+                        game_state.phase = "voting"
+                        game_state.start_time = now
+                        game_state.duration = 60
+                        db.commit()
+                        
+                        # Prepare submissions for voting
+                        submissions = [
+                            {
+                                "user_id": player_id,
+                                "meme": sub["meme"],
+                                "captions": sub["captions"],
+                                "username": player_id  # Will be resolved on client side
+                            }
+                            for player_id, sub in submissions_dict.items()
+                        ]
+                        
+                        # Broadcast to all players
+                        await manager.broadcast(room_id, {
+                            "type": "game_update",
+                            "status": "voting",
+                            "submissions": submissions,
+                            "remaining": game_state.duration,
+                        })
                     
                 elif game_state.phase == "voting" and remaining <= 0:
                     logger.info(f"[MEME_TIMER] Room {room_id}: Transitioning from 'voting' to 'results'")

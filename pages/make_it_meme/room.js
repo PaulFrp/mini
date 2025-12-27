@@ -566,7 +566,7 @@ useEffect(() => {
         
         {hasFinishedVoting ? (
           <div className={styles.messages}>
-            <p>✅ Vote submitted! Waiting for other players...</p>
+            <p>✅ Vote submitted! Waiting for other players to finish voting...</p>
           </div>
         ) : (
           <>
@@ -696,12 +696,15 @@ useEffect(() => {
         </ul>
 
         {/* Advance to next meme */}
-        {isCreator && memeStatus.can_proceed && (
+        {isCreator && (
           <div className={styles.buttonWrapper}>
             <button className={styles.button} onClick={advanceMeme}>
-              ➡️ Next Meme
+              ➡️ Next Round
             </button>
           </div>
+        )}
+        {!isCreator && (
+          <p className={styles.waitingText}>Waiting for host to start next round...</p>
         )}
       </div>
     )}
