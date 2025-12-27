@@ -53,3 +53,23 @@ class MemeGameState(Base):
     points = Column(Text)  # JSON string of points dict
     submissions = Column(Text)  # JSON string of submissions dict
 
+class CAHGameState(Base):
+    __tablename__ = "cah_game_states"
+    id = Column(Integer, primary_key=True)
+    room_id = Column(Integer, unique=True, index=True)
+    players = Column(Text)  # JSON list of usernames
+    creator = Column(String)
+    question_pool = Column(Text)  # JSON list of remaining questions
+    card_pool = Column(Text)  # JSON list of remaining cards
+    current_question = Column(Text)  # JSON object for current question
+    player_hands = Column(Text)  # JSON dict {username: [cards]}
+    submissions = Column(Text)  # JSON dict {username: [cards]}
+    votes = Column(Text)  # JSON dict {voter_username: voted_username}
+    phase = Column(String, default="playing")  # playing, voting, results
+    start_time = Column(Float)
+    duration = Column(Integer, default=60)
+    scores = Column(Text)  # JSON dict {username: score}
+    round = Column(Integer, default=1)
+    card_czar = Column(String)  # username of current czar
+    czar_index = Column(Integer, default=0)
+

@@ -254,31 +254,34 @@ async def cah_websocket_endpoint(websocket: WebSocket, room_id: int):
                 if "error" in result:
                     await websocket.send_json({"error": result["error"]})
                 else:
-                    # Immediately transition to results
-                    game = cah.games.get(room_id)
-                    if game:
-                        game["phase"] = "results"
-                        
-                        # Count votes and award points
+                    # Transition to results immediately and broadcast from DB state
+                    from ..models import CAHGameState
+                    game_state = db.query(CAHGameState).filter_by(room_id=room_id).first()
+                    if game_state:
+                        game_state.phase = "results"
+                        votes = json.loads(game_state.votes)
                         vote_counts = {}
-                        for voted_player in game["votes"].values():
+                        for voted_player in votes.values():
                             vote_counts[voted_player] = vote_counts.get(voted_player, 0) + 1
-                        
-                        # Find winner
+
+                        scores = json.loads(game_state.scores)
                         round_winner = None
                         if vote_counts:
                             max_votes = max(vote_counts.values())
                             winners = [p for p, v in vote_counts.items() if v == max_votes]
                             if len(winners) == 1:
-                                game["scores"][winners[0]] += 1
+                                scores[winners[0]] = scores.get(winners[0], 0) + 1
                                 round_winner = winners[0]
-                        
-                        # Broadcast results
+
+                        game_state.scores = json.dumps(scores)
+                        db.commit()
+
+                        submissions = json.loads(game_state.submissions)
                         await manager.broadcast(room_id, {
                             "type": "game_update",
                             "status": "results",
                             "round_winner": round_winner,
-                            "scores": game["scores"],
+                            "scores": scores,
                             "vote_counts": vote_counts,
                             "submissions": [
                                 {
@@ -286,8 +289,8 @@ async def cah_websocket_endpoint(websocket: WebSocket, room_id: int):
                                     "cards": cards,
                                     "votes": vote_counts.get(player_name, 0)
                                 }
-                                for player_name, cards in game["submissions"].items()
-                                if player_name != game["card_czar"]
+                                for player_name, cards in submissions.items()
+                                if player_name != game_state.card_czar
                             ]
                         })
 
@@ -303,10 +306,13 @@ async def cah_websocket_endpoint(websocket: WebSocket, room_id: int):
                 if "error" in result:
                     await websocket.send_json({"error": result["error"]})
                 elif result.get("game_over"):
+                    from ..models import CAHGameState
+                    game_state = db.query(CAHGameState).filter_by(room_id=room_id).first()
+                    scores = json.loads(game_state.scores) if game_state and game_state.scores else {}
                     await manager.broadcast(room_id, {
                         "type": "game_over",
                         "winners": result["winners"],
-                        "final_scores": cah.games[room_id]["scores"]
+                        "final_scores": scores,
                     })
                 # Otherwise, next_round_logic already broadcasted the new round
 

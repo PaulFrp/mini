@@ -1,9 +1,9 @@
 import json, random, time, os
-from ..models import Player, Room
+from ..models import Player, Room, CAHGameState
 from datetime import datetime, timezone
 from .websockets import manager
-from .game_timer import start_game_timer, stop_game_timer
-from ..db import get_db
+from .cah_timer import start_cah_timer
+from ..db import SessionLocal
 import asyncio
 import logging
 
@@ -15,45 +15,54 @@ with open(os.path.join(BACKEND_DIR, "cah_cards.json")) as f:
 with open(os.path.join(BACKEND_DIR, "cah_questions.json")) as f:
     QUESTION_POOL = json.load(f)
 
-games = {}
-
 def start_cah_game(room_id: int, players: list[str], creator_id: str):
-    """Initialize a new Cards Against Humanity game"""
+    """Initialize a new Cards Against Humanity game and persist in DB"""
     # Shuffle question pool
     question_pool = QUESTION_POOL.copy()
     random.shuffle(question_pool)
-    
+
     # Deal cards to each player (7 cards to start)
     player_hands = {}
     card_pool = CARD_POOL.copy()
     random.shuffle(card_pool)
-    
+
     for player in players:
         player_hands[player] = []
         for _ in range(7):
             if card_pool:
                 player_hands[player].append(card_pool.pop())
-    
-    games[room_id] = {
-        "players": players,
-        "creator": creator_id,
-        "question_pool": question_pool,
-        "card_pool": card_pool,
-        "current_question": question_pool.pop() if question_pool else None,
-        "player_hands": player_hands,
-        "submissions": {},  # {player_id: [card1, card2]}
-        "votes": {},  # {voter_id: player_id}
-        "phase": "playing",  # playing -> voting -> results
-        "start_time": time.time(),
-        "duration": 60,  # 60 seconds to play cards
-        "scores": {player: 0 for player in players},
-        "round": 1,
-        "card_czar": players[0],  # First player is czar, rotates each round
-        "czar_index": 0
-    }
-    
+
+    current_question = question_pool.pop() if question_pool else None
+
+    with SessionLocal() as db:
+        # Remove existing state for room
+        existing = db.query(CAHGameState).filter_by(room_id=room_id).first()
+        if existing:
+            db.delete(existing)
+            db.commit()
+
+        game_state = CAHGameState(
+            room_id=room_id,
+            players=json.dumps(players),
+            creator=creator_id,
+            question_pool=json.dumps(question_pool),
+            card_pool=json.dumps(card_pool),
+            current_question=json.dumps(current_question) if current_question else json.dumps({}),
+            player_hands=json.dumps(player_hands),
+            submissions=json.dumps({}),
+            votes=json.dumps({}),
+            phase="playing",
+            start_time=time.time(),
+            duration=60,
+            scores=json.dumps({p: 0 for p in players}),
+            round=1,
+            card_czar=players[0] if players else None,
+            czar_index=0,
+        )
+        db.add(game_state)
+        db.commit()
     # Start background timer to handle phase transitions
-    start_game_timer(room_id, games)
+    start_cah_timer(room_id)
 
 async def get_game_status_logic(room_id, client_id, db):
     """Get current game status for a player (NO PHASE TRANSITIONS - handled by timer)"""
@@ -65,31 +74,38 @@ async def get_game_status_logic(room_id, client_id, db):
         player.last_seen = datetime.now(timezone.utc)
         db.commit()
 
-    game = games.get(room_id)
-    if not game:
+    game_state = db.query(CAHGameState).filter_by(room_id=room_id).first()
+    if not game_state:
         return {"status": "no_game"}
 
     now = time.time()
-    remaining = int(game["duration"] - (now - game["start_time"]))
+    remaining = int(game_state.duration - (now - game_state.start_time))
     
     # Get player's username
     player_username = player.username if player else client_id
     
     # Prepare response based on phase
+    # Parse JSON fields
+    current_question = json.loads(game_state.current_question) if game_state.current_question else {}
+    scores = json.loads(game_state.scores)
+    player_hands = json.loads(game_state.player_hands)
+    submissions = json.loads(game_state.submissions)
+    votes = json.loads(game_state.votes)
+
     response = {
-        "status": game["phase"],
+        "status": game_state.phase,
         "remaining": max(0, remaining),
-        "current_question": game["current_question"],
-        "scores": game["scores"],
-        "round": game["round"],
-        "card_czar": game["card_czar"],
-        "is_czar": player_username == game["card_czar"],
-        "player_hand": game["player_hands"].get(player_username, []),
-        "has_submitted": player_username in game["submissions"]
+        "current_question": current_question,
+        "scores": scores,
+        "round": game_state.round,
+        "card_czar": game_state.card_czar,
+        "is_czar": player_username == game_state.card_czar,
+        "player_hand": player_hands.get(player_username, []),
+        "has_submitted": player_username in submissions
     }
     
     # Add phase-specific data
-    if game["phase"] == "voting":
+    if game_state.phase == "voting":
         # Resolve usernames for submissions
         players_in_room = db.query(Player).filter_by(room_id=room_id).all()
         player_id_to_username = {p.user_id: p.username for p in players_in_room}
@@ -101,18 +117,18 @@ async def get_game_status_logic(room_id, client_id, db):
                 "cards": cards,
                 "username": player_name  # Already using username
             }
-            for player_name, cards in game["submissions"].items()
-            if player_name != game["card_czar"]  # Don't show czar's submission if any
+            for player_name, cards in submissions.items()
+            if player_name != game_state.card_czar  # Don't show czar's submission if any
         ]
         random.shuffle(submission_list)
         
         response["submissions"] = submission_list
-        response["has_voted"] = player_username in game["votes"]
+        response["has_voted"] = player_username in votes
         
-    elif game["phase"] == "results":
+    elif game_state.phase == "results":
         # Count votes
         vote_counts = {}
-        for voted_for in game["votes"].values():
+        for voted_for in votes.values():
             vote_counts[voted_for] = vote_counts.get(voted_for, 0) + 1
         
         # Find winner of round
@@ -130,8 +146,8 @@ async def get_game_status_logic(room_id, client_id, db):
                 "cards": cards,
                 "votes": vote_counts.get(player_name, 0)
             }
-            for player_name, cards in game["submissions"].items()
-            if player_name != game["card_czar"]
+            for player_name, cards in submissions.items()
+            if player_name != game_state.card_czar
         ]
     
     # NOTE: Phase transitions are handled by the background game_timer, not here
@@ -145,28 +161,31 @@ async def submit_cards_logic(room_id, client_id, selected_cards, db):
     if not player:
         return {"error": "Player not found"}
     
-    game = games.get(room_id)
-    if not game or game["phase"] != "playing":
+    game_state = db.query(CAHGameState).filter_by(room_id=room_id).first()
+    if not game_state or game_state.phase != "playing":
         return {"error": "Cannot submit cards now"}
     
     player_username = player.username
     
     # Don't allow card czar to submit
-    if player_username == game["card_czar"]:
+    if player_username == game_state.card_czar:
         return {"error": "Card Czar cannot submit cards"}
     
     # Check if player already submitted
-    if player_username in game["submissions"]:
+    submissions = json.loads(game_state.submissions)
+    if player_username in submissions:
         return {"error": "You already submitted your cards"}
     
     # Validate cards are in player's hand
-    player_hand = game["player_hands"].get(player_username, [])
+    player_hands = json.loads(game_state.player_hands)
+    player_hand = player_hands.get(player_username, [])
     for card in selected_cards:
         if card not in player_hand:
             return {"error": "Invalid card selection"}
     
     # Validate number of cards matches question blanks
-    required_cards = game["current_question"]["blanks"]
+    current_question = json.loads(game_state.current_question)
+    required_cards = current_question.get("blanks", 1)
     if len(selected_cards) != required_cards:
         return {"error": f"Must submit exactly {required_cards} card(s)"}
     
@@ -175,10 +194,18 @@ async def submit_cards_logic(room_id, client_id, selected_cards, db):
         player_hand.remove(card)
     
     # Refill hand to 7 cards
-    while len(player_hand) < 7 and game["card_pool"]:
-        player_hand.append(game["card_pool"].pop())
-    
-    game["submissions"][player_username] = selected_cards
+    card_pool = json.loads(game_state.card_pool)
+    while len(player_hand) < 7 and card_pool:
+        player_hand.append(card_pool.pop())
+
+    submissions[player_username] = selected_cards
+
+    # Persist
+    player_hands[player_username] = player_hand
+    game_state.player_hands = json.dumps(player_hands)
+    game_state.card_pool = json.dumps(card_pool)
+    game_state.submissions = json.dumps(submissions)
+    db.commit()
     
     # Send individual status updates to each player (don't broadcast full status which includes hands)
     # Just notify that a player submitted
@@ -196,70 +223,79 @@ async def submit_vote_logic(room_id, client_id, voted_for, db):
     if not player:
         return {"error": "Player not found"}
     
-    game = games.get(room_id)
-    if not game or game["phase"] != "voting":
+    game_state = db.query(CAHGameState).filter_by(room_id=room_id).first()
+    if not game_state or game_state.phase != "voting":
         return {"error": "Cannot vote now"}
     
     player_username = player.username
     
     # Only card czar can vote
-    if player_username != game["card_czar"]:
+    if player_username != game_state.card_czar:
         return {"error": "Only Card Czar can vote"}
     
     # Validate voted_for is in submissions
-    if voted_for not in game["submissions"]:
+    submissions = json.loads(game_state.submissions)
+    votes = json.loads(game_state.votes)
+    if voted_for not in submissions:
         return {"error": "Invalid vote"}
     
-    game["votes"][player_username] = voted_for
+    votes[player_username] = voted_for
+    game_state.votes = json.dumps(votes)
+    db.commit()
     
     return {"success": True}
 
 async def next_round_logic(room_id, db):
     """Start the next round"""
-    game = games.get(room_id)
-    if not game or game["phase"] != "results":
+    game_state = db.query(CAHGameState).filter_by(room_id=room_id).first()
+    if not game_state or game_state.phase != "results":
         return {"error": "Cannot start next round"}
     
     # Check if game should end (first to 5 points wins)
-    max_score = max(game["scores"].values()) if game["scores"] else 0
+    scores = json.loads(game_state.scores)
+    max_score = max(scores.values()) if scores else 0
     if max_score >= 5:
         winners = [p for p, s in game["scores"].items() if s == max_score]
         # Stop the timer when game ends
-        stop_game_timer(room_id)
+        # No separate timer; end game immediately
         await manager.broadcast(room_id, {
             "type": "game_over",
             "winners": winners,
-            "final_scores": game["scores"]
+            "final_scores": scores
         })
         return {"game_over": True, "winners": winners}
     
     # Rotate card czar
-    game["czar_index"] = (game["czar_index"] + 1) % len(game["players"])
-    game["card_czar"] = game["players"][game["czar_index"]]
+    players = json.loads(game_state.players)
+    game_state.czar_index = (game_state.czar_index + 1) % len(players)
+    game_state.card_czar = players[game_state.czar_index]
     
     # Get next question
-    if not game["question_pool"]:
-        # Reshuffle if we run out
-        game["question_pool"] = QUESTION_POOL.copy()
-        random.shuffle(game["question_pool"])
-    
-    game["current_question"] = game["question_pool"].pop()
-    game["submissions"] = {}
-    game["votes"] = {}
-    game["phase"] = "playing"
-    game["start_time"] = time.time()
-    game["duration"] = 60
-    game["round"] += 1
+    question_pool = json.loads(game_state.question_pool)
+    if not question_pool:
+        question_pool = QUESTION_POOL.copy()
+        random.shuffle(question_pool)
+
+    current_question = question_pool.pop()
+    game_state.question_pool = json.dumps(question_pool)
+    game_state.current_question = json.dumps(current_question)
+    game_state.submissions = json.dumps({})
+    game_state.votes = json.dumps({})
+    game_state.phase = "playing"
+    game_state.start_time = time.time()
+    game_state.duration = 60
+    game_state.round = (game_state.round or 0) + 1
+    db.commit()
     
     # Broadcast new round
     await manager.broadcast(room_id, {
         "type": "game_update",
         "status": "playing",
-        "current_question": game["current_question"],
-        "card_czar": game["card_czar"],
-        "round": game["round"],
-        "scores": game["scores"],
-        "remaining": game["duration"]
+        "current_question": current_question,
+        "card_czar": game_state.card_czar,
+        "round": game_state.round,
+        "scores": scores,
+        "remaining": game_state.duration
     })
     
     return {"success": True}

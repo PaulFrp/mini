@@ -1,16 +1,16 @@
 from fastapi import APIRouter, HTTPException, Depends, Header
+import json
 from ..db import get_db
-from ..models import Player, Room
+from ..models import Player, Room, CAHGameState
 from ..game.websockets import manager
 from ..game.cah import (
-    games, 
-    start_cah_game, 
+    start_cah_game,
     get_game_status_logic,
     submit_cards_logic,
     submit_vote_logic,
     next_round_logic,
     CARD_POOL,
-    QUESTION_POOL
+    QUESTION_POOL,
 )
 from pydantic import BaseModel
 from typing import List
@@ -39,18 +39,19 @@ async def start_game(room_id: int, x_client_id: str = Header(None), db=Depends(g
     
     start_cah_game(room_id, usernames, room.creator)
     
-    game = games[room_id]
-    
-    # Broadcast to all players
+    # Fetch state from DB to broadcast
+    game_state = db.query(CAHGameState).filter(CAHGameState.room_id == room_id).first()
+    current_question = json.loads(game_state.current_question) if game_state and game_state.current_question else {}
+    scores = json.loads(game_state.scores) if game_state and game_state.scores else {}
     broadcast_data = {
         "type": "game_update",
         "status": "playing",
         "players": usernames,
-        "current_question": game["current_question"],
-        "card_czar": game["card_czar"],
-        "scores": game["scores"],
-        "round": game["round"],
-        "remaining": game["duration"]
+        "current_question": current_question,
+        "card_czar": game_state.card_czar if game_state else None,
+        "scores": scores,
+        "round": game_state.round if game_state else 1,
+        "remaining": game_state.duration if game_state else 60,
     }
     
     print(f"[START_CAH_GAME] Broadcasting to room {room_id}")
