@@ -53,6 +53,27 @@ export default function MemeGame() {
   const lastStatusSeqRef = useRef(0); // avoid processing stale WS frames if they arrive out of order
   const [wsConnected, setWsConnected] = useState(false); // Track WebSocket connection for Safari
 
+  // Poll for updated player list in waiting room (every 1 second)
+  useEffect(() => {
+    if (!roomId || !clientId || gameStarted) return;
+
+    const pollInterval = setInterval(() => {
+      fetch(`${BACKEND_URL}/room_players/${roomId}`, {
+        credentials: "include",
+        headers: { "x-client-id": clientId },
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.player_map) {
+            setPlayerMap(data.player_map);
+          }
+        })
+        .catch(err => console.error("Failed to poll players:", err));
+    }, 1000);
+
+    return () => clearInterval(pollInterval);
+  }, [roomId, clientId, gameStarted, BACKEND_URL]);
+
   // === Polling ===
   // First effect: load client ID
   //Probably need to nuke the next two UseEffects Because shit don t work no more in prod apparently
@@ -484,6 +505,30 @@ useEffect(() => {
         <button className={styles.button} onClick={startGame}>
           ▶️ Start Game
         </button>
+        </div>
+      )}
+
+      {!gameStarted && (
+        <div className={styles.lobby}>
+          <h2>Waiting Room</h2>
+          <div className={styles.players}>
+            <h3>Players ({Object.keys(playerMap).length}):</h3>
+            <ul>
+              {Object.values(playerMap).map((username, idx) => (
+                <li key={idx}>{username}</li>
+              ))}
+            </ul>
+          </div>
+          {isCreator && (
+            <button onClick={startGame} className={styles.startButton}>
+              Start Game (Min 1 player)
+            </button>
+          )}
+          <p className={styles.waitingText}>
+            {isCreator
+              ? "Click 'Start Game' when everyone is ready!"
+              : "Waiting for host to start the game..."}
+          </p>
         </div>
       )}
 
