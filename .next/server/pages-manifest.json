@@ -2,10 +2,8 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js",
-  "/make_it_meme": "pages/make_it_meme.js",
-  "/pb_games": "pages/pb_games.js",
-  "/pb_games/room": "pages/pb_games/room.js",
-  "/make_it_meme/room": "pages/make_it_meme/room.js",
-  "/cards_against_humanity/room": "pages/cards_against_humanity/room.js"
+  "/memes/game6": "pages/memes/game6.js",
+  "/memes": "pages/memes.js",
+  "/memes/game4": "pages/memes/game4.js",
+  "/memes/game7": "pages/memes/game7.js"
 }

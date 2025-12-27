@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Card from './card'; // Import the Card component
 import stylesCard from './card.module.css'; // Correct import statement
 import NavigationBar from '../navBar';
@@ -38,20 +38,24 @@ const Trivia = () => {
     }
   };
 
-  // Dictionary mapping card numbers to YouTube URLs
-  const videoUrls = {};
-  for (let i = 1; i <= 21; i++) {
-    videoUrls[i] = `${memes[i - 1].video}`;
-  }
+  // Map cards by their id so button number matches JSON id regardless of array order
+  const cardLookup = useMemo(() => {
+    const map = new Map();
+    memes.forEach((card) => {
+      const idNumber = parseInt(card.id, 10);
+      if (!Number.isNaN(idNumber)) {
+        map.set(idNumber, card);
+      }
+    });
+    return map;
+  }, []);
 
-  const imageUrls = {}
-  for (let i = 1; i<=21; i++) {
-    imageUrls[i] = `${memes[i - 1].image}`;
-  }
+  const currentCard = selectedCard ? cardLookup.get(selectedCard) : null;
+  const currentVideoUrl = currentCard?.video ?? null;
+  const currentImage = currentCard?.image ?? null;
 
-  // Get the current video URL based on the selected card
-  const currentVideoUrl = selectedCard ? videoUrls[selectedCard] : null;
-  const currentImage = selectedCard ? imageUrls[selectedCard] : null;
+  const totalCards = cardLookup.size;
+  const rows = 7; // fixed 7 rows, 3 columns
 
   //Questions and answers for the trivia 
   const getCardTexts = (number) => {
@@ -129,10 +133,13 @@ const Trivia = () => {
         </thead>
         <tbody>
         
-          {Array.from({ length: 7 }, (_, rowIndex) => (
+          {Array.from({ length: rows }, (_, rowIndex) => (
             <tr key={rowIndex}>
             {Array.from({ length: 3 }, (_, colIndex) => {
-              const buttonNumber = rowIndex + colIndex * 7 + 1;
+              const buttonNumber = rowIndex + colIndex * rows + 1;
+              if (buttonNumber > totalCards) {
+                return <td key={colIndex} className={styles['centered-cell']}></td>;
+              }
               const isButtonClicked = clickedButtons.includes(buttonNumber);
 
               return (
@@ -141,7 +148,7 @@ const Trivia = () => {
                     onClick={() => showCard(buttonNumber)}
                     className={`${styles.triviaButton} ${isButtonClicked ? styles['red-button'] : ''}`}
                   >
-                  {rowIndex}
+                  {buttonNumber}
                   </button>
                   </td>
                    );

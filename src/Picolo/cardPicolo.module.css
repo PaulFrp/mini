@@ -3,17 +3,37 @@
     width: 500px;
     height: 300px;
     perspective: 1000px;
-    transition: transform 0.6s;
-    margin-left: -250px; /* Adjusted to center horizontally */
+    transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    margin-left: -250px;
     margin-right: auto;
-    
+    cursor: pointer;
+  }
+
+  .card:hover {
+    transform: scale(1.05);
+  }
+
+  @media (max-width: 768px) {
+    .card {
+      width: 80vw;
+      height: auto;
+      aspect-ratio: 5/3;
+      margin-left: -40vw;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .card {
+      width: 90vw;
+      margin-left: -45vw;
+    }
   }
   
   .card-content {
     width: 100%;
     height: 100%;
     transform-style: preserve-3d;
-    transition: transform 0.6s;
+    transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
   
   .card-flipped .card-content {
@@ -26,27 +46,37 @@
     height: 100%;
     position: absolute;
     backface-visibility: hidden;
-    border: 2px solid #fff;
+    border: none;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   }
   
   .card-front {
-    background-color: #3498db;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     display: flex;
-    flex-direction: column;  /* Adjusted to column layout */
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     font-size: 18px;
     color: #fff;
+    padding: 2rem;
+    text-align: center;
+    border-radius: 20px;
+    font-weight: 600;
   }
   
   .card-back {
-    background-color: #2ecc71;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 18px;
     color: #fff;
     transform: rotateY(180deg);
+    padding: 2rem;
+    text-align: center;
+    border-radius: 20px;
+    font-weight: 600;
+    line-height: 1.6;
   }
 
   .centered-cell {
@@ -58,64 +88,58 @@
 
 
   .punition-card {
-    background-color: black;
-    /* Additional styles for punition card */
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   }
   
   .hot-card {
-    background-color: rgb(247, 68, 68);
-    /* Additional styles for hot card */
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa94d 100%);
   }
   
   .mec-meuf-card {
-    background-color: blue;
-    /* Additional styles for dude card */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   }
   
   .normal-card {
-    background-color: #777777;
-    /* Additional styles for normal card */
+    background: linear-gradient(135deg, #4c6ef5 0%, #5c7cfa 100%);
   }
 
   .everyone-card {
-    background-color: #1ca10a;
-    /* Additional styles for normal card */
+    background: linear-gradient(135deg, #0f6b03 0%, #79d46d 100%);
   }
 
   .punition-bg {
-    background-color: rgb(63, 63, 63);
-    background: linear-gradient(to right, black, rgb(65, 64, 64));
+    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
   }
   
   .hot-bg {
-    background-color: rgb(255, 70, 70);
-    background: linear-gradient(to right, #ff6b6b, #fda085);
-    
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa94d 100%);
   }
   
   .mec-meuf-bg {
-    background-color: rgb(65, 65, 250);
-    background: linear-gradient(to right, rgb(1, 1, 177), rgb(88, 88, 247));
+    background: linear-gradient(135deg, #4c6ef5 0%, #5c7cfa 100%);
   }
   
   .normal-bg {
-    background-color: #c0c0c0;
-    background: linear-gradient(to right, #3f3f3f, #d8d7d7);
+    background: linear-gradient(135deg, #6c757d 0%, #8a92a0 100%);
   }
 
   .everyone-bg {
-    background-color: #67d159;
-    background: linear-gradient(to right, #0f6b03, #79d46d);
+    background: linear-gradient(135deg, #0f6b03 0%, #79d46d 100%);
   }
 
   .full-screen-bg {
-    height: 100vh; /* 100% of the viewport height */
-    width: 100vw; /* 100% of the viewport width */
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: -1; /* Ensure it's behind other content */
-    
+    min-height: 100vh;
+    width: 100%;
+    position: relative;
+    z-index: 0;
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 80px;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
   
 
@@ -124,20 +148,47 @@
   }
 
   .margin-top-button{
-    margin-top: 2%;
+    margin-top: 1.5%;
   }
 
   .button_improved{
-    background: linear-gradient(to right, #ff6b6b, #fda085);
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    border-radius: 12px;
+    padding: 0.9rem 2.5rem;
+    color: white;
+    border: none;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    min-width: 160px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
-  .button_improved:hover {
-    background: linear-gradient(to right, #ff6b6b, #fda085);
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
-    opacity: 0.8;
+  .button_improved:hover:not(:disabled) {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+    transform: translateY(-3px);
+  }
+
+  .button_improved:active:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  .button_improved:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 480px) {
+    .button_improved {
+      padding: 0.75rem 1.75rem;
+      font-size: 0.9rem;
+      min-width: 140px;
+      margin: 0.5rem;
+    }
   }
 
   .container {
@@ -145,24 +196,201 @@
     display: grid;
     align-items: center; 
     grid-template-columns: 1fr 1fr 1fr;
-    column-gap: 5px;
+    column-gap: 2rem;
+    width: 100%;
+    padding: 1.5rem;
+    box-sizing: border-box;
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      margin-top: 2%;
+      gap: 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .container {
+      grid-template-columns: 1fr;
+      margin-top: 2%;
+      gap: 1rem;
+    }
   }
 
   .img-beers{
-    width: 10%; /* Adjust this value as needed */
-    height: auto; /* Maintain the aspect ratio */
+    width: 10%;
+    height: auto;
     margin: 0;
     padding: 0;
-    transition: transform 0.5s ease; /* Add a transition for smooth rotation */
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     animation: rotateBeers 2s linear infinite;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  }
+
+  @media (max-width: 768px) {
+    .img-beers {
+      width: 15%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .img-beers {
+      width: 20%;
+      display: none;
+    }
+  }
+
+  .form-design{
+    margin-top: 2%;
+    text-align: center;
+    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .form-design label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 1.2rem 0;
+    gap: 0.7rem;
+    font-weight: 700;
+    color: #333;
+  }
+
+  .form-design input,
+  .form-design select {
+    width: 100%;
+    padding: 0.9rem 1.2rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+  }
+
+  .form-design input:focus,
+  .form-design select:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  }
+
+  .form-design ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .form-design p {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    padding: 1rem 1.2rem;
+    border-radius: 10px;
+    margin: 0;
+    font-weight: 600;
+    color: #333;
+    border-left: 4px solid #667eea;
+    transition: all 0.3s ease;
+  }
+
+  .form-design p:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    transform: translateX(5px);
+  }
+
+  @media (max-width: 480px) {
+    .form-design {
+      padding: 1.8rem;
+      margin-top: 1rem;
+      max-width: 95%;
+      border-radius: 15px;
+    }
+
+    .form-design label {
+      margin: 1rem 0;
+      gap: 0.5rem;
+    }
+  }
+
+  .h1-center{
+    text-align: center;
+    color: white;
+    font-size: 3.5rem;
+    margin: 1.5rem 0;
+    text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.4);
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+
+  @media (max-width: 768px) {
+    .h1-center {
+      font-size: 2.2rem;
+      margin: 1rem 0;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .h1-center {
+      font-size: 1.8rem;
+      margin: 0.75rem 0;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .form-design input,
+  .form-design select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+  }
+
+  .form-design input:focus,
+  .form-design select:focus {
+    outline: none;
+    border-color: #667eea;
+  }
+
+  .form-design ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 2rem;
+  }
+
+  .form-design p {
+    background: #f0f0f0;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin: 0.5rem 0;
+    font-weight: 500;
+  }
+
+  @media (max-width: 480px) {
+    .form-design {
+      padding: 1.5rem;
+      margin-top: 1rem;
+      max-width: 95%;
+    }
   }
 
   @keyframes rotateBeers {
     0%, 100% {
-      transform: rotate(0deg);
+      transform: rotate(0deg) scale(1);
     }
     50% {
-      transform: rotate(45deg);
+      transform: rotate(15deg) scale(1.05);
     }
   }
 
@@ -174,22 +402,13 @@
     text-align: left;
   }
 
-  .h1-center{
-    text-align: center;
-  }
-
-  .form-design{
-    margin-top: 2%;
-    text-align: center;
-  }
-
   .background-image {
-    background-image: url('/images/picolo/confetis.avif'); /* Replace with the actual path to your image */
-    background-size: cover; /* Cover the entire container */
-    background-position: center; /* Center the image */
-    background-repeat: no-repeat; /* Do not repeat the background image */
-    height: 100vh; /* 100% of the viewport height */
-    width: 100vw; /* 100% of the viewport width */
+    background-image: url('/images/picolo/confetis.avif');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    width: 100vw;
     position: fixed;
     top: 0;
     left: 0;
@@ -199,26 +418,35 @@
   /* Your component's CSS */
 .confetti-background {
   background-image: url('/images/picolo/green.jpg');
-  background-size: cover; /* Cover the entire container */
-  background-position: center; /* Center the image */
-  background-repeat: no-repeat; /* Do not repeat the background image */
-  height: 100vh; /* 100% of the viewport height */
-  width: 100vw; /* 100% of the viewport width */
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 80px;
+  box-sizing: border-box;
 }
 
 .overlay-image {
-  position: absolute;
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 200%;
+  height: 100%;
   background-image: url('/images/picolo/confetis.webp'); /* Second image */
   background-size: contain;
   background-repeat: repeat-x;
   opacity: 1; /* Adjust the opacity as needed */
   animation: fall 5s linear forwards 1;
+  pointer-events: none; /* Allow clicks to pass through confetti */
+  z-index: 0;
 }
 
 @keyframes fall {

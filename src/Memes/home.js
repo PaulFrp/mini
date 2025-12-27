@@ -6,49 +6,49 @@ const categories = [
   { 
     name: "Memes Culture 1", 
     emoji: "🎯",
-    description: "Les classiques",
+    description: "",
     link: "/memes/game1", 
     color: "teal" 
   },
   { 
     name: "Memes Culture 2", 
     emoji: "🔍",
-    description: "Niveau intermédiaire",
+    description: "",
     link: "/memes/game2", 
     color: "indigo" 
   },
   { 
     name: "Memes Culture 3", 
     emoji: "🎪",
-    description: "Pour les connaisseurs",
+    description: "",
     link: "/memes/game3", 
     color: "blue" 
   },
   { 
     name: "Memes Culture 4", 
     emoji: "🎨",
-    description: "Niveau avancé",
+    description: "",
     link: "/memes/game4", 
     color: "orange" 
   },
   { 
     name: "Memes Culture 5", 
     emoji: "🎭",
-    description: "Références obscures",
+    description: "",
     link: "/memes/game5", 
     color: "pink" 
   },
   { 
     name: "Memes Culture 6", 
     emoji: "🎬",
-    description: "Pour les experts",
+    description: "",
     link: "/memes/game6", 
     color: "red" 
   },
   { 
     name: "Memes Culture 7", 
     emoji: "👑",
-    description: "Niveau légendaire",
+    description: "",
     link: "/memes/game7", 
     color: "purple" 
   }

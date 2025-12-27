@@ -154,8 +154,7 @@ const Introduction = ({ onStart }) => {
     <div>
     <NavigationBar/>
     {!started && (
-    
-    <div className={`${styles['confetti-background']}`}>
+      <div className={`${styles['confetti-background']}`}>
     <div className={styles['overlay-image']}></div>
    
 
@@ -175,29 +174,48 @@ const Introduction = ({ onStart }) => {
     
     <div className={styles['form-design']}> 
       <label>
-        Name:
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+        <span style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Player Name</span>
+        <input 
+          type="text" 
+          placeholder="Enter your name" 
+          value={name} 
+          onChange={(e) => setName(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleAddPlayer()}
+        />
       </label>
       <label>
-        Sex:
+        <span style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Gender</span>
         <select value={sex} onChange={(e) => setSex(e.target.value)}>
-          <option value=""> </option>
+          <option value="">Select gender</option>
           <option value="female">Female</option>
           <option value="male">Male</option>
         </select>
       </label>
-      <br/>
-      <button className={`${styles['margin-top-button']} ${styles['button_improved']}`} onClick={handleAddPlayer}>Add Player</button>
-      <button className={`${styles['margin-top-button']} ${styles['button_improved']}`} onClick={handleStartGame} disabled={players.length === 0}>
-        Start Game
+      <button 
+        className={`${styles['margin-top-button']} ${styles['button_improved']}`} 
+        onClick={handleAddPlayer}
+      >
+        Add Player
       </button>
       <ul>
         {players.map((player, index) => (
           <p key={index}>
-            {player.name} - {player.sex}
+            <span style={{ marginRight: '0.5rem' }}>👤</span>
+            {player.name} 
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', opacity: 0.7 }}>
+              {player.sex === 'male' ? '♂️' : '♀️'}
+            </span>
           </p>
         ))}
       </ul>
+      <button 
+        className={`${styles['margin-top-button']} ${styles['button_improved']}`} 
+        onClick={handleStartGame} 
+        disabled={players.length === 0}
+        style={{ marginTop: players.length > 0 ? '1.5rem' : '0.5rem', width: '100%' }}
+      >
+        🎮 Start Game
+      </button>
     </div>
     </div>
     )}
@@ -218,7 +236,9 @@ const Introduction = ({ onStart }) => {
         className={`${styles["img-beers"]}`}/> 
     </div>
     </div>
-    <button className={`${styles['margin-button']} ${styles['button_improved']}`} onClick={getQuestion}>Get Question</button>
+    <button className={`${styles['margin-button']} ${styles['button_improved']}`} onClick={getQuestion}>
+      🎲 Get Next Question
+    </button>
 
     {selectedPlayer && (
         <div>

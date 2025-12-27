@@ -888,5 +888,46 @@
     "id": 178,
     "text": "Les enfants aiment _____, les vraies hommes aiment _____.",
     "blanks": 2
+  },
+  {
+    "id": 179,
+    "text": "Ma fille a gouté _____, depuis elle ne pense plus qu'à _____.",
+    "blanks": 2
+  },
+    {
+    "id": 180,
+    "text": "C'est pour ca qu'on ne peut pas avoir des belles choses: _____.",
+    "blanks": 1
+  }, 
+  {
+    "id": 181,
+    "text": "La chute de _____ a été causée par _____.",
+    "blanks": 2
+  },
+  {
+    "id": 182,
+    "text": "Ma pire décision a été de _____.",
+    "blanks": 1
+  },
+  {
+    "id": 183,
+    "text": " _____ ajoute toujours du fun aux réunion de famille.",
+    "blanks": 1
+  },
+  {
+    "id": 184,
+    "text": "Step 1: _____ Step 2: _____ Step 3: Profit!",
+    "blanks": 2
+  },
+  {
+    "id": 185,
+    "text": "_____ est la pire chose que j'ai mangé",
+    "blanks": 1
+  },
+  {
+    "id": 186,
+    "text": "Ca commence par _____ et ça finit par _____.",
+    "blanks": 2
   }
+
 ]

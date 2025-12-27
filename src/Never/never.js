@@ -62,22 +62,36 @@ const NeverHaveI = () => {
 
   return (
     <div className={`${styles['centered-cell']} ${styles['background-image']}`}>
-    <NavigationBar/>
-      <h1>Welcome to Never have i ever </h1>
+      <NavigationBar/>
+      <div className={styles['content']}>
+      <div className={styles['container']}>
+        <h1 className={styles['title']}>🍻 Never Have I Ever</h1>
+        
+        <div className={styles['button-group']}>
+          <button 
+            className={styles['button']} 
+            onClick={() => getRandomQuestion()}
+          >
+            🎲 Get Random Question
+          </button>
+          <button 
+            className={`${styles['button']} ${styles['button-hot']}`}
+            onClick={() => getRandomQuestionHot()}
+          >
+            🔥 Get Hot Questions
+          </button>
+        </div>
 
-      <button onClick={() => getRandomQuestion()}>
-        Get Random Question
-      </button>
-
-      <button onClick={() => getRandomQuestionHot()}>
-        Get sex questions
-      </button>
-      {selectedQuestion && <h1>{selectedQuestion}</h1>}
-
-
+        {selectedQuestion && (
+          <div className={styles['question-display']}>
+            <p className={styles['question-text']}>
+              Never have I ever... <br/> {selectedQuestion}
+            </p>
+          </div>
+        )}
+      </div>
+      </div>
     </div>
-
-    
   );
 };
 

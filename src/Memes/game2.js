@@ -106,6 +106,9 @@ const Trivia = () => {
   const currentVideoUrl = selectedCard ? videoUrls[selectedCard] : null;
   const currentImage = selectedCard ? imageUrls[selectedCard] : null;
 
+  const totalCards = Object.keys(videoUrls).length;
+  const rows = 7; // fixed 7 rows, 3 columns
+
   //Questions and answers for the trivia 
   const getCardTexts = (number) => {
     console.log(number);
@@ -182,10 +185,13 @@ const Trivia = () => {
         </thead>
         <tbody>
         
-          {Array.from({ length: 7 }, (_, rowIndex) => (
+          {Array.from({ length: rows }, (_, rowIndex) => (
             <tr key={rowIndex}>
             {Array.from({ length: 3 }, (_, colIndex) => {
-              const buttonNumber = rowIndex + colIndex * 7 + 1;
+              const buttonNumber = rowIndex + colIndex * rows + 1;
+              if (buttonNumber > totalCards) {
+                return <td key={colIndex} className={styles['centered-cell']}></td>;
+              }
               const isButtonClicked = clickedButtons.includes(buttonNumber);
 
               return (
@@ -194,7 +200,7 @@ const Trivia = () => {
                     onClick={() => showCard(buttonNumber)}
                     className={`${styles.triviaButton} ${isButtonClicked ? styles['red-button'] : ''}`}
                   >
-                  {rowIndex + 1}
+                  {buttonNumber}
                   </button>
                   </td>
                    );

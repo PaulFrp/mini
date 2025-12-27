@@ -12,11 +12,6 @@
   ],
   "rootMainFiles": [],
   "pages": {
-    "/": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/index.js"
-    ],
     "/_app": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
@@ -27,30 +22,25 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/cards_against_humanity/room": [
+    "/memes": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/cards_against_humanity/room.js"
+      "static/chunks/pages/memes.js"
     ],
-    "/make_it_meme": [
+    "/memes/game4": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/make_it_meme.js"
+      "static/chunks/pages/memes/game4.js"
     ],
-    "/make_it_meme/room": [
+    "/memes/game6": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/make_it_meme/room.js"
+      "static/chunks/pages/memes/game6.js"
     ],
-    "/pb_games": [
+    "/memes/game7": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/pb_games.js"
-    ],
-    "/pb_games/room": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/pb_games/room.js"
+      "static/chunks/pages/memes/game7.js"
     ]
   },
   "ampFirstPages": []
