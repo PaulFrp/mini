@@ -1,0 +1,340 @@
+[
+    {
+        "id": 1,
+        "quote": "Mon anus peut s'étendre que jusqu'a 7cm",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 2,
+        "quote": "J'erection",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 3,
+        "quote": "C'est moi le train",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Max",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 4,
+        "quote": "Le gars factorise ses phrases",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 5,
+        "quote": "Le mec va se faire fouetter les couilles tout le diner.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 6,
+        "quote": "Tu prends trop de liberté, restes enchainé.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 7,
+        "quote": "J'avoue vas te faire repeindre sale negro",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 8,
+        "quote": "J me la prétends sous le bureau en l'écoutant la",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 9,
+        "quote": "Déso Hitler",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 10,
+        "quote": "Mets tout sur le rouge et marie toi avec une pute.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Paul"
+    },
+    {
+        "id": 11,
+        "quote": "Je vais me démarrer le tracteur.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Paul"
+    },
+    {
+        "id": 12,
+        "quote": "J vais date Cléa.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 13,
+        "quote": "Oui tkt les gendarmes expliquent ou deposer les femmes",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 14,
+        "quote": "Il a fait un tartar avec Satan à la place.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 15,
+        "quote": "J m'en turbine l'oignon de l'orateur.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 16,
+        "quote": "J ai hate de me bourrer la gueule, frapper ma meuf, violer une pute et finit en prison pour 4 homicides prémédités.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Paul"
+    },
+    {
+        "id": 17,
+        "quote": "Demain j me cueille la grappe directement dans la bouteille.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 18,
+        "quote": "Envie de me percher la cafetière dans l'amphithéâtre à moule.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 19,
+        "quote": "Hate de me gratiner la paluche au bar.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Paul"
+    },
+    {
+        "id": 20,
+        "quote": "On va se replanter la gueule en circuit court.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 21,
+        "quote": "On va se mettre la tête en bac à fleur et le trou de balle en chou-fleur.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Paul"
+    },
+    {
+        "id": 22,
+        "quote": "Demain on se décapote la chevrolet.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 23,
+        "quote": "Tu peux retourner malaxer des mômes",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 24,
+        "quote": "J vais te hagra ton kiki",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Paul"
+    },
+    {
+        "id": 25,
+        "quote": "Trouves une teille de vodka et demonte toi sur les rails",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 26,
+        "quote": "Malherueusement on m'a pas violé",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Cléa",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    }
+]

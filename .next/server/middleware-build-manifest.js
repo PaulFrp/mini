@@ -9,6 +9,11 @@ self.__BUILD_MANIFEST = {
   "lowPriorityFiles": [],
   "rootMainFiles": [],
   "pages": {
+    "/": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/index.js"
+    ],
     "/_app": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
@@ -19,25 +24,15 @@ self.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/memes": [
+    "/who_said_it": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/memes.js"
+      "static/chunks/pages/who_said_it.js"
     ],
-    "/memes/game4": [
+    "/who_said_it/room": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/memes/game4.js"
-    ],
-    "/memes/game6": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/memes/game6.js"
-    ],
-    "/memes/game7": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/memes/game7.js"
+      "static/chunks/pages/who_said_it/room.js"
     ]
   },
   "ampFirstPages": []

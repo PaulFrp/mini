@@ -5,9 +5,10 @@ import asyncio
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from ..game.websockets import manager
 from ..db import get_db
-from ..models import Player, Room, MemeGameState
+from ..models import Player, Room, MemeGameState, WhoSaidItGameState
 from ..game.meme import get_game_status_logic, next_meme_logic, MEME_POOL
 from ..game import cah
+from ..game import who_said_it
 
 router = APIRouter()
 
@@ -181,6 +182,99 @@ async def websocket_endpoint(websocket: WebSocket, room_id: int):
         manager.disconnect(room_id, websocket)
     except Exception as e:
         print(f"[WS] Error for client {client_id} in room {room_id}: {e}")
+        keepalive_task.cancel()
+        manager.disconnect(room_id, websocket)
+
+
+@router.websocket("/ws/who_said_it/{room_id}")
+async def who_said_it_websocket_endpoint(websocket: WebSocket, room_id: int):
+    """WebSocket endpoint for Who Said It game"""
+    client_id = websocket.query_params.get("client_id")
+    print(f"[WHO_SAID_IT_WS] Client {client_id} connecting to room {room_id}")
+    await manager.connect(room_id, websocket)
+    print(f"[WHO_SAID_IT_WS] Client {client_id} connected. Active connections: {len(manager.active_connections.get(room_id, []))}")
+
+    # Keepalive task to prevent Heroku timeout
+    async def send_keepalive():
+        try:
+            while True:
+                await asyncio.sleep(20)
+                try:
+                    await websocket.send_json({"type": "ping"})
+                    print(f"[WHO_SAID_IT_WS] Sent keepalive ping to {client_id}")
+                except Exception as e:
+                    print(f"[WHO_SAID_IT_WS] Keepalive failed for {client_id}: {e}")
+                    break
+        except asyncio.CancelledError:
+            pass
+
+    keepalive_task = asyncio.create_task(send_keepalive())
+
+    try:
+        db = next(get_db())
+
+        # Push initial status on connect
+        try:
+            status = await who_said_it.get_game_status_logic(room_id, client_id, db)
+            await websocket.send_json({"type": "game_update", **status})
+            print(f"[WHO_SAID_IT_WS] Sent initial status to client {client_id}: {status.get('status', 'unknown')}")
+        except Exception as e:
+            print(f"[WHO_SAID_IT_WS] Failed to fetch initial status for client {client_id}: {e}")
+            await websocket.send_json({"type": "game_update", "status": "no_game"})
+
+        while True:
+            data = await websocket.receive_text()
+            message = json.loads(data)
+            msg_type = message.get("type")
+
+            # --- 0. Ping/Pong for keepalive ---
+            if msg_type == "pong":
+                continue
+
+            # --- 1. Game status sync ---
+            if msg_type == "get_status":
+                status = await who_said_it.get_game_status_logic(room_id, client_id, db)
+                await websocket.send_json({"type": "game_update", **status})
+
+            # --- 2. Submit vote ---
+            elif msg_type == "submit_vote":
+                choice = message.get("choice")
+                result = await who_said_it.submit_vote_logic(room_id, client_id, choice, db)
+                
+                if "error" in result:
+                    await websocket.send_json({"error": result["error"]})
+                # Timer will handle transition to results when all votes are in
+
+            # --- 3. Next round ---
+            elif msg_type == "next_round":
+                room = db.query(Room).filter(Room.id == room_id).first()
+                if not room or room.creator != client_id:
+                    await websocket.send_json({"error": "Only creator can start next round"})
+                    continue
+
+                result = await who_said_it.next_round_logic(room_id, db)
+                
+                if "error" in result:
+                    await websocket.send_json({"error": result["error"]})
+                elif result.get("game_over"):
+                    game_state = db.query(WhoSaidItGameState).filter_by(room_id=room_id).first()
+                    scores = json.loads(game_state.scores) if game_state and game_state.scores else {}
+                    await manager.broadcast(room_id, {
+                        "type": "game_over",
+                        "winners": result["winners"],
+                        "final_scores": scores,
+                    })
+
+            # --- Unknown message ---
+            else:
+                await websocket.send_json({"error": "Unknown message type"})
+
+    except WebSocketDisconnect:
+        print(f"[WHO_SAID_IT_WS] Client {client_id} disconnected from room {room_id}")
+        keepalive_task.cancel()
+        manager.disconnect(room_id, websocket)
+    except Exception as e:
+        print(f"[WHO_SAID_IT_WS] Error for client {client_id} in room {room_id}: {e}")
         keepalive_task.cancel()
         manager.disconnect(room_id, websocket)
 

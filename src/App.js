@@ -59,9 +59,22 @@ const categories = [
     link: "/make_it_meme", 
     color: "indigo" 
   },
+  { 
+    name: "Who Said It?", 
+    emoji: "🤔",
+    description: "",
+    link: "/who_said_it", 
+    color: "teal" 
+  },
 ];
 
 const newGames = [
+  { 
+    name: "Who Said It?", 
+    emoji: "🤔",
+    link: "/who_said_it",
+    badge: "Nouveau"
+  },
   { 
     name: "Make it Meme", 
     emoji: "😂",

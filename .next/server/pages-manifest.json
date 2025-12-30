@@ -2,8 +2,7 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/memes/game6": "pages/memes/game6.js",
-  "/memes": "pages/memes.js",
-  "/memes/game4": "pages/memes/game4.js",
-  "/memes/game7": "pages/memes/game7.js"
+  "/": "pages/index.js",
+  "/who_said_it/room": "pages/who_said_it/room.js",
+  "/who_said_it": "pages/who_said_it.js"
 }

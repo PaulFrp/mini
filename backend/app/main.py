@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 import re
 from .db import init_db
 from contextlib import asynccontextmanager
-from .routes import general, room, voting, meme, websockets, cah
+from .routes import general, room, voting, meme, websockets, cah, who_said_it
 from .tasks.cleanup import cleanup_empty_rooms_task
 import asyncio
 import os
@@ -78,6 +78,7 @@ app.include_router(room.router)
 app.include_router(voting.router, prefix="/voting")
 app.include_router(meme.router, prefix="/meme")
 app.include_router(cah.router, prefix="/cah")
+app.include_router(who_said_it.router, prefix="/who_said_it", tags=["who_said_it"])
 app.include_router(websockets.router)  # WebSocket routes
 
 # Serve Next.js static files in production (MUST BE AFTER API routes)

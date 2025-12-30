@@ -73,3 +73,19 @@ class CAHGameState(Base):
     card_czar = Column(String)  # username of current czar
     czar_index = Column(Integer, default=0)
 
+class WhoSaidItGameState(Base):
+    __tablename__ = "who_said_it_game_states"
+    id = Column(Integer, primary_key=True)
+    room_id = Column(Integer, unique=True, index=True)
+    players = Column(Text)  # JSON list of usernames
+    creator = Column(String)
+    quote_pool = Column(Text)  # JSON list of remaining quotes
+    current_quote = Column(Text)  # JSON object for current quote
+    votes = Column(Text)  # JSON dict {username: choice}
+    phase = Column(String, default="voting")  # voting, results
+    start_time = Column(Float)
+    duration = Column(Integer, default=30)
+    scores = Column(Text)  # JSON dict {username: score}
+    current_round = Column(Integer, default=1)
+    total_rounds = Column(Integer, default=10)
+
