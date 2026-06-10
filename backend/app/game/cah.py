@@ -9,10 +9,10 @@ import logging
 
 # Load cards and questions
 BACKEND_DIR = os.path.join(os.path.dirname(__file__), "..", "..")
-with open(os.path.join(BACKEND_DIR, "cah_cards.json")) as f:
+with open(os.path.join(BACKEND_DIR, "cah_cards.json"), encoding="utf-8") as f:
     CARD_POOL = json.load(f)
 
-with open(os.path.join(BACKEND_DIR, "cah_questions.json")) as f:
+with open(os.path.join(BACKEND_DIR, "cah_questions.json"), encoding="utf-8") as f:
     QUESTION_POOL = json.load(f)
 
 def start_cah_game(room_id: int, players: list[str], creator_id: str):
@@ -66,6 +66,7 @@ def start_cah_game(room_id: int, players: list[str], creator_id: str):
 
 async def get_game_status_logic(room_id, client_id, db):
     """Get current game status for a player (NO PHASE TRANSITIONS - handled by timer)"""
+    db.expire_all()
     player = db.query(Player).filter_by(user_id=client_id, room_id=room_id).first()
     room = db.query(Room).filter_by(id=room_id).first()
     room_creator = room.creator if room else None
@@ -157,6 +158,7 @@ async def get_game_status_logic(room_id, client_id, db):
 
 async def submit_cards_logic(room_id, client_id, selected_cards, db):
     """Handle a player submitting their cards"""
+    db.expire_all()
     player = db.query(Player).filter_by(user_id=client_id, room_id=room_id).first()
     if not player:
         return {"error": "Player not found"}
@@ -212,13 +214,14 @@ async def submit_cards_logic(room_id, client_id, selected_cards, db):
     await manager.broadcast(room_id, {
         "type": "player_submitted",
         "player": player_username,
-        "total_submissions": len(game["submissions"])
+        "total_submissions": len(submissions),
     })
     
     return {"success": True}
 
 async def submit_vote_logic(room_id, client_id, voted_for, db):
     """Handle card czar voting for winner"""
+    db.expire_all()
     player = db.query(Player).filter_by(user_id=client_id, room_id=room_id).first()
     if not player:
         return {"error": "Player not found"}
@@ -236,6 +239,9 @@ async def submit_vote_logic(room_id, client_id, voted_for, db):
     # Validate voted_for is in submissions
     submissions = json.loads(game_state.submissions)
     votes = json.loads(game_state.votes)
+    if player_username in votes:
+        return {"error": "Already voted"}
+
     if voted_for not in submissions:
         return {"error": "Invalid vote"}
     
@@ -244,6 +250,52 @@ async def submit_vote_logic(room_id, client_id, voted_for, db):
     db.commit()
     
     return {"success": True}
+
+
+async def transition_to_results_after_vote(room_id: int, db):
+    """Move to results phase after czar vote and broadcast to all players."""
+    db.expire_all()
+    game_state = db.query(CAHGameState).filter_by(room_id=room_id).first()
+    if not game_state:
+        return {"error": "Game not found"}
+
+    game_state.phase = "results"
+    votes = json.loads(game_state.votes)
+    vote_counts = {}
+    for voted_player in votes.values():
+        vote_counts[voted_player] = vote_counts.get(voted_player, 0) + 1
+
+    scores = json.loads(game_state.scores)
+    round_winner = None
+    if vote_counts:
+        max_votes = max(vote_counts.values())
+        winners = [p for p, v in vote_counts.items() if v == max_votes]
+        if len(winners) == 1:
+            scores[winners[0]] = scores.get(winners[0], 0) + 1
+            round_winner = winners[0]
+
+    game_state.scores = json.dumps(scores)
+    db.commit()
+
+    submissions = json.loads(game_state.submissions)
+    payload = {
+        "type": "game_update",
+        "status": "results",
+        "round_winner": round_winner,
+        "scores": scores,
+        "vote_counts": vote_counts,
+        "submissions": [
+            {
+                "player": player_name,
+                "cards": cards,
+                "votes": vote_counts.get(player_name, 0),
+            }
+            for player_name, cards in submissions.items()
+            if player_name != game_state.card_czar
+        ],
+    }
+    await manager.broadcast(room_id, payload)
+    return {"success": True, **payload}
 
 async def next_round_logic(room_id, db):
     """Start the next round"""
@@ -254,8 +306,8 @@ async def next_round_logic(room_id, db):
     # Check if game should end (first to 5 points wins)
     scores = json.loads(game_state.scores)
     max_score = max(scores.values()) if scores else 0
-    if max_score >= 30:
-        winners = [p for p, s in game["scores"].items() if s == max_score]
+    if max_score >= 5:
+        winners = [p for p, s in scores.items() if s == max_score]
         # Stop the timer when game ends
         # No separate timer; end game immediately
         await manager.broadcast(room_id, {

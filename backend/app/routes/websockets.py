@@ -4,9 +4,14 @@ import json
 import asyncio
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from ..game.websockets import manager
-from ..db import get_db
+from ..db import get_db, SessionLocal
 from ..models import Player, Room, MemeGameState, WhoSaidItGameState
 from ..game.meme import get_game_status_logic, next_meme_logic, MEME_POOL
+from ..game.meme_timer import (
+    ABSTAIN,
+    try_advance_from_captioning,
+    try_advance_from_voting,
+)
 from ..game import cah
 from ..game import who_said_it
 
@@ -36,17 +41,14 @@ async def websocket_endpoint(websocket: WebSocket, room_id: int):
     keepalive_task = asyncio.create_task(send_keepalive())
 
     try:
-        db = next(get_db())
-
-        # Proactively push current game status on connect to reduce race conditions on Heroku
-        try:
-            status = await get_game_status_logic(room_id, client_id, db)
-            await websocket.send_json({"type": "game_update", **status})
-            print(f"[MEME_WS] Sent initial status to client {client_id}: {status.get('status', 'unknown')}")
-        except Exception as e:
-            # Don't fail the connection if status fetch hiccups
-            print(f"[MEME_WS] Failed to fetch initial status for client {client_id}: {e}")
-            await websocket.send_json({"type": "game_update", "status": "no_game"})
+        with SessionLocal() as db:
+            try:
+                status = await get_game_status_logic(room_id, client_id, db)
+                await websocket.send_json({"type": "game_update", **status})
+                print(f"[MEME_WS] Sent initial status to client {client_id}: {status.get('status', 'unknown')}")
+            except Exception as e:
+                print(f"[MEME_WS] Failed to fetch initial status for client {client_id}: {e}")
+                await websocket.send_json({"type": "game_update", "status": "no_game"})
 
         while True:
             data = await websocket.receive_text()
@@ -54,127 +56,145 @@ async def websocket_endpoint(websocket: WebSocket, room_id: int):
 
             msg_type = message.get("type")
 
-            # --- 0. Ping/Pong for keepalive ---
             if msg_type == "pong":
-                # Client responded to ping, connection is alive
                 continue
 
-            # --- 1. Game status sync ---
-            if msg_type == "get_status":
-                status = await get_game_status_logic(room_id, client_id, db)
-                await websocket.send_json({ "type": "game_update", **status })
-
-            # --- 2. Caption submission ---
-            elif msg_type == "submit_caption":
-                captions = message.get("caption") or []
-
-                game_state = db.query(MemeGameState).filter_by(room_id=room_id).first()
-                if not game_state or game_state.phase != "captioning":
-                    await websocket.send_json({"error": "Not in captioning phase"})
-                    continue
-
-                current_meme = json.loads(game_state.current_meme)
-                expected_slots = len(current_meme.get("caption_slots", []))
-                if expected_slots and len(captions) != expected_slots:
-                    await websocket.send_json({"error": "Invalid caption count"})
-                    continue
-
-                captions_dict = json.loads(game_state.captions)
-                submissions_dict = json.loads(game_state.submissions)
-
-                captions_dict[client_id] = captions
-                submissions_dict[client_id] = {
-                    "meme": current_meme,
-                    "captions": captions,
-                }
-
-                game_state.captions = json.dumps(captions_dict)
-                game_state.submissions = json.dumps(submissions_dict)
-                db.commit()
-
-                status = await get_game_status_logic(room_id, client_id, db)
-                await manager.broadcast(room_id, {
-                    "type": "game_update",
-                    **status
-                })
-
-
-            # --- 3. Voting submission ---
-            elif msg_type == "submit_vote":
-                vote_for = message.get("vote_for")
-                try:
-                    points_awarded = int(message.get("points") or 0)
-                except (ValueError, TypeError):
-                    points_awarded = 0
-
-                game_state = db.query(MemeGameState).filter_by(room_id=room_id).first()
-                if not game_state or game_state.phase != "voting":
-                    await websocket.send_json({"error": "Voting is not active"})
-                    continue
-
-                votes_dict = json.loads(game_state.votes)
-                submissions_dict = json.loads(game_state.submissions)
-                points_dict = json.loads(game_state.points)
-
-                if client_id in votes_dict:
-                    await websocket.send_json({"error": "You already voted"})
-                    continue
-
-                if not vote_for or vote_for not in submissions_dict:
-                    await websocket.send_json({"error": "Invalid vote target"})
-                    continue
-
-                if client_id == vote_for:
-                    await websocket.send_json({"error": "You can't vote for yourself!"})
-                    continue
-
-                votes_dict[client_id] = vote_for
-                points_dict[vote_for] = points_dict.get(vote_for, 0) + points_awarded
-
-                game_state.votes = json.dumps(votes_dict)
-                game_state.points = json.dumps(points_dict)
-                db.commit()
-
-                status = await get_game_status_logic(room_id, client_id, db)
-                await manager.broadcast(room_id, {
-                    "type": "game_update",
-                    **status
-                })
-
-
-            # --- 4. Next meme (if game master triggers it) ---
-            elif msg_type == "next_meme":
-                room = db.query(Room).filter(Room.id == room_id).first()
-                if not room or room.creator != client_id:
-                    await websocket.send_json({ "error": "Only creator can trigger next meme" })
-                    continue
-
-                result = next_meme_logic(room_id, client_id, db)
-
-                if result["status"] == "next_meme":
-                    print("[WS] Next meme triggered. Broadcasting...")
+            with SessionLocal() as db:
+                if msg_type == "get_status":
                     status = await get_game_status_logic(room_id, client_id, db)
-                    await manager.broadcast(room_id, {
-                        "type": "game_update",
-                        **status
-                    })
+                    await websocket.send_json({"type": "game_update", **status})
 
-                elif result["status"] == "game_over":
-                    print("[WS] No more memes. Game over.")
-                    await manager.broadcast(room_id, {
-                        "type": "game_over"
-                    })
+                elif msg_type == "submit_caption":
+                    captions = message.get("caption") or []
 
-                elif result["status"] == "cannot_advance":
-                    await websocket.send_json({ "error": "Can't proceed yet." })
+                    game_state = db.query(MemeGameState).filter_by(room_id=room_id).first()
+                    if not game_state or game_state.phase != "captioning":
+                        await websocket.send_json({"error": "Not in captioning phase"})
+                        continue
 
-                elif result["status"] == "unauthorized":
-                    await websocket.send_json({ "error": "Unauthorized to trigger next meme." })
+                    current_meme = json.loads(game_state.current_meme)
+                    expected_slots = len(current_meme.get("caption_slots", []))
+                    if expected_slots and len(captions) != expected_slots:
+                        await websocket.send_json({"error": "Invalid caption count"})
+                        continue
 
+                    captions_dict = json.loads(game_state.captions)
+                    submissions_dict = json.loads(game_state.submissions)
 
-            # --- Optional: unknown message ---
-            else:
-                await websocket.send_json({ "error": "Unknown message type" })
+                    captions_dict[client_id] = captions
+                    submissions_dict[client_id] = {
+                        "meme": current_meme,
+                        "captions": captions,
+                    }
+
+                    game_state.captions = json.dumps(captions_dict)
+                    game_state.submissions = json.dumps(submissions_dict)
+                    db.commit()
+
+                    advanced = await try_advance_from_captioning(room_id, db)
+                    if not advanced:
+                        status = await get_game_status_logic(room_id, client_id, db)
+                        await manager.broadcast(room_id, {
+                            "type": "game_update",
+                            **status
+                        })
+
+                elif msg_type == "submit_vote":
+                    vote_for = message.get("vote_for")
+                    try:
+                        points_awarded = int(message.get("points") or 0)
+                    except (ValueError, TypeError):
+                        points_awarded = 0
+
+                    game_state = db.query(MemeGameState).filter_by(room_id=room_id).first()
+                    if not game_state or game_state.phase != "voting":
+                        await websocket.send_json({"error": "Voting is not active"})
+                        continue
+
+                    votes_dict = json.loads(game_state.votes)
+                    submissions_dict = json.loads(game_state.submissions)
+                    points_dict = json.loads(game_state.points)
+
+                    if client_id in votes_dict and votes_dict[client_id] != ABSTAIN:
+                        await websocket.send_json({"error": "You already voted"})
+                        continue
+
+                    if not vote_for or vote_for not in submissions_dict:
+                        await websocket.send_json({"error": "Invalid vote target"})
+                        continue
+
+                    if client_id == vote_for:
+                        await websocket.send_json({"error": "You can't vote for yourself!"})
+                        continue
+
+                    votes_dict[client_id] = vote_for
+                    points_dict[vote_for] = points_dict.get(vote_for, 0) + points_awarded
+
+                    game_state.votes = json.dumps(votes_dict)
+                    game_state.points = json.dumps(points_dict)
+                    db.commit()
+
+                    advanced = await try_advance_from_voting(room_id, db)
+                    if not advanced:
+                        status = await get_game_status_logic(room_id, client_id, db)
+                        await manager.broadcast(room_id, {
+                            "type": "game_update",
+                            **status
+                        })
+
+                elif msg_type == "skip_vote":
+                    game_state = db.query(MemeGameState).filter_by(room_id=room_id).first()
+                    if not game_state or game_state.phase != "voting":
+                        await websocket.send_json({"error": "Voting is not active"})
+                        continue
+
+                    votes_dict = json.loads(game_state.votes)
+                    if client_id in votes_dict and votes_dict[client_id] != ABSTAIN:
+                        await websocket.send_json({"error": "You already voted"})
+                        continue
+
+                    votes_dict[client_id] = ABSTAIN
+                    game_state.votes = json.dumps(votes_dict)
+                    db.commit()
+
+                    advanced = await try_advance_from_voting(room_id, db)
+                    if not advanced:
+                        status = await get_game_status_logic(room_id, client_id, db)
+                        await manager.broadcast(room_id, {
+                            "type": "game_update",
+                            **status
+                        })
+
+                elif msg_type == "next_meme":
+                    room = db.query(Room).filter(Room.id == room_id).first()
+                    if not room or room.creator != client_id:
+                        await websocket.send_json({"error": "Only creator can trigger next meme"})
+                        continue
+
+                    result = next_meme_logic(room_id, client_id, db)
+
+                    if result["status"] == "next_meme":
+                        print("[WS] Next meme triggered. Broadcasting...")
+                        status = await get_game_status_logic(room_id, client_id, db)
+                        await manager.broadcast(room_id, {
+                            "type": "game_update",
+                            **status
+                        })
+
+                    elif result["status"] == "game_over":
+                        print("[WS] No more memes. Game over.")
+                        await manager.broadcast(room_id, {
+                            "type": "game_over"
+                        })
+
+                    elif result["status"] == "cannot_advance":
+                        await websocket.send_json({"error": "Can't proceed yet."})
+
+                    elif result["status"] == "unauthorized":
+                        await websocket.send_json({"error": "Unauthorized to trigger next meme."})
+
+                else:
+                    await websocket.send_json({"error": "Unknown message type"})
 
     except WebSocketDisconnect:
         print(f"[WS] Client {client_id} disconnected from room {room_id}")
@@ -327,11 +347,13 @@ async def cah_websocket_endpoint(websocket: WebSocket, room_id: int):
 
             # --- 1. Game status sync ---
             if msg_type == "get_status":
+                db.expire_all()
                 status = await cah.get_game_status_logic(room_id, client_id, db)
                 await websocket.send_json({"type": "game_update", **status})
 
             # --- 2. Submit cards ---
             elif msg_type == "submit_cards":
+                db.expire_all()
                 selected_cards = message.get("cards", [])
                 result = await cah.submit_cards_logic(room_id, client_id, selected_cards, db)
                 
@@ -342,51 +364,14 @@ async def cah_websocket_endpoint(websocket: WebSocket, room_id: int):
 
             # --- 3. Submit vote (Card Czar only) ---
             elif msg_type == "submit_vote":
+                db.expire_all()
                 voted_for = message.get("voted_for")
                 result = await cah.submit_vote_logic(room_id, client_id, voted_for, db)
                 
                 if "error" in result:
                     await websocket.send_json({"error": result["error"]})
                 else:
-                    # Transition to results immediately and broadcast from DB state
-                    from ..models import CAHGameState
-                    game_state = db.query(CAHGameState).filter_by(room_id=room_id).first()
-                    if game_state:
-                        game_state.phase = "results"
-                        votes = json.loads(game_state.votes)
-                        vote_counts = {}
-                        for voted_player in votes.values():
-                            vote_counts[voted_player] = vote_counts.get(voted_player, 0) + 1
-
-                        scores = json.loads(game_state.scores)
-                        round_winner = None
-                        if vote_counts:
-                            max_votes = max(vote_counts.values())
-                            winners = [p for p, v in vote_counts.items() if v == max_votes]
-                            if len(winners) == 1:
-                                scores[winners[0]] = scores.get(winners[0], 0) + 1
-                                round_winner = winners[0]
-
-                        game_state.scores = json.dumps(scores)
-                        db.commit()
-
-                        submissions = json.loads(game_state.submissions)
-                        await manager.broadcast(room_id, {
-                            "type": "game_update",
-                            "status": "results",
-                            "round_winner": round_winner,
-                            "scores": scores,
-                            "vote_counts": vote_counts,
-                            "submissions": [
-                                {
-                                    "player": player_name,
-                                    "cards": cards,
-                                    "votes": vote_counts.get(player_name, 0)
-                                }
-                                for player_name, cards in submissions.items()
-                                if player_name != game_state.card_czar
-                            ]
-                        })
+                    await cah.transition_to_results_after_vote(room_id, db)
 
             # --- 4. Next round ---
             elif msg_type == "next_round":

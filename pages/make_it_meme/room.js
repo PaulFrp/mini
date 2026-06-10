@@ -1,38 +1,47 @@
-import { useEffect, useState, useRef  } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import styles from "./RoomPage.module.css";
 import NavigationBar from "../../src/navBar";
 import MemeCanvas from "./memecanvas";
+import {
+  GAME_KEYS,
+  getBackendUrl,
+  getWsBaseUrl,
+  getOrCreateClientId,
+  resolveRoomId,
+  persistRoomId,
+  roomHeaders,
+  fetchGameStatus,
+  onPageVisible,
+  HTTP_POLL_MS,
+  shouldIgnoreMemeGameUpdate,
+} from "../../src/roomClient";
 
-//Solve the problem when using crypto random UUID in browsers that do not support it
-function getClientId() {
-  let id = localStorage.getItem("client_id");
-  if (!id) {
-    if (window.crypto && crypto.randomUUID) {
-      // Use modern API when available
-      id = crypto.randomUUID();
-    } else {
-      // Fallback for older browsers
-      id = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-        (
-          c ^
-          (window.crypto && crypto.getRandomValues
-            ? crypto.getRandomValues(new Uint8Array(1))[0]
-            : Math.random() * 16
-          ) & 15 >> c / 4
-        ).toString(16)
-      );
-    }
-    localStorage.setItem("client_id", id);
+const BACKEND_URL = getBackendUrl();
+const WS_BASE_URL = getWsBaseUrl();
+const GAME_KEY = GAME_KEYS.MAKE_IT_MEME;
+
+/** Voting sends an array; results use an id-keyed object. */
+function normalizeSubmissions(submissions) {
+  if (!submissions) return [];
+  if (Array.isArray(submissions)) {
+    return submissions.map((s) => ({
+      user_id: s.user_id,
+      username: s.username,
+      meme: s.meme,
+      captions: Array.isArray(s.captions) ? s.captions : [],
+    }));
   }
-  return id;
+  return Object.entries(submissions).map(([user_id, sub]) => ({
+    user_id,
+    username: sub.username,
+    meme: sub.meme,
+    captions: Array.isArray(sub.captions) ? sub.captions : [],
+  }));
 }
 
-const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL !== undefined ? process.env.NEXT_PUBLIC_BACKEND_URL : "http://localhost:8000").replace(/\/$/, '');
-// Safe fallback for WebSocket base: derive from BACKEND_URL if NEXT_PUBLIC_WS_BASE_URL isn't set
-const WS_BASE_URL = (process.env.NEXT_PUBLIC_WS_BASE_URL || BACKEND_URL
-  .replace(/^http:\/\//, 'ws://')
-  .replace(/^https:\/\//, 'wss://'))
-  .replace(/\/$/, '');
+function findSubmission(submissions, userId) {
+  return normalizeSubmissions(submissions).find((s) => s.user_id === userId);
+}
 
 export default function MemeGame() {
   const wsRef = useRef(null);
@@ -51,7 +60,39 @@ export default function MemeGame() {
   const [currentVoteIndex, setCurrentVoteIndex] = useState(0);
   const [hasFinishedVoting, setHasFinishedVoting] = useState(false);
   const lastStatusSeqRef = useRef(0); // avoid processing stale WS frames if they arrive out of order
+  const timerRoundRef = useRef("");
+  const serverRemainingRef = useRef(null);
+  const serverSyncedAtRef = useRef(0);
+  const votingSkipSentRef = useRef("");
+  const lastPhaseRef = useRef(null);
+  const memeStatusRef = useRef(null);
   const [wsConnected, setWsConnected] = useState(false); // Track WebSocket connection for Safari
+
+  const MEME_TIMED_PHASES = new Set(["captioning", "voting"]);
+
+  const getMemeFilename = (data) =>
+    data.current_meme?.filename || data.submissions?.[0]?.meme?.filename || null;
+
+  const getTimerRoundKey = (data) => {
+    if (!MEME_TIMED_PHASES.has(data.status)) return "";
+    const memeFile = getMemeFilename(data);
+    return memeFile ? `${data.status}:${memeFile}` : data.status;
+  };
+
+  const syncRemainingFromServer = (data) => {
+    if (!MEME_TIMED_PHASES.has(data.status)) {
+      timerRoundRef.current = "";
+      serverRemainingRef.current = null;
+      setRemaining(null);
+      return;
+    }
+    if (typeof data.remaining !== "number") return;
+
+    timerRoundRef.current = getTimerRoundKey(data);
+    serverRemainingRef.current = data.remaining;
+    serverSyncedAtRef.current = Date.now();
+    setRemaining(data.remaining);
+  };
 
   // Poll for updated player list in waiting room (every 1 second)
   useEffect(() => {
@@ -60,7 +101,7 @@ export default function MemeGame() {
     const pollInterval = setInterval(() => {
       fetch(`${BACKEND_URL}/room_players/${roomId}`, {
         credentials: "include",
-        headers: { "x-client-id": clientId },
+        headers: roomHeaders(clientId, roomId),
       })
         .then(res => res.json())
         .then(data => {
@@ -74,90 +115,137 @@ export default function MemeGame() {
     return () => clearInterval(pollInterval);
   }, [roomId, clientId, gameStarted, BACKEND_URL]);
 
-  // === Polling ===
-  // First effect: load client ID
-  //Probably need to nuke the next two UseEffects Because shit don t work no more in prod apparently
-useEffect(() => {
-  if (typeof window === "undefined") return;
+  const applyGameUpdate = useCallback((data, source = "ws") => {
+    if (!data?.status || data.status === "no_game") return;
 
-  // Safari fix: Try URL params FIRST (more reliable than localStorage in Private mode)
-  const urlParams = new URLSearchParams(window.location.search);
-  let roomIdFromUrl = urlParams.get("room_id");
-  let roomIdFromStorage = null;
-  
-  try {
-    roomIdFromStorage = localStorage.getItem("room_id");
-  } catch (err) {
-    console.warn("localStorage access blocked (Safari Private mode?)", err);
-  }
-  
-  // Prioritize URL param over localStorage
-  const rid = roomIdFromUrl || roomIdFromStorage;
-  if (rid) {
-    setRoomId(rid);
-    // Update URL if not present (helps Safari persistence across navigations)
-    if (!roomIdFromUrl) {
-      const newUrl = `${window.location.pathname}?room_id=${rid}`;
-      window.history.replaceState({}, '', newUrl);
+    const current = memeStatusRef.current;
+    if (
+      source === "ws" &&
+      current &&
+      shouldIgnoreMemeGameUpdate(data, current)
+    ) {
+      console.log("Ignoring stale WS update:", data.status, "current:", current.status);
+      return;
     }
-  }
 
-  let id = localStorage.getItem("client_id");
-  if (!id) {
-    if (window.crypto && crypto.randomUUID) {
-      id = crypto.randomUUID();
-    } else {
-      id = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-        (
-          c ^ (window.crypto && crypto.getRandomValues
-            ? crypto.getRandomValues(new Uint8Array(1))[0]
-            : Math.random() * 16
-          ) & 15 >> c / 4
-        ).toString(16)
-      );
-    }
-    localStorage.setItem("client_id", id);
-  }
-  setClientId(id);
-}, []);
+    const phase = data.status;
+    const phaseChanged = phase !== lastPhaseRef.current;
+    lastPhaseRef.current = phase;
 
-// Second effect: fetch messages only when we have a clientId
-useEffect(() => {
-  if (!clientId) return; // wait until ready
-
-  const headers = { "x-client-id": clientId };
-  if (roomId) headers["x-room-id"] = roomId;
-
-  fetch(`${BACKEND_URL}/room_messages`, {
-    credentials: "include",
-    headers,
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      console.log("📦 /room_messages data:", data);
-      if (data.messages) {
-        setMessages(data.messages);
-        setRoomId(data.room_id);
-        try { localStorage.setItem("room_id", data.room_id); } catch {}
-        setPlayerMap(data.player_map);
-        setIsCreator(data.is_creator);
-      } else {
-        setMessages(["You are not in a room or session expired."]);
+    setGameStarted(true);
+    setMemeStatus((prev) => {
+      if (!prev || phaseChanged) {
+        memeStatusRef.current = data;
+        return data;
       }
+      const merged = { ...prev, ...data };
+      if (merged.status === "results") {
+        if (!data.captions && prev.captions) merged.captions = prev.captions;
+        if (!data.votes && prev.votes) merged.votes = prev.votes;
+        if (!data.winners && prev.winners) merged.winners = prev.winners;
+        if (
+          Array.isArray(data.submissions) &&
+          prev.submissions &&
+          !Array.isArray(prev.submissions)
+        ) {
+          merged.submissions = prev.submissions;
+        }
+      }
+      memeStatusRef.current = merged;
+      return merged;
     });
-}, [clientId, roomId]);
+    if (typeof data.is_creator !== "undefined") setIsCreator(data.is_creator);
+    syncRemainingFromServer(data);
 
-// -------------- Nuke until here 
+    if (phaseChanged && phase === "voting") {
+      setCurrentVoteIndex(0);
+      setHasVoted(false);
+      setHasFinishedVoting(false);
+      votingSkipSentRef.current = "";
+    }
+    if (phaseChanged && phase === "captioning") {
+      setCaptions([]);
+      setHasSubmittedCaptions(false);
+      setIsSubmittingCaption(false);
+      setHasVoted(false);
+    }
+    if (phaseChanged && phase === "results") {
+      setHasFinishedVoting(true);
+    }
+  }, []);
+
+  const pollGameStatusNow = useCallback(() => {
+    if (!roomId || !clientId) return;
+    fetchGameStatus(
+      `${BACKEND_URL}/meme/game_status?room_id=${roomId}`,
+      clientId,
+      roomId
+    )
+      .then((data) => applyGameUpdate(data, "http"))
+      .catch(() => {});
+  }, [roomId, clientId, applyGameUpdate]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setClientId(getOrCreateClientId());
+    const rid = resolveRoomId(GAME_KEY);
+    if (rid) {
+      setRoomId(rid);
+      persistRoomId(GAME_KEY, rid);
+    }
+  }, []);
+
+  useEffect(() => {
+    lastPhaseRef.current = null;
+    memeStatusRef.current = null;
+    lastStatusSeqRef.current = 0;
+  }, [roomId]);
+
+  useEffect(() => {
+    if (!clientId || !roomId) return;
+
+    fetch(`${BACKEND_URL}/room_messages`, {
+      credentials: "include",
+      headers: roomHeaders(clientId, roomId),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.messages) {
+          setMessages(data.messages);
+          if (data.room_id) {
+            setRoomId(String(data.room_id));
+            persistRoomId(GAME_KEY, data.room_id);
+          }
+          setPlayerMap(data.player_map);
+          setIsCreator(data.is_creator);
+        } else {
+          setMessages(["You are not in a room or session expired."]);
+        }
+      })
+      .catch(console.error);
+  }, [clientId, roomId]);
 
 
   useEffect(() => {
     if (!roomId || !clientId) return;
 
     let reconnectAttempts = 0;
-    const maxReconnectAttempts = 5;
+    const maxReconnectAttempts = 12;
     let reconnectTimer = null;
+    let unmounted = false;
+
+    const httpPollStatus = () => {
+      fetchGameStatus(
+        `${BACKEND_URL}/meme/game_status?room_id=${roomId}`,
+        clientId,
+        roomId
+      )
+        .then((data) => applyGameUpdate(data, "http"))
+        .catch(() => {});
+    };
 
     const connectWebSocket = () => {
+      if (unmounted) return;
       try {
         console.log("WS Base URL:", WS_BASE_URL);
         // Use configured WS base or fallback derived from BACKEND_URL
@@ -170,9 +258,8 @@ useEffect(() => {
 
         ws.onopen = () => {
           console.log("✅ WebSocket connected");
-          setWsConnected(true); // Safari: Track connection state
-          reconnectAttempts = 0; // Reset attempts on successful connection
-          ws.send(JSON.stringify({ type: "get_status" }));
+          setWsConnected(true);
+          reconnectAttempts = 0;
         };
 
         ws.onmessage = (event) => {
@@ -205,19 +292,7 @@ useEffect(() => {
             }
             
             if (data.type === "game_update") {
-              console.log("🎮 Processing game_update - status:", data.status);
-              setGameStarted(data.status !== "no_game");
-              setMemeStatus(data);
-              console.log("🎮 Updated gameStarted:", data.status !== "no_game");
-              console.log("🎮 Current meme:", data.current_meme);
-              
-              if (typeof data.is_creator !== "undefined") {
-                setIsCreator(data.is_creator);
-              }
-              if (typeof data.remaining === "number") {
-                setRemaining(data.remaining);
-                console.log("⏳ Timer set to:", data.remaining);
-              }
+              applyGameUpdate(data);
             } else if (data.error) {
               console.error("❌ Server error:", data.error);
               setMessages(data.error);
@@ -237,15 +312,12 @@ useEffect(() => {
 
         ws.onclose = () => {
           console.log("⚠️ WebSocket disconnected. Reconnect attempts:", reconnectAttempts);
-          setWsConnected(false); // Safari: Track disconnection
+          setWsConnected(false);
+          httpPollStatus();
           if (reconnectAttempts < maxReconnectAttempts) {
             reconnectAttempts++;
-            const delay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 10000); // exponential backoff, max 10s
-            console.log(`Retrying connection in ${delay}ms... (Safari may drop connections when backgrounded)`);
+            const delay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 8000);
             reconnectTimer = setTimeout(connectWebSocket, delay);
-          } else {
-            console.error("❌ Max reconnection attempts reached");
-            setMessages("Connection lost. Please refresh the page if game doesn't sync.");
           }
         };
       } catch (e) {
@@ -255,82 +327,49 @@ useEffect(() => {
     };
 
     connectWebSocket();
+    httpPollStatus();
+    const burstTimers = [250, 750].map((ms) => setTimeout(httpPollStatus, ms));
 
-    // Poll game status periodically as fallback when WS broadcast is missed (common on Heroku)
-    const statusPollInterval = setInterval(() => {
-      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-        // When WS is open, use it for polling
-        wsRef.current.send(JSON.stringify({ type: "get_status" }));
-      } else {
-        // HTTP fallback if WS not connected - critical for game start detection
-        fetch(`${BACKEND_URL}/meme/game_status?room_id=${roomId}`, {
-          headers: { "x-client-id": clientId },
-          credentials: "include",
-        })
-          .then(res => res.json())
-          .then(data => {
-            console.log("🔄 HTTP poll game status:", data);
-            if (data.status && data.status !== "no_game") {
-              setMemeStatus(data);
-              setGameStarted(data.status !== "no_game");
-              if (typeof data.remaining === "number") setRemaining(data.remaining);
-              if (typeof data.is_creator !== "undefined") setIsCreator(data.is_creator);
-            }
-          })
-          .catch(console.error);
+    const httpPollInterval = setInterval(httpPollStatus, HTTP_POLL_MS);
+
+    const cleanupVisible = onPageVisible(() => {
+      reconnectAttempts = 0;
+      httpPollStatus();
+      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        connectWebSocket();
       }
-    }, 2000); // Poll every 2 seconds
+    });
 
     return () => {
+      unmounted = true;
+      cleanupVisible();
       if (reconnectTimer) clearTimeout(reconnectTimer);
-      clearInterval(statusPollInterval);
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
+      burstTimers.forEach(clearTimeout);
+      clearInterval(httpPollInterval);
+      if (wsRef.current) wsRef.current.close();
     };
-  }, [roomId, clientId]);
+  }, [roomId, clientId, applyGameUpdate]);
 
+  const timerActiveKey =
+    memeStatus?.status === "captioning"
+      ? `captioning:${memeStatus?.current_meme?.filename || ""}`
+      : memeStatus?.status === "voting"
+      ? `voting:${memeStatus?.submissions?.[0]?.meme?.filename || ""}`
+      : "";
+
+  // Smooth 1s display derived from last server sync (resets on each phase/meme change).
   useEffect(() => {
-    if (remaining === null || remaining <= 0) return;
+    if (!timerActiveKey || serverRemainingRef.current === null) return;
 
-    const timerId = setInterval(() => {
-      setRemaining((r) => {
-        if (r <= 1) {
-          clearInterval(timerId);
-          return 0;
-        }
-        return r - 1;
-      });
-    }, 1000);
+    const tick = () => {
+      const elapsed = Math.floor((Date.now() - serverSyncedAtRef.current) / 1000);
+      setRemaining(Math.max(0, serverRemainingRef.current - elapsed));
+    };
 
-    return () => clearInterval(timerId);
-  }, [remaining]);
-
-  useEffect(() => {
-  if (remaining === 0) {
-    // Refresh game status when timer hits zero
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type: "get_status" }));
-    } else {
-      // fallback: fetch directly if websocket not ready
-      fetch(`${BACKEND_URL}/meme/game_status?room_id=${roomId}`, {
-        headers: { "x-client-id": clientId },
-        credentials: "include",
-      })
-        .then(res => res.json())
-        .then(data => {
-          // update your memeStatus and related states accordingly
-          if (data.status) {
-            setMemeStatus(data);
-            setGameStarted(data.status !== "no_game");
-            if (typeof data.remaining === "number") setRemaining(data.remaining);
-            if (typeof data.is_creator !== "undefined") setIsCreator(data.is_creator);
-          }
-        })
-        .catch(console.error);
-    }
-  }
-}, [remaining, roomId, clientId]);
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [timerActiveKey]);
 
   useEffect(() => {
     if (memeStatus?.status === "captioning") {
@@ -344,8 +383,27 @@ useEffect(() => {
       setCurrentVoteIndex(0);
       setHasVoted(false);
       setHasFinishedVoting(false);
+      votingSkipSentRef.current = "";
     }
-  }, [memeStatus?.status, memeStatus?.current_meme?.filename]);
+  }, [memeStatus?.status, memeStatus?.current_meme?.filename, memeStatus?.submissions?.[0]?.meme?.filename]);
+
+  useEffect(() => {
+    if (memeStatus?.status !== "voting" || !clientId) return;
+
+    const submissions = memeStatus.submissions || [];
+    const roundKey = submissions[0]?.meme?.filename || "empty";
+    if (votingSkipSentRef.current === roundKey) return;
+
+    const votable = submissions.filter((s) => s.user_id !== clientId);
+    if (submissions.length > 0 && votable.length === 0) {
+      votingSkipSentRef.current = roundKey;
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({ type: "skip_vote" }));
+      }
+      setHasFinishedVoting(true);
+      setMessages("No other memes to vote on — waiting for results...");
+    }
+  }, [memeStatus?.status, memeStatus?.submissions, clientId]);
       
 
   // === Game Start ===
@@ -374,7 +432,7 @@ useEffect(() => {
       if (statusData.status && statusData.status !== "no_game") {
         setMemeStatus(statusData);
         setGameStarted(true);
-        if (typeof statusData.remaining === "number") setRemaining(statusData.remaining);
+        syncRemainingFromServer(statusData);
         if (typeof statusData.is_creator !== "undefined") setIsCreator(statusData.is_creator);
       }
     } catch (err) {
@@ -428,6 +486,8 @@ useEffect(() => {
       setMessages("📝 Captions submitted!");
       setHasSubmittedCaptions(true);
       setIsSubmittingCaption(false);
+      pollGameStatusNow();
+      setTimeout(pollGameStatusNow, 400);
       return;
     }
 
@@ -445,6 +505,8 @@ useEffect(() => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         setMessages("📝 Captions submitted!");
         setHasSubmittedCaptions(true);
+        pollGameStatusNow();
+        setTimeout(pollGameStatusNow, 400);
       })
       .catch((err) => {
         console.error("❌ Caption submit fallback failed:", err);
@@ -452,6 +514,15 @@ useEffect(() => {
         setHasSubmittedCaptions(false);
       })
       .finally(() => setIsSubmittingCaption(false));
+  };
+
+  const skipVote = () => {
+    if (!wsRef.current || hasFinishedVoting) return;
+    wsRef.current.send(JSON.stringify({ type: "skip_vote" }));
+    setHasFinishedVoting(true);
+    setMessages("✅ Done — waiting for results...");
+    pollGameStatusNow();
+    setTimeout(pollGameStatusNow, 400);
   };
 
   // === Vote Submission ===
@@ -465,8 +536,10 @@ useEffect(() => {
     }));
 
     setHasVoted(true);
-    setHasFinishedVoting(true);  // Prevent any further voting
-    setMessages( `🗳️ Vote cast with ${points} points! Waiting for results...`);
+    setHasFinishedVoting(true);
+    setMessages(`🗳️ Vote cast with ${points} points! Waiting for results...`);
+    pollGameStatusNow();
+    setTimeout(pollGameStatusNow, 400);
   };
 
   // === Advance to next meme ===
@@ -532,14 +605,14 @@ useEffect(() => {
         </div>
       )}
 
-      {!gameStarted && !isCreator && <p>Waiting for host to start the game...</p>}
-
       {gameStarted && memeStatus?.status === "captioning" && (
         <div>
           <h2 className={styles.roomHeader}>📝 Add your captions!</h2>
+          {remaining !== null && (
           <div className={`${styles.timer} ${remaining <= 10 ? styles.critical : remaining <= 20 ? styles.warning : ''}`}>
             ⏳ {remaining}s remaining
           </div>
+          )}
           <MemeCanvas
             meme={memeStatus.current_meme}
             captions={captions}
@@ -557,14 +630,25 @@ useEffect(() => {
         </div>
       )}
 
-    {gameStarted && memeStatus?.status === "voting" && memeStatus.submissions.length > 0 && (
+    {gameStarted && memeStatus?.status === "voting" && (
       <div>
         <h2 className={styles.roomHeader}>🗳️ Vote for your favorite!</h2>
+        {remaining !== null && (
         <div className={`${styles.timer} ${remaining <= 10 ? styles.critical : remaining <= 20 ? styles.warning : ''}`}>
           ⏳ {remaining}s remaining
         </div>
-        
-        {hasFinishedVoting ? (
+        )}
+
+        {memeStatus.missing_submissions?.length > 0 && (
+          <p className={styles.waitingText}>
+            ⏭️ {memeStatus.missing_submissions.map((id) => playerMap[id] || id).join(", ")}{" "}
+            didn't submit in time.
+          </p>
+        )}
+
+        {memeStatus.submissions.length === 0 ? (
+          <p className={styles.waitingText}>No memes were submitted — moving to results...</p>
+        ) : hasFinishedVoting ? (
           <div className={styles.messages}>
             <p>✅ Vote submitted! Waiting for other players to finish voting...</p>
           </div>
@@ -589,12 +673,12 @@ useEffect(() => {
                         className={styles.button}
                         onClick={() => {
                           setMessages("⏩ Skipped your own meme.");
-                          if (currentVoteIndex + 1 < memeStatus.submissions.length) {
-                            setCurrentVoteIndex(currentVoteIndex + 1);
-                          } else {
-                            setMessages("✅ No more memes to view! Waiting for results...");
-                            setHasFinishedVoting(true);
-                          }
+                          setCurrentVoteIndex((idx) => {
+                            const total = memeStatus.submissions.length;
+                            if (idx + 1 < total) return idx + 1;
+                            skipVote();
+                            return idx;
+                          });
                         }}
                       >
                         ⏭️ Skip to Next
@@ -626,7 +710,11 @@ useEffect(() => {
       </div>
     )}
 
-    {gameStarted && memeStatus?.status === "results" && (
+    {gameStarted && memeStatus?.status === "results" && (() => {
+      const allSubmissions = normalizeSubmissions(memeStatus.submissions);
+      const winnerIds = new Set(memeStatus.winners || []);
+      const otherSubmissions = allSubmissions.filter((s) => !winnerIds.has(s.user_id));
+      return (
       <div>
         <h2 className={styles.roomHeader}>🏆 Results</h2>
 
@@ -636,8 +724,8 @@ useEffect(() => {
             <h3 className={styles.roomHeader}>💯 Scores</h3>
             <ul>
               {Object.entries(memeStatus.player_points).map(([playerId, points]) => {
-                // Try to get username from submissions first (includes DB lookup), then fallback to playerMap
-                const username = memeStatus.submissions?.[playerId]?.username || playerMap[playerId] || playerId;
+                const sub = findSubmission(memeStatus.submissions, playerId);
+                const username = sub?.username || playerMap[playerId] || playerId;
                 return (
                   <li key={playerId}>
                     {username}: {points} points
@@ -653,47 +741,71 @@ useEffect(() => {
           <div>
             <h3>🎉 Winner{memeStatus.winners.length > 1 ? "s" : ""}</h3>
             {memeStatus.winners.map((id) => {
-              const submission = memeStatus.submissions?.[id];
-              if (!submission) return null;
+              const submission = findSubmission(memeStatus.submissions, id);
+              if (!submission?.meme) return null;
 
-              const { meme, captions, username } = submission;
-              // Use username from submission (which comes from DB), fallback to playerMap
-              const authorName = username || playerMap[id] || id;
+              const authorName = submission.username || playerMap[id] || id;
 
               return (
                 <div key={id} className={styles.winnerMemeCard}>
                   <p>{authorName}</p>
                   <MemeCanvas
-                    meme={meme}
-                    captions={captions}
-                    setCaptions={() => {}} // read-only in results
+                    meme={submission.meme}
+                    captions={submission.captions}
+                    setCaptions={() => {}}
                   />
                 </div>
               );
             })}
           </div>
         ) : (
-          <p>No votes received</p>
+          <p>
+            {allSubmissions.length === 0
+              ? "No memes were submitted this round."
+              : "No votes received"}
+          </p>
         )}
 
 
-        {/* Display all captions and vote counts */}
+        {/* Display non-winner submissions with vote counts */}
         <h3 className={styles.roomHeader}>📝 All Captions</h3>
-        <ul>
-          {Object.entries(memeStatus.captions).map(([playerId, caption]) => {
-            const votes = Object.values(memeStatus.votes || {}).filter(
-              (v) => v === playerId
-            ).length;
-            // Try to get username from submissions first (includes DB lookup), then fallback to playerMap
-            const username = memeStatus.submissions?.[playerId]?.username || playerMap[playerId] || playerId;
-            return (
-              <li key={playerId}>
-                {username}: {caption.join(" / ")} (
-                {votes} vote{votes === 1 ? "" : "s"})
-              </li>
-            );
-          })}
-        </ul>
+        {otherSubmissions.length === 0 ? (
+          <p className={styles.waitingText}>
+            {allSubmissions.length === 0
+              ? "No submissions this round."
+              : "No other submissions this round."}
+          </p>
+        ) : (
+          <ul>
+            {otherSubmissions.map((submission) => {
+              const { user_id: playerId, meme, captions: captionTexts, username } = submission;
+              const votes = Object.values(memeStatus.votes || {}).filter(
+                (v) => v === playerId
+              ).length;
+              const authorName = username || playerMap[playerId] || playerId;
+              const textFallback = (memeStatus.captions?.[playerId] || [])
+                .filter(Boolean)
+                .join(" / ");
+
+              return (
+                <li key={playerId} className={styles.captionSubmission}>
+                  <h3>
+                    {authorName} ({votes} vote{votes === 1 ? "" : "s"})
+                  </h3>
+                  {meme ? (
+                    <MemeCanvas
+                      meme={meme}
+                      captions={captionTexts}
+                      setCaptions={() => {}}
+                    />
+                  ) : (
+                    <p>{textFallback || "No caption"}</p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
 
         {/* Advance to next meme */}
         {isCreator && (
@@ -707,7 +819,8 @@ useEffect(() => {
           <p className={styles.waitingText}>Waiting for host to start next round...</p>
         )}
       </div>
-    )}
+      );
+    })()}
 
 
 

@@ -2,6 +2,16 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import styles from "./HomePage.module.css";
 import NavigationBar from "../../src/navBar";
+import {
+  GAME_KEYS,
+  getBackendUrl,
+  getOrCreateClientId,
+  persistRoomId,
+  navigateToRoom,
+  roomHeaders,
+} from "../../src/roomClient";
+
+const GAME_KEY = GAME_KEYS.PB_GAMES;
 
 
 export default function Home() {
@@ -12,16 +22,10 @@ export default function Home() {
   const [showUsernameInput, setShowUsernameInput] = useState(false);
   const [mode, setMode] = useState(null); // 'create' or 'join'
 
-  const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL !== undefined ? process.env.NEXT_PUBLIC_BACKEND_URL : "http://localhost:8000").replace(/\/$/, '');
-  console.log("Using backend URL:", BACKEND_URL);
+  const BACKEND_URL = getBackendUrl();
 
   useEffect(() => {
-    let id = localStorage.getItem("client_id");
-    if (!id) {
-      id = crypto.randomUUID();
-      localStorage.setItem("client_id", id);
-    }
-    setClientId(id);
+    setClientId(getOrCreateClientId());
   }, []);
 
   // When user clicks "Create Room", just show username input first
@@ -47,10 +51,7 @@ export default function Home() {
         `${BACKEND_URL}/join_room_with_username/${room_id}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-client-id": clientId,
-          },
+          headers: roomHeaders(clientId, room_id, { "Content-Type": "application/json" }),
           credentials: "include",
           body: JSON.stringify({
             username: username,
@@ -63,6 +64,8 @@ export default function Home() {
         console.log("User registered in room");
         setShowUsernameInput(false);
         setRoomId(room_id);
+        persistRoomId(GAME_KEY, room_id);
+        navigateToRoom("/pb_games/room", room_id);
       } else {
         console.error("Failed to register user");
       }
@@ -210,7 +213,7 @@ export default function Home() {
               You're all set. Click below to enter the game
             </p>
             
-            <Link href="/pb_games/room" className={styles.successLink}>
+            <Link href={`/pb_games/room?room_id=${roomId}`} className={styles.successLink}>
               <button className={styles.successButton}>
                 Enter Game →
               </button>

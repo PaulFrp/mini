@@ -2,13 +2,13 @@ import json, random, time, os
 from ..models import Player, Room, MemeGameState
 from datetime import datetime, timezone
 from .websockets import manager
-from .meme_timer import start_meme_timer, stop_meme_timer
+from .meme_timer import start_meme_timer, stop_meme_timer, player_user_ids
 from ..db import SessionLocal
 import asyncio
 import logging
 
 BACKEND_DIR = os.path.join(os.path.dirname(__file__), "..", "..")
-with open(os.path.join(BACKEND_DIR, "memes.json")) as f:
+with open(os.path.join(BACKEND_DIR, "memes.json"), encoding="utf-8") as f:
     MEME_POOL = json.load(f)
 
 def start_meme_game(room_id: int, players: list[str], creator_id: str):
@@ -46,6 +46,7 @@ def start_meme_game(room_id: int, players: list[str], creator_id: str):
 # app/game/meme.py
 
 async def get_game_status_logic(room_id, client_id, db):
+    db.expire_all()
     player = db.query(Player).filter_by(user_id=client_id, room_id=room_id).first()
     room = db.query(Room).filter_by(id=room_id).first()
     room_creator = room.creator if room else None
@@ -86,6 +87,8 @@ async def get_game_status_logic(room_id, client_id, db):
             max_votes = max(vote_counts.values(), default=0)
             winners = [p for p, c in vote_counts.items() if c == max_votes]
 
+    phase_epoch = game_state.start_time
+
     if game_state.phase == "captioning":
         return {
             "status": "captioning",
@@ -93,6 +96,7 @@ async def get_game_status_logic(room_id, client_id, db):
             "captions_submitted": len(captions),
             "players": players,
             "remaining": remaining,
+            "phase_epoch": phase_epoch,
             "is_creator": client_id == room_creator,
         }
 
@@ -113,6 +117,8 @@ async def get_game_status_logic(room_id, client_id, db):
                 for player_id, sub in submissions.items()
             ],
             "remaining": remaining,
+            "phase_epoch": phase_epoch,
+            "missing_submissions": [p for p in player_user_ids(game_state, db) if p not in submissions],
             "is_creator": client_id == room_creator,
         }
 
@@ -137,6 +143,7 @@ async def get_game_status_logic(room_id, client_id, db):
             "captions": captions,
             "submissions": submissions_with_usernames,
             "player_points": points,
+            "phase_epoch": phase_epoch,
             "can_proceed": player and client_id == room_creator,
             "is_creator": client_id == room_creator,
         }

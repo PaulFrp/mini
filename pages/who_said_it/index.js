@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
 import styles from "./HomePage.module.css";
 import NavigationBar from "../../src/navBar";
+import {
+  GAME_KEYS,
+  getBackendUrl,
+  getOrCreateClientId,
+  persistRoomId,
+  navigateToRoom,
+  roomHeaders,
+} from "../../src/roomClient";
+
+const GAME_KEY = GAME_KEYS.WHO_SAID_IT;
 
 export default function WhoSaidItHome() {
-  const router = useRouter();
   const [roomId, setRoomId] = useState("");
   const [joinInput, setJoinInput] = useState("");
   const [clientId, setClientId] = useState(null);
@@ -13,7 +21,7 @@ export default function WhoSaidItHome() {
   const [mode, setMode] = useState("idle"); // 'idle', 'creating', 'joining'
   const [error, setError] = useState("");
 
-  const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL !== undefined ? process.env.NEXT_PUBLIC_BACKEND_URL : "http://localhost:8000").replace(/\/$/, '');
+  const BACKEND_URL = getBackendUrl();
 
   const fetchWithRetry = async (url, options, retries = 1) => {
     for (let attempt = 0; attempt <= retries; attempt++) {
@@ -45,29 +53,8 @@ export default function WhoSaidItHome() {
     }
   };
 
-  // Initialize client ID
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    let id = localStorage.getItem("client_id");
-    if (!id) {
-      if (window.crypto && crypto.randomUUID) {
-        id = crypto.randomUUID();
-      } else {
-        // Fallback for older browsers
-        id = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-          (
-            c ^
-            (window.crypto && crypto.getRandomValues
-              ? crypto.getRandomValues(new Uint8Array(1))[0]
-              : Math.random() * 16
-            ) & 15 >> c / 4
-          ).toString(16)
-        );
-      }
-      localStorage.setItem("client_id", id);
-    }
-    setClientId(id);
+    setClientId(getOrCreateClientId());
   }, []);
 
   const handleCreate = () => {
@@ -91,10 +78,7 @@ export default function WhoSaidItHome() {
   const registerUsername = async (room_id) => {
     const result = await fetchWithRetry(`${BACKEND_URL}/join_room_with_username/${room_id}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-client-id": clientId,
-      },
+      headers: roomHeaders(clientId, room_id, { "Content-Type": "application/json" }),
       credentials: "include",
       body: JSON.stringify({ username, client_id: clientId }),
     }, 1);
@@ -106,8 +90,8 @@ export default function WhoSaidItHome() {
 
     setShowUsernameInput(false);
     setRoomId(room_id);
-    try { localStorage.setItem("room_id", String(room_id)); } catch {}
-    router.push(`/who_said_it/room?room_id=${room_id}`);
+    persistRoomId(GAME_KEY, room_id);
+    navigateToRoom("/who_said_it/room", room_id);
     return true;
   };
 

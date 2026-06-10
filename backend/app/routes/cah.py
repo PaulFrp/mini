@@ -8,6 +8,7 @@ from ..game.cah import (
     get_game_status_logic,
     submit_cards_logic,
     submit_vote_logic,
+    transition_to_results_after_vote,
     next_round_logic,
     CARD_POOL,
     QUESTION_POOL,
@@ -93,7 +94,7 @@ async def submit_vote(
     result = await submit_vote_logic(room_id, x_client_id, vote.voted_for, db)
     if "error" in result:
         raise HTTPException(status_code=400, detail=result["error"])
-    return result
+    return await transition_to_results_after_vote(room_id, db)
 
 @router.post("/next_round/{room_id}")
 async def next_round(room_id: int, x_client_id: str = Header(None), db=Depends(get_db)):

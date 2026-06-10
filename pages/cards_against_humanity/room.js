@@ -2,38 +2,32 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import styles from "./RoomPage.module.css";
 import NavigationBar from "../../src/navBar";
+import {
+  GAME_KEYS,
+  getBackendUrl,
+  getWsBaseUrl,
+  getOrCreateClientId,
+  resolveRoomId,
+  persistRoomId,
+  roomHeaders,
+  fetchGameStatus,
+  onPageVisible,
+  HTTP_POLL_MS,
+  WS_POLL_MS,
+} from "../../src/roomClient";
 
-const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL !== undefined ? process.env.NEXT_PUBLIC_BACKEND_URL : "http://localhost:8000").replace(/\/$/, '');
-const WS_BASE_URL = (process.env.NEXT_PUBLIC_WS_BASE_URL || BACKEND_URL
-  .replace(/^http:\/\//, 'ws://')
-  .replace(/^https:\/\//, 'wss://'))
-  .replace(/\/$/, '');
-
-function getClientId() {
-  if (typeof window === "undefined") return null;
-  
-  let id = localStorage.getItem("client_id");
-  if (!id) {
-    if (window.crypto && crypto.randomUUID) {
-      id = crypto.randomUUID();
-    } else {
-      id = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-        (c ^ (window.crypto && crypto.getRandomValues
-          ? crypto.getRandomValues(new Uint8Array(1))[0]
-          : Math.random() * 16
-        ) & 15 >> c / 4).toString(16)
-      );
-    }
-    localStorage.setItem("client_id", id);
-  }
-  return id;
-}
+const BACKEND_URL = getBackendUrl();
+const WS_BASE_URL = getWsBaseUrl();
+const GAME_KEY = GAME_KEYS.CAH;
 
 export default function CardsAgainstHumanityRoom() {
   const router = useRouter();
   const wsRef = useRef(null);
   const currentGameStatusRef = useRef(null); // Track current status to avoid stale closures
   const handleGameUpdateRef = useRef(null); // Callback ref for handleGameUpdate
+  const timerRoundRef = useRef("");
+  const serverRemainingRef = useRef(null);
+  const serverSyncedAtRef = useRef(0);
   
   const [clientId, setClientId] = useState(null);
   const [roomId, setRoomId] = useState(null);
@@ -41,6 +35,7 @@ export default function CardsAgainstHumanityRoom() {
   const [gameStarted, setGameStarted] = useState(false);
   const [gameStatus, setGameStatus] = useState(null);
   const [playerMap, setPlayerMap] = useState({});
+  const [myUsername, setMyUsername] = useState(null);
   const [messages, setMessages] = useState([]);
   
   // Game state
@@ -60,29 +55,23 @@ export default function CardsAgainstHumanityRoom() {
   const [gameOver, setGameOver] = useState(false);
   const [winners, setWinners] = useState([]);
 
-  // Initialize client ID and room ID
   useEffect(() => {
     if (typeof window === "undefined") return;
-    
-    const id = getClientId();
-    setClientId(id);
-    
-    const rid = router.query.room_id || localStorage.getItem("room_id");
+    setClientId(getOrCreateClientId());
+    const queryRoomId = router.isReady ? router.query.room_id : null;
+    const rid = resolveRoomId(GAME_KEY, queryRoomId);
     if (rid) {
       setRoomId(rid);
-      localStorage.setItem("room_id", rid);
+      persistRoomId(GAME_KEY, rid);
     }
-  }, [router.query.room_id]);
+  }, [router.isReady, router.query.room_id]);
 
-  // Fetch initial room messages - only run once on mount
   useEffect(() => {
     if (!clientId || !roomId) return;
 
-    const headers = { "x-client-id": clientId, "x-room-id": roomId };
-    
     fetch(`${BACKEND_URL}/room_messages`, {
       credentials: "include",
-      headers,
+      headers: roomHeaders(clientId, roomId),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -90,6 +79,9 @@ export default function CardsAgainstHumanityRoom() {
           setMessages(data.messages);
           setPlayerMap(data.player_map || {});
           setIsCreator(data.is_creator);
+          if (data.player_map && clientId) {
+            setMyUsername(data.player_map[clientId] || null);
+          }
         }
       })
       .catch(err => console.error("Failed to fetch room messages:", err));
@@ -104,17 +96,17 @@ export default function CardsAgainstHumanityRoom() {
       Promise.all([
         fetch(`${BACKEND_URL}/room_players/${roomId}`, {
           credentials: "include",
-          headers: { "x-client-id": clientId },
+          headers: roomHeaders(clientId, roomId),
         }).then(res => res.json()),
-        fetch(`${BACKEND_URL}/cah/game_status?room_id=${roomId}`, {
-          credentials: "include",
-          headers: { "x-client-id": clientId },
-        }).then(res => res.json())
+        fetchGameStatus(`${BACKEND_URL}/cah/game_status?room_id=${roomId}`, clientId, roomId)
       ])
       .then(([playersData, statusData]) => {
         // Update player list
         if (playersData.player_map) {
           setPlayerMap(playersData.player_map);
+          if (clientId) {
+            setMyUsername(playersData.player_map[clientId] || null);
+          }
         }
         // Check if game started
         if (statusData.status && statusData.status !== "no_game") {
@@ -135,8 +127,19 @@ export default function CardsAgainstHumanityRoom() {
 
     console.log("🔌 Initializing WebSocket for room", roomId, "client", clientId);
     let reconnectAttempts = 0;
-    const maxReconnectAttempts = 5;
+    const maxReconnectAttempts = 12;
     let isUnmounting = false;
+    let reconnectTimer = null;
+
+    const httpPollStatus = () => {
+      fetchGameStatus(`${BACKEND_URL}/cah/game_status?room_id=${roomId}`, clientId, roomId)
+        .then((data) => {
+          if (data?.status && data.status !== "no_game") {
+            handleGameUpdateRef.current?.(data);
+          }
+        })
+        .catch(() => {});
+    };
 
     const connectWebSocket = () => {
       if (isUnmounting) return;
@@ -178,6 +181,10 @@ export default function CardsAgainstHumanityRoom() {
               setScores(data.final_scores);
             } else if (data.error) {
               console.error("Error from server:", data.error);
+              setMessages(data.error);
+              if (currentGameStatusRef.current === "voting") {
+                setHasVoted(false);
+              }
             }
           } catch (err) {
             console.error("Failed to parse WebSocket message:", err);
@@ -190,10 +197,10 @@ export default function CardsAgainstHumanityRoom() {
 
         ws.onclose = () => {
           console.log("🔌 WebSocket closed");
+          httpPollStatus();
           if (!isUnmounting && reconnectAttempts < maxReconnectAttempts) {
             reconnectAttempts++;
-            console.log(`Reconnecting... (${reconnectAttempts}/${maxReconnectAttempts})`);
-            setTimeout(connectWebSocket, 2000);
+            reconnectTimer = setTimeout(connectWebSocket, Math.min(2000 * reconnectAttempts, 8000));
           }
         };
       } catch (err) {
@@ -202,67 +209,95 @@ export default function CardsAgainstHumanityRoom() {
     };
 
     connectWebSocket();
+    httpPollStatus();
 
-    // Poll for status updates every 2 seconds (ensures non-creator clients see game start)
-    // Also polls for player list updates in waiting room
-    const pollInterval = setInterval(() => {
-      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({ type: "get_status" }));
-      } else {
-        // HTTP fallback if WS not ready; call the same handler for consistency
-        fetch(`${BACKEND_URL}/cah/game_status?room_id=${roomId}`, {
-          headers: { "x-client-id": clientId },
-          credentials: "include",
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data && data.type === "game_update") {
-              handleGameUpdateRef.current?.(data);
-            }
-          })
-          .catch((err) => console.error("HTTP poll game_status failed", err));
+    const httpPollInterval = setInterval(httpPollStatus, HTTP_POLL_MS);
+    const wsPollInterval = setInterval(() => {
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        try {
+          wsRef.current.send(JSON.stringify({ type: "get_status" }));
+        } catch {}
       }
+    }, WS_POLL_MS);
 
-      // Also poll for player list updates if in waiting room
-      if (!gameStarted) {
-        fetch(`${BACKEND_URL}/room_players/${roomId}`, {
-          headers: { "x-client-id": clientId },
-          credentials: "include",
+    const lobbyPollInterval = setInterval(() => {
+      if (gameStarted) return;
+      fetch(`${BACKEND_URL}/room_players/${roomId}`, {
+        credentials: "include",
+        headers: roomHeaders(clientId, roomId),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.player_map) {
+            setPlayerMap(data.player_map);
+            if (clientId) setMyUsername(data.player_map[clientId] || null);
+          }
         })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.player_map) {
-              setPlayerMap(data.player_map);
-            }
-          })
-          .catch((err) => console.error("HTTP poll players failed", err));
+        .catch(() => {});
+    }, HTTP_POLL_MS);
+
+    const cleanupVisible = onPageVisible(() => {
+      reconnectAttempts = 0;
+      httpPollStatus();
+      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        connectWebSocket();
       }
-    }, 2000);
+    });
 
     return () => {
       console.log("🧹 Cleaning up WebSocket");
       isUnmounting = true;
-      clearInterval(pollInterval);
+      cleanupVisible();
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      clearInterval(httpPollInterval);
+      clearInterval(wsPollInterval);
+      clearInterval(lobbyPollInterval);
       if (wsRef.current) {
         wsRef.current.close();
         wsRef.current = null;
       }
     };
-  }, [roomId, clientId]);
+  }, [roomId, clientId, gameStarted]);
 
-  // Timer countdown effect
+  const CAH_TIMED_PHASES = new Set(["playing", "voting"]);
+
+  const getTimerRoundKey = (data) => {
+    if (!CAH_TIMED_PHASES.has(data.status)) return "";
+    return `${data.status}:${data.round ?? 0}`;
+  };
+
+  const syncRemainingFromServer = (data) => {
+    if (!CAH_TIMED_PHASES.has(data.status)) {
+      timerRoundRef.current = "";
+      serverRemainingRef.current = null;
+      setRemaining(null);
+      return;
+    }
+    if (data.remaining === undefined) return;
+
+    timerRoundRef.current = getTimerRoundKey(data);
+    serverRemainingRef.current = data.remaining;
+    serverSyncedAtRef.current = Date.now();
+    setRemaining(data.remaining);
+  };
+
+  const timerActiveKey =
+    gameStatus === "playing" || gameStatus === "voting"
+      ? `${gameStatus}:${round}`
+      : "";
+
   useEffect(() => {
-    if (remaining === null || remaining <= 0) return;
+    if (!timerActiveKey || serverRemainingRef.current === null) return;
 
-    const timer = setInterval(() => {
-      setRemaining(prev => {
-        if (prev === null || prev <= 0) return 0;
-        return prev - 1;
-      });
-    }, 1000);
+    const tick = () => {
+      const elapsed = Math.floor((Date.now() - serverSyncedAtRef.current) / 1000);
+      setRemaining(Math.max(0, serverRemainingRef.current - elapsed));
+    };
 
-    return () => clearInterval(timer);
-  }, [remaining !== null && remaining > 0]);
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [timerActiveKey]);
 
   // Define handleGameUpdate and keep it in a ref so WebSocket can access the latest version
   const handleGameUpdate = (data) => {
@@ -288,6 +323,8 @@ export default function CardsAgainstHumanityRoom() {
     if (data.is_czar !== undefined) {
       console.log("Setting isCzar to:", data.is_czar);
       setIsCzar(data.is_czar);
+    } else if (data.card_czar && myUsername) {
+      setIsCzar(data.card_czar === myUsername);
     }
     if (data.has_submitted !== undefined) {
       console.log("Setting hasSubmitted to:", data.has_submitted);
@@ -297,23 +334,25 @@ export default function CardsAgainstHumanityRoom() {
         setHasSubmitted(data.has_submitted);
       }
     }
-    if (data.has_voted !== undefined) {
+    if (data.status === "voting" && statusChanged) {
+      setHasVoted(data.has_voted ?? false);
+    } else if (data.has_voted !== undefined) {
       console.log("Setting hasVoted to:", data.has_voted);
-      // Only update hasVoted if phase changed or server confirms vote
       if (statusChanged || data.has_voted === true) {
         setHasVoted(data.has_voted);
       }
     }
-    if (data.remaining !== undefined) setRemaining(data.remaining);
+    syncRemainingFromServer(data);
     
     // ONLY clear selections when transitioning between phases
     if (statusChanged) {
       console.log("Phase changed from", gameStatus, "to", data.status);
       if (data.status === "voting") {
         console.log("Transitioned to voting phase - clearing selections");
+        setHasVoted(false);
         // Sort submissions by player name to maintain consistent order
         const sortedSubmissions = (data.submissions || []).sort((a, b) => 
-          (a.username || a.player || '').localeCompare(b.username || b.player || '')
+          (a.username || a.player || '').localeCompare(b.username || b.player || '', 'fr')
         );
         setSubmissions(sortedSubmissions);
         setSelectedCards([]); // Clear selected cards when moving to voting
@@ -470,18 +509,62 @@ export default function CardsAgainstHumanityRoom() {
     // Do NOT clear selectedCards here - keep them visible until phase changes
   };
 
-  const voteForSubmission = (playerName) => {
-    if (!wsRef.current || !isCzar || hasVoted) {
-      console.log("Cannot vote:", { hasWs: !!wsRef.current, isCzar, hasVoted });
+  const voteForSubmission = async (playerName) => {
+    if (!isCzar || hasVoted || gameStatus !== "voting") {
+      console.log("Cannot vote:", { isCzar, hasVoted, gameStatus });
       return;
     }
 
     console.log("Voting for:", playerName);
-    wsRef.current.send(JSON.stringify({
-      type: "submit_vote",
-      voted_for: playerName,
-    }));
-    setHasVoted(true);
+
+    const applyResultsFromStatus = (statusData) => {
+      if (statusData?.status === "results") {
+        handleGameUpdateRef.current?.(statusData);
+      }
+    };
+
+    const httpVote = async () => {
+      const res = await fetch(`${BACKEND_URL}/cah/submit_vote/${roomId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-client-id": clientId,
+        },
+        credentials: "include",
+        body: JSON.stringify({ voted_for: playerName }),
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        throw new Error(body.detail || body.error || "Vote failed");
+      }
+      setHasVoted(true);
+      applyResultsFromStatus(body);
+    };
+
+    const ws = wsRef.current;
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      try {
+        ws.send(JSON.stringify({
+          type: "submit_vote",
+          voted_for: playerName,
+        }));
+        setHasVoted(true);
+      } catch (err) {
+        console.error("WS vote send failed, trying HTTP:", err);
+        setHasVoted(false);
+        try {
+          await httpVote();
+        } catch (httpErr) {
+          setMessages(httpErr.message);
+        }
+      }
+    } else {
+      try {
+        await httpVote();
+      } catch (err) {
+        setMessages(err.message);
+      }
+    }
   };
 
   const nextRound = async () => {
@@ -705,6 +788,11 @@ export default function CardsAgainstHumanityRoom() {
             Room ID: {roomId}
             {remaining !== null && <span> | Time: {remaining}s</span>}
           </div>
+          {typeof messages === "string" && messages && (
+            <p style={{ color: "#c62828", textAlign: "center", marginTop: "0.5rem" }}>
+              {messages}
+            </p>
+          )}
         </div>
 
         <div className={styles.scoreBoard}>

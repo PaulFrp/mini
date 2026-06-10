@@ -1,12 +1,22 @@
 /* Card.css */
+.cardWrapper {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0 1rem;
+    box-sizing: border-box;
+  }
+
 .card {
-    width: 500px;
-    height: 300px;
+    width: min(500px, calc(100vw - 2rem));
+    min-height: 280px;
+    height: auto;
     perspective: 1000px;
     transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    margin-left: -250px;
-    margin-right: auto;
+    margin: 0 auto;
     cursor: pointer;
+    box-sizing: border-box;
   }
 
   .card:hover {
@@ -15,39 +25,70 @@
 
   @media (max-width: 768px) {
     .card {
-      width: 80vw;
-      height: auto;
-      aspect-ratio: 5/3;
-      margin-left: -40vw;
+      width: calc(100vw - 2rem);
+      min-height: 260px;
     }
   }
 
   @media (max-width: 480px) {
     .card {
-      width: 90vw;
-      margin-left: -45vw;
+      width: calc(100vw - 1.5rem);
+      min-height: 240px;
+    }
+
+    .card:hover {
+      transform: none;
+    }
+
+    .cardWrapper {
+      padding: 0 0.75rem;
     }
   }
   
   .card-content {
     width: 100%;
+    min-height: inherit;
     height: 100%;
     transform-style: preserve-3d;
     transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
   }
   
   .card-flipped .card-content {
     transform: rotateY(180deg);
   }
+
+  /* Picolo shows questions without flipping — let the card grow with content */
+  .card-static {
+    height: auto;
+  }
+
+  .card-static .card-content {
+    height: auto;
+    min-height: unset;
+    position: static;
+    transform: none;
+  }
+
+  .card-static .card-front {
+    position: relative;
+    height: auto;
+    min-height: 200px;
+  }
   
   .card-front,
   .card-back {
-    width: 150%;
+    width: 100%;
     height: 100%;
+    min-height: inherit;
     position: absolute;
+    top: 0;
+    left: 0;
     backface-visibility: hidden;
     border: none;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+    overflow: visible;
   }
   
   .card-front {
@@ -58,10 +99,26 @@
     justify-content: center;
     font-size: 18px;
     color: #fff;
-    padding: 2rem;
+    padding: 1.5rem;
     text-align: center;
     border-radius: 20px;
     font-weight: 600;
+  }
+
+  .card-front p,
+  .card-back p {
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+    line-height: 1.5;
+  }
+
+  .card-front b {
+    margin-bottom: 0.75rem;
+    text-transform: capitalize;
   }
   
   .card-back {
@@ -72,11 +129,19 @@
     font-size: 18px;
     color: #fff;
     transform: rotateY(180deg);
-    padding: 2rem;
+    padding: 1.5rem;
     text-align: center;
     border-radius: 20px;
     font-weight: 600;
     line-height: 1.6;
+  }
+
+  @media (max-width: 480px) {
+    .card-front,
+    .card-back {
+      padding: 1.25rem 1rem;
+      font-size: 16px;
+    }
   }
 
   .centered-cell {
@@ -130,6 +195,7 @@
   .full-screen-bg {
     min-height: 100vh;
     width: 100%;
+    max-width: 100vw;
     position: relative;
     z-index: 0;
     margin-top: 0;
@@ -137,9 +203,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding-top: 80px;
+    padding: 80px 1rem 2rem;
     box-sizing: border-box;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   
 

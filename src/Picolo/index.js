@@ -241,7 +241,7 @@ const Introduction = ({ onStart }) => {
     </button>
 
     {selectedPlayer && (
-        <div>
+        <div className={styles.cardWrapper}>
         <Card question={replaceNamePlaceholder(selectedQuestion, selectedPlayer.name)} answer={" "}  title={cardType}/>
         </div>
     )}

@@ -1,29 +1,19 @@
 import styles from "./RoomPage.module.css";
 import NavigationBar from "../../src/navBar";
 import { useEffect, useState, useRef } from "react";
+import {
+  GAME_KEYS,
+  getBackendUrl,
+  getOrCreateClientId,
+  resolveRoomId,
+  persistRoomId,
+  roomHeaders,
+  onPageVisible,
+  HTTP_POLL_MS,
+} from "../../src/roomClient";
 
-function getClientId() {
-  if (typeof window === "undefined") return null;
-  let id = localStorage.getItem("client_id");
-  if (!id) {
-    if (window.crypto && crypto.randomUUID) {
-      id = crypto.randomUUID();
-    } else {
-      id = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-        (
-          c ^ (window.crypto && crypto.getRandomValues
-            ? crypto.getRandomValues(new Uint8Array(1))[0]
-            : Math.random() * 16
-          ) & 15 >> c / 4
-        ).toString(16)
-      );
-    }
-    localStorage.setItem("client_id", id);
-  }
-  return id;
-}
-
-const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL !== undefined ? process.env.NEXT_PUBLIC_BACKEND_URL : "http://localhost:8000").replace(/\/$/, '');
+const BACKEND_URL = getBackendUrl();
+const GAME_KEY = GAME_KEYS.PB_GAMES;
 
 export default function PBGamesRoom() {
   const [clientId, setClientId] = useState(null);
@@ -41,6 +31,7 @@ export default function PBGamesRoom() {
   const [votingFinished, setVotingFinished] = useState(false);
   const [winners, setWinners] = useState([]);
   const [voteDetails, setVoteDetails] = useState({});
+  const [votesBreakdown, setVotesBreakdown] = useState([]);
   const [hasNextQuestion, setHasNextQuestion] = useState(true);
 
   // Loading/error states
@@ -53,34 +44,31 @@ export default function PBGamesRoom() {
   const questionRef = useRef(""); // track the active question to detect round changes
   const votingFinishedRef = useRef(false); // keep latest value inside polling callback
 
-  // Initialize client ID
   useEffect(() => {
-    const id = getClientId();
-    setClientId(id);
-    try {
-      const rid = localStorage.getItem("room_id");
-      if (rid) setRoomId(rid);
-    } catch {}
+    if (typeof window === "undefined") return;
+    setClientId(getOrCreateClientId());
+    const rid = resolveRoomId(GAME_KEY);
+    if (rid) {
+      setRoomId(rid);
+      persistRoomId(GAME_KEY, rid);
+    }
   }, []);
 
   // Fetch room data and game status
   useEffect(() => {
     if (!clientId) return;
 
-    const headers = { "x-client-id": clientId };
-    if (roomId) headers["x-room-id"] = roomId;
-
     const fetchRoomData = async () => {
       try {
         const res = await fetch(`${BACKEND_URL}/room_messages`, {
           credentials: "include",
-          headers,
+          headers: roomHeaders(clientId, roomId),
         });
         const data = await res.json();
         
         if (data.room_id) {
-          setRoomId(data.room_id);
-          localStorage.setItem("room_id", data.room_id);
+          setRoomId(String(data.room_id));
+          persistRoomId(GAME_KEY, data.room_id);
           setIsCreator(data.is_creator);
           setPlayerMap(data.player_map || {});
           setLoading(false);
@@ -99,7 +87,7 @@ export default function PBGamesRoom() {
     return () => {
       clearInterval(roomDataIntervalRef);
     };
-  }, [clientId]);
+  }, [clientId, roomId]);
 
   // Keep a fresh reference of votingFinished inside callbacks
   useEffect(() => {
@@ -125,7 +113,7 @@ export default function PBGamesRoom() {
       try {
         const res = await fetch(`${BACKEND_URL}/voting/game_status/${roomId}`, {
           credentials: "include",
-          headers: { "x-client-id": clientId },
+          headers: roomHeaders(clientId, roomId),
         });
         const data = await res.json();
 
@@ -156,6 +144,7 @@ export default function PBGamesRoom() {
           setVotingFinished(false);
           setWinners([]);
           setVoteDetails({});
+          setVotesBreakdown([]);
 
           const hasCurrentClientVoted = data.voters && data.voters.includes(clientId);
           setHasVoted(hasCurrentClientVoted || false);
@@ -164,8 +153,10 @@ export default function PBGamesRoom() {
           questionRef.current = nextQuestion || questionRef.current;
           setGameStarted(true);
           setVotingFinished(true);
+          votingFinishedRef.current = true;
           setWinners(data.winners || []);
           setVoteDetails(data.vote_counts || {});
+          setVotesBreakdown(data.votes_breakdown || []);
           setHasNextQuestion(data.has_next_question || false);
           updateRemaining(0, false);
         } else if (data.status === "no_game") {
@@ -178,9 +169,11 @@ export default function PBGamesRoom() {
     };
 
     pollGameStatus();
-    pollingIntervalRef.current = setInterval(pollGameStatus, 1000);
+    pollingIntervalRef.current = setInterval(pollGameStatus, HTTP_POLL_MS);
+    const cleanupVisible = onPageVisible(pollGameStatus);
 
     return () => {
+      cleanupVisible();
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
       }
@@ -192,7 +185,7 @@ export default function PBGamesRoom() {
       const res = await fetch(`${BACKEND_URL}/voting/start_game/${roomId}`, {
         method: "POST",
         credentials: "include",
-        headers: { "x-client-id": clientId },
+        headers: roomHeaders(clientId, roomId),
       });
       const data = await res.json();
       if (data.status === "game started") {
@@ -203,32 +196,57 @@ export default function PBGamesRoom() {
     }
   };
 
+  const fetchGameStatus = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/voting/game_status/${roomId}`, {
+        credentials: "include",
+        headers: roomHeaders(clientId, roomId),
+      });
+      const data = await res.json();
+
+      if (data.status === "finished") {
+        setGameStarted(true);
+        setVotingFinished(true);
+        votingFinishedRef.current = true;
+        setWinners(data.winners || []);
+        setVoteDetails(data.vote_counts || {});
+        setVotesBreakdown(data.votes_breakdown || []);
+        setHasNextQuestion(data.has_next_question || false);
+        setRemaining(0);
+      } else if (data.status === "voting") {
+        setVotesCount(data.votes_count || 0);
+        if (data.voters?.includes(clientId)) {
+          setHasVoted(true);
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching game status:", err);
+    }
+  };
+
   const handleVote = async (player) => {
     if (hasVoted || votingFinished) return;
 
-    // Optimistically set hasVoted to true immediately for better UX
     setHasVoted(true);
 
     try {
       const res = await fetch(`${BACKEND_URL}/voting/vote/${roomId}`, {
         method: "POST",
         credentials: "include",
-        headers: {
-          "x-client-id": clientId,
-          "Content-Type": "application/json",
-        },
+        headers: roomHeaders(clientId, roomId, { "Content-Type": "application/json" }),
         body: JSON.stringify({
           voter_id: clientId,
           vote_for: player,
         }),
       });
       if (!res.ok) {
-        // If vote failed, reset the state
         setHasVoted(false);
         console.error("Vote submission failed");
+        return;
       }
+      // Poll immediately so results appear as soon as everyone has voted
+      await fetchGameStatus();
     } catch (err) {
-      // If vote failed, reset the state
       setHasVoted(false);
       console.error("Error voting:", err);
     }
@@ -239,18 +257,23 @@ export default function PBGamesRoom() {
       const res = await fetch(`${BACKEND_URL}/voting/next_question/${roomId}`, {
         method: "POST",
         credentials: "include",
-        headers: { "x-client-id": clientId },
+        headers: roomHeaders(clientId, roomId),
       });
       const data = await res.json();
       if (data.status === "voting") {
         // Reset for new round
         setQuestion(data.question);
+        questionRef.current = data.question;
         setVotingFinished(false);
+        votingFinishedRef.current = false;
         setHasVoted(false);
         setVotesCount(0);
         setWinners([]);
         setVoteDetails({});
-        setRemaining(20);
+        setVotesBreakdown([]);
+        if (typeof data.remaining === "number") {
+          setRemaining(data.remaining);
+        }
         setHasNextQuestion(true);
       } else if (data.status === "game_over") {
         // Game is completely over - return to lobby
@@ -375,11 +398,19 @@ export default function PBGamesRoom() {
                       )}
                       <div className={styles.allVotesGroup}>
                         <p className={styles.allVotesLabel}>All Results:</p>
-                        {Object.entries(voteDetails).map(([name, count]) => (
-                          <div key={name} className={styles.voteResultItem}>
-                            {name}: {count} {count === 1 ? 'vote' : 'votes'}
-                          </div>
-                        ))}
+                        {votesBreakdown.length > 0 ? (
+                          votesBreakdown.map((entry, idx) => (
+                            <div key={`${entry.voter}-${idx}`} className={styles.voteResultItem}>
+                              {entry.voter}: voted {entry.voted_for}
+                            </div>
+                          ))
+                        ) : (
+                          Object.entries(voteDetails).map(([name, count]) => (
+                            <div key={name} className={styles.voteResultItem}>
+                              {name}: {count} {count === 1 ? "vote" : "votes"}
+                            </div>
+                          ))
+                        )}
                       </div>
                     </>
                   ) : (

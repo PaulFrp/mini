@@ -34,6 +34,47 @@ def start_voting_game(room_id: int, players: list[str]):
     
     print(f"[VOTING] Started game for room {room_id} with players: {players}")
 
+
+def _build_votes_breakdown(votes: dict, room_id: int, db) -> list[dict]:
+    """Map voter client_id -> {voter username, voted_for username}."""
+    players = db.query(Player).filter_by(room_id=room_id).all()
+    id_to_username = {p.user_id: p.username for p in players}
+    return [
+        {
+            "voter": id_to_username.get(voter_id, voter_id),
+            "voted_for": vote_for,
+        }
+        for voter_id, vote_for in votes.items()
+    ]
+
+
+def _finalize_voting_round(game_state, db) -> None:
+    votes = json.loads(game_state.votes)
+    vote_counts = {}
+    for v in votes.values():
+        vote_counts[v] = vote_counts.get(v, 0) + 1
+    max_votes = max(vote_counts.values(), default=0)
+    winners = [p for p, c in vote_counts.items() if c == max_votes]
+
+    game_state.finished = True
+    game_state.winners = json.dumps(winners)
+    game_state.vote_counts = json.dumps(vote_counts)
+
+
+def try_finish_voting_early(game_state, db) -> bool:
+    """Finish the round immediately when every player has voted."""
+    if game_state.finished:
+        return True
+    votes = json.loads(game_state.votes)
+    players = json.loads(game_state.players)
+    if len(votes) < len(players):
+        return False
+    _finalize_voting_round(game_state, db)
+    db.commit()
+    print(f"[VOTING] Room {game_state.room_id}: all players voted — finishing early")
+    return True
+
+
 def game_status_logic(room_id, request, db):
     client_id = request.headers.get("x-client-id")
     player = db.query(Player).filter_by(user_id=client_id, room_id=room_id).first()
@@ -51,10 +92,14 @@ def game_status_logic(room_id, request, db):
     now = time.time()
     elapsed = now - game_state.start_time
     
+    votes = json.loads(game_state.votes)
+    players = json.loads(game_state.players)
+
+    if not game_state.finished and len(votes) >= len(players):
+        try_finish_voting_early(game_state, db)
+
     if not game_state.finished and elapsed < game_state.duration:
         remaining = game_state.duration - elapsed
-        votes = json.loads(game_state.votes)
-        players = json.loads(game_state.players)
         print(f"[VOTING] Room {room_id}: voting in progress, {remaining:.1f}s remaining")
         return {
             "status": "voting",
@@ -66,28 +111,23 @@ def game_status_logic(room_id, request, db):
         }
 
     if not game_state.finished:
-        votes = json.loads(game_state.votes)
-        vote_counts = {}
-        for v in votes.values():
-            vote_counts[v] = vote_counts.get(v, 0) + 1
-        max_votes = max(vote_counts.values(), default=0)
-        winners = [p for p, c in vote_counts.items() if c == max_votes]
-        
-        game_state.finished = True
-        game_state.winners = json.dumps(winners)
-        game_state.vote_counts = json.dumps(vote_counts)
+        _finalize_voting_round(game_state, db)
         db.commit()
-        print(f"[VOTING] Room {room_id}: marking game as finished")
+        print(f"[VOTING] Room {room_id}: marking game as finished (timer expired)")
 
     questions = json.loads(game_state.questions)
     winners = json.loads(game_state.winners) if game_state.winners else []
     vote_counts = json.loads(game_state.vote_counts) if game_state.vote_counts else {}
-    
+    votes = json.loads(game_state.votes)
+    votes_breakdown = _build_votes_breakdown(votes, room_id, db)
+
     print(f"[VOTING] Room {room_id}: game finished, showing results")
     return {
         "status": "finished",
+        "question": game_state.current_question,
         "winners": winners,
         "vote_counts": vote_counts,
+        "votes_breakdown": votes_breakdown,
         "can_proceed": player and client_id == room_creator,
         "has_next_question": len(questions) > 0,
     }
@@ -111,7 +151,11 @@ def next_question_logic(room_id, request, db):
         game_state.winners = None
         game_state.vote_counts = None
         db.commit()
-        return {"status": "voting", "question": question}
+        return {
+            "status": "voting",
+            "question": question,
+            "remaining": int(game_state.duration),
+        }
     
     # Clean up the game state when game is over - no more questions
     db.delete(game_state)

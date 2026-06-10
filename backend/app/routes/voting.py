@@ -2,7 +2,12 @@ from fastapi import APIRouter, Depends, Request, Header, HTTPException
 from ..db import get_db
 from ..schemas import VoteRequest
 from ..models import Player, Room, VotingGameState
-from ..game.voting import start_voting_game, game_status_logic, next_question_logic
+from ..game.voting import (
+    start_voting_game,
+    game_status_logic,
+    next_question_logic,
+    try_finish_voting_early,
+)
 import json
 
 import time
@@ -40,6 +45,11 @@ def vote(room_id: int, vote: VoteRequest, db=Depends(get_db)):
     votes[vote.voter_id] = vote.vote_for
     game_state.votes = json.dumps(votes)
     db.commit()
-    
+
+    all_voted = try_finish_voting_early(game_state, db)
+
     print(f"[VOTING] Vote registered for room {room_id}, now {len(votes)} votes")
-    return {"message": "Vote registered"}
+    return {
+        "message": "Vote registered",
+        "all_voted": all_voted,
+    }

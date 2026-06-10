@@ -17,17 +17,18 @@ def get_messages(
 ):
     try:
         room_id = None
-        if room_session:
-            print(f"[DEBUG] Attempting to unsign room_session cookie: {room_session}")
-            room_id = signer.unsign(room_session).decode()
-        elif x_room_id:
+        # Prefer explicit header/query over cookies (Safari ITP often blocks cross-site cookies)
+        if x_room_id:
             print(f"[DEBUG] Using x-room-id header: {x_room_id}")
             room_id = x_room_id
         elif room_id_q:
             print(f"[DEBUG] Using room_id query param: {room_id_q}")
             room_id = room_id_q
+        elif room_session:
+            print(f"[DEBUG] Attempting to unsign room_session cookie: {room_session}")
+            room_id = signer.unsign(room_session).decode()
         else:
-            print("[DEBUG] No room identifier provided (cookie/header/query)")
+            print("[DEBUG] No room identifier provided (header/query/cookie)")
             return {"error": "Missing room identifier"}
         room = db.query(Room).filter(Room.id == int(room_id)).first()
         players = db.query(Player).filter(Player.room_id == room_id).all()

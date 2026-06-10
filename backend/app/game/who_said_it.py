@@ -9,7 +9,7 @@ import logging
 
 # Load quotes
 BACKEND_DIR = os.path.join(os.path.dirname(__file__), "..", "..")
-with open(os.path.join(BACKEND_DIR, "who_said_it.json")) as f:
+with open(os.path.join(BACKEND_DIR, "who_said_it.json"), encoding="utf-8") as f:
     QUOTE_POOL = json.load(f)
 
 def start_who_said_it_game(room_id: int, players: list[str], creator_id: str):

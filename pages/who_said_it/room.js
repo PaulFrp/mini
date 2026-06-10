@@ -2,38 +2,31 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import styles from "./RoomPage.module.css";
 import NavigationBar from "../../src/navBar";
+import {
+  GAME_KEYS,
+  getBackendUrl,
+  getWsBaseUrl,
+  getOrCreateClientId,
+  resolveRoomId,
+  persistRoomId,
+  roomHeaders,
+  fetchGameStatus,
+  onPageVisible,
+  HTTP_POLL_MS,
+  WS_POLL_MS,
+} from "../../src/roomClient";
 
-const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL !== undefined ? process.env.NEXT_PUBLIC_BACKEND_URL : "http://localhost:8000").replace(/\/$/, '');
-const WS_BASE_URL = (process.env.NEXT_PUBLIC_WS_BASE_URL || BACKEND_URL
-  .replace(/^http:\/\//, 'ws://')
-  .replace(/^https:\/\//, 'wss://'))
-  .replace(/\/$/, '');
-
-function getClientId() {
-  if (typeof window === "undefined") return null;
-  
-  let id = localStorage.getItem("client_id");
-  if (!id) {
-    if (window.crypto && crypto.randomUUID) {
-      id = crypto.randomUUID();
-    } else {
-      id = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-        (c ^ (window.crypto && crypto.getRandomValues
-          ? crypto.getRandomValues(new Uint8Array(1))[0]
-          : Math.random() * 16
-        ) & 15 >> c / 4).toString(16)
-      );
-    }
-    localStorage.setItem("client_id", id);
-  }
-  return id;
-}
+const BACKEND_URL = getBackendUrl();
+const WS_BASE_URL = getWsBaseUrl();
+const GAME_KEY = GAME_KEYS.WHO_SAID_IT;
 
 export default function WhoSaidItRoom() {
   const router = useRouter();
   const wsRef = useRef(null);
   const currentGameStatusRef = useRef(null);
   const handleGameUpdateRef = useRef(null);
+  const serverRemainingRef = useRef(null);
+  const serverSyncedAtRef = useRef(0);
   
   const [clientId, setClientId] = useState(null);
   const [roomId, setRoomId] = useState(null);
@@ -55,29 +48,23 @@ export default function WhoSaidItRoom() {
   const [winners, setWinners] = useState([]);
   const [myVote, setMyVote] = useState(null);
 
-  // Initialize client ID and room ID
   useEffect(() => {
     if (typeof window === "undefined") return;
-    
-    const id = getClientId();
-    setClientId(id);
-    
-    const rid = router.query.room_id || localStorage.getItem("room_id");
+    setClientId(getOrCreateClientId());
+    const queryRoomId = router.isReady ? router.query.room_id : null;
+    const rid = resolveRoomId(GAME_KEY, queryRoomId);
     if (rid) {
       setRoomId(rid);
-      localStorage.setItem("room_id", rid);
+      persistRoomId(GAME_KEY, rid);
     }
-  }, [router.query.room_id]);
+  }, [router.isReady, router.query.room_id]);
 
-  // Fetch initial room data
   useEffect(() => {
     if (!clientId || !roomId) return;
 
-    const headers = { "x-client-id": clientId, "x-room-id": roomId };
-    
     fetch(`${BACKEND_URL}/room_messages`, {
       credentials: "include",
-      headers,
+      headers: roomHeaders(clientId, roomId),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -97,12 +84,9 @@ export default function WhoSaidItRoom() {
       Promise.all([
         fetch(`${BACKEND_URL}/room_players/${roomId}`, {
           credentials: "include",
-          headers: { "x-client-id": clientId },
+          headers: roomHeaders(clientId, roomId),
         }).then(res => res.json()),
-        fetch(`${BACKEND_URL}/who_said_it/game_status?room_id=${roomId}`, {
-          credentials: "include",
-          headers: { "x-client-id": clientId },
-        }).then(res => res.json())
+        fetchGameStatus(`${BACKEND_URL}/who_said_it/game_status?room_id=${roomId}`, clientId, roomId)
       ])
       .then(([playersData, statusData]) => {
         if (playersData.player_map) {
@@ -125,8 +109,19 @@ export default function WhoSaidItRoom() {
 
     console.log("🔌 Initializing WebSocket for room", roomId);
     let reconnectAttempts = 0;
-    const maxReconnectAttempts = 5;
+    const maxReconnectAttempts = 12;
     let isUnmounting = false;
+    let reconnectTimer = null;
+
+    const httpPollStatus = () => {
+      fetchGameStatus(`${BACKEND_URL}/who_said_it/game_status?room_id=${roomId}`, clientId, roomId)
+        .then((data) => {
+          if (data?.status && data.status !== "no_game") {
+            handleGameUpdateRef.current?.(data);
+          }
+        })
+        .catch(() => {});
+    };
 
     const connectWebSocket = () => {
       if (isUnmounting) return;
@@ -176,10 +171,10 @@ export default function WhoSaidItRoom() {
 
         ws.onclose = () => {
           console.log("🔌 WebSocket closed");
+          httpPollStatus();
           if (!isUnmounting && reconnectAttempts < maxReconnectAttempts) {
             reconnectAttempts++;
-            console.log(`Reconnecting... (${reconnectAttempts}/${maxReconnectAttempts})`);
-            setTimeout(connectWebSocket, 2000);
+            reconnectTimer = setTimeout(connectWebSocket, Math.min(2000 * reconnectAttempts, 8000));
           }
         };
       } catch (err) {
@@ -188,64 +183,83 @@ export default function WhoSaidItRoom() {
     };
 
     connectWebSocket();
+    httpPollStatus();
 
-    // Poll for status updates
-    const pollInterval = setInterval(() => {
-      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({ type: "get_status" }));
-      } else {
-        fetch(`${BACKEND_URL}/who_said_it/game_status?room_id=${roomId}`, {
-          headers: { "x-client-id": clientId },
-          credentials: "include",
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data && data.type === "game_update") {
-              handleGameUpdateRef.current?.(data);
-            }
-          })
-          .catch((err) => console.error("HTTP poll failed", err));
+    const httpPollInterval = setInterval(httpPollStatus, HTTP_POLL_MS);
+    const wsPollInterval = setInterval(() => {
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        try {
+          wsRef.current.send(JSON.stringify({ type: "get_status" }));
+        } catch {}
       }
+    }, WS_POLL_MS);
 
-      if (!gameStarted) {
-        fetch(`${BACKEND_URL}/room_players/${roomId}`, {
-          headers: { "x-client-id": clientId },
-          credentials: "include",
+    const lobbyPollInterval = setInterval(() => {
+      if (gameStarted) return;
+      fetch(`${BACKEND_URL}/room_players/${roomId}`, {
+        credentials: "include",
+        headers: roomHeaders(clientId, roomId),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.player_map) setPlayerMap(data.player_map);
         })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.player_map) {
-              setPlayerMap(data.player_map);
-            }
-          })
-          .catch((err) => console.error("HTTP poll players failed", err));
+        .catch(() => {});
+    }, HTTP_POLL_MS);
+
+    const cleanupVisible = onPageVisible(() => {
+      reconnectAttempts = 0;
+      httpPollStatus();
+      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        connectWebSocket();
       }
-    }, 2000);
+    });
 
     return () => {
       console.log("🧹 Cleaning up WebSocket");
       isUnmounting = true;
-      clearInterval(pollInterval);
+      cleanupVisible();
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      clearInterval(httpPollInterval);
+      clearInterval(wsPollInterval);
+      clearInterval(lobbyPollInterval);
       if (wsRef.current) {
         wsRef.current.close();
         wsRef.current = null;
       }
     };
-  }, [roomId, clientId]);
+  }, [roomId, clientId, gameStarted]);
 
-  // Timer countdown
+  const WHO_SAID_IT_TIMED_PHASES = new Set(["voting"]);
+
+  const syncRemainingFromServer = (data) => {
+    if (!WHO_SAID_IT_TIMED_PHASES.has(data.status)) {
+      serverRemainingRef.current = null;
+      setRemaining(null);
+      return;
+    }
+    if (data.remaining === undefined) return;
+
+    serverRemainingRef.current = data.remaining;
+    serverSyncedAtRef.current = Date.now();
+    setRemaining(data.remaining);
+  };
+
+  const timerActiveKey =
+    gameStatus === "voting" ? `voting:${currentRound}` : "";
+
   useEffect(() => {
-    if (remaining === null || remaining <= 0) return;
+    if (!timerActiveKey || serverRemainingRef.current === null) return;
 
-    const timer = setInterval(() => {
-      setRemaining(prev => {
-        if (prev === null || prev <= 0) return 0;
-        return prev - 1;
-      });
-    }, 1000);
+    const tick = () => {
+      const elapsed = Math.floor((Date.now() - serverSyncedAtRef.current) / 1000);
+      setRemaining(Math.max(0, serverRemainingRef.current - elapsed));
+    };
 
-    return () => clearInterval(timer);
-  }, [remaining !== null && remaining > 0]);
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [timerActiveKey]);
 
   // Handle game updates
   const handleGameUpdate = (data) => {
@@ -263,7 +277,7 @@ export default function WhoSaidItRoom() {
     if (data.scores) setScores(data.scores);
     if (data.current_round) setCurrentRound(data.current_round);
     if (data.total_rounds) setTotalRounds(data.total_rounds);
-    if (data.remaining !== undefined) setRemaining(data.remaining);
+    syncRemainingFromServer(data);
     
     if (statusChanged) {
       console.log("Phase changed to:", data.status);

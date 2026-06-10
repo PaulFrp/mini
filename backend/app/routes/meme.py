@@ -1,16 +1,12 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
 from ..schemas import CaptionRequest
-from fastapi import APIRouter, Depends, Request, Header, HTTPException
 from ..db import get_db
-from ..schemas import VoteRequest
 from ..models import Player, Room, MemeGameState
 from ..game.websockets import manager
 import json
 
-from ..game.meme import MEME_POOL  # import it
-
-
-from ..game.meme import start_meme_game, get_game_status_logic
+from ..game.meme import MEME_POOL, start_meme_game, get_game_status_logic
+from ..game.meme_timer import try_advance_from_captioning
 
 
 router = APIRouter()
@@ -23,8 +19,9 @@ async def start_game(room_id: int, x_client_id: str = Header(None), db=Depends(g
     
     players = db.query(Player).filter(Player.room_id == room_id).all()
     usernames = [p.username for p in players]
+    player_ids = [p.user_id for p in players]
     print(f"[START_GAME] Room {room_id}: Starting game with {len(players)} players")
-    start_meme_game(room_id, usernames, room.creator)
+    start_meme_game(room_id, player_ids, room.creator)
     
     # Get the game state to broadcast
     game_state = db.query(MemeGameState).filter_by(room_id=room_id).first()
@@ -60,3 +57,44 @@ async def game_status(room_id: int, x_client_id: str = Header(None), db=Depends(
     status = await get_game_status_logic(room_id, x_client_id, db)
     # Wrap in the same envelope used by websocket messages for consistency
     return {"type": "game_update", **status}
+
+
+@router.post("/submit_caption/{room_id}")
+async def submit_caption(
+    room_id: int,
+    body: CaptionRequest,
+    x_client_id: str = Header(None),
+    db=Depends(get_db),
+):
+    """HTTP fallback when WebSocket is unavailable (Safari/Heroku idle drops)."""
+    if not x_client_id:
+        raise HTTPException(status_code=400, detail="x-client-id header is required")
+
+    game_state = db.query(MemeGameState).filter_by(room_id=room_id).first()
+    if not game_state or game_state.phase != "captioning":
+        raise HTTPException(status_code=400, detail="Not in captioning phase")
+
+    captions = body.captions or []
+    current_meme = json.loads(game_state.current_meme)
+    expected_slots = len(current_meme.get("caption_slots", []))
+    if expected_slots and len(captions) != expected_slots:
+        raise HTTPException(status_code=400, detail="Invalid caption count")
+
+    captions_dict = json.loads(game_state.captions)
+    submissions_dict = json.loads(game_state.submissions)
+
+    captions_dict[x_client_id] = captions
+    submissions_dict[x_client_id] = {
+        "meme": current_meme,
+        "captions": captions,
+    }
+
+    game_state.captions = json.dumps(captions_dict)
+    game_state.submissions = json.dumps(submissions_dict)
+    db.commit()
+
+    advanced = await try_advance_from_captioning(room_id, db)
+    if not advanced:
+        status = await get_game_status_logic(room_id, x_client_id, db)
+        await manager.broadcast(room_id, {"type": "game_update", **status})
+    return {"status": "caption_submitted"}

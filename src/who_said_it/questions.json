@@ -1,0 +1,27 @@
+[
+    {
+        "question": "“The only true wisdom is in knowing you know nothing.”",
+        "contestants": ["Socrates", "Plato", "Aristotle", "Confucius"],
+        "answer": "Socrates"
+    },
+    {
+        "question": "“I think, therefore I am.”",
+        "contestants": ["René Descartes", "Immanuel Kant", "Friedrich Nietzsche", "John Locke"],
+        "answer": "René Descartes"
+    },
+    {
+        "question": "“To be, or not to be, that is the question.”",
+        "contestants": ["William Shakespeare", "Charles Dickens", "Mark Twain", "Jane Austen"],
+        "answer": "William Shakespeare"
+    },
+    {
+        "question": "“The unexamined life is not worth living.”",
+        "contestants": ["Socrates", "Plato", "Aristotle", "Confucius"],
+        "answer": "Socrates"
+    },
+    {
+        "question": "“In the middle of difficulty lies opportunity.”",
+        "contestants": ["Albert Einstein", "Isaac Newton", "Galileo Galilei", "Nikola Tesla"],
+        "answer": "Albert Einstein"
+    }
+]
