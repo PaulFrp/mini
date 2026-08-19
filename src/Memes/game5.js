@@ -82,7 +82,7 @@ const Trivia = () => {
         case 9:
           return { question: `Oh je suis foutu`, answer: '' };
         case 10:
-          return { question: `On est ou on est au paradis`, answer: '' };
+          return { question: `Je n'ai pas d'amis`, answer: '' };
         case 11:
           return { question: `Paillettes dans ma vie`, answer: '' };
         case 12:
@@ -95,7 +95,7 @@ const Trivia = () => {
         case 15:
           return { question: `J ai une dent de requin qui vient de madagascar`, answer: '' };
         case 16:
-          return { question: 'Arrete de mentir !!', answer: '' }; 
+          return { question: 'Fromage de bite', answer: '' }; 
         case 17:
           return { question: `La place de la femme c est a la cuisine`, answer: "" };
         case 18:

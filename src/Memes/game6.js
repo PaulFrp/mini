@@ -84,7 +84,7 @@ const Trivia = () => {
         case 10:
           return { question: `Nardin mouk vieille`, answer: '' };
         case 11:
-          return { question: `Je livre un colis et le nom gnegnegne`, answer: '' };
+          return { question: `Ima Firing My Lazoooor`, answer: '' };
         case 12:
           return { question: 'Tape pas contre le mur', answer: '' }; 
         case 13:
@@ -99,11 +99,11 @@ const Trivia = () => {
         case 17:
           return { question: `Ca y est nous y est`, answer: "" };
         case 18:
-          return { question: `J suis entrain de manger de la brioche Comment c est bon sa mere la pute`, answer: '' };
+          return { question: `J suis entrain de manger de la brioche`, answer: '' };
         case 19:
           return { question: `Coca bien frais chacal`, answer: '' };
         case 20:
-          return { question: `Quand qql un nous pousse c est une brute, une pute`, answer: '' };
+          return { question: `YAAAAAA`, answer: '' };
         case 21:
           return { question: `j me sens radiateur ascendant chèvre. `, answer: '' };
         // Add more cases as needed

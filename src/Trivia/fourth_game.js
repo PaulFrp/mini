@@ -74,36 +74,36 @@ const Trivia = () => {
         case 3:
           return { question: `if x=23 and x=x+7 quelle est la valeur de x`, answer: '30' };
         case 9:
-          return { question: "Est ce que les ordinateurs sont de bons nageurs ?", answer: 'Non' };  
+          return { question: "Est ce que les ordinateurs sont de bons nageurs ?", answer: 'Non' };  //change 
         case 15:
-          return { question: `Que fait cette ligne de code: //function(element){get.id(element)} `, answer: 'Rien c est un commentaire' }; // change
+          return { question: `Remets ces lettres dans l'ordre "Logarithm"`, answer: 'Algorithm' }; 
         case 21:
           return { question: 'Qu est ce que ca dit: 01010011 01110101 01100011 01100101 00100000 01101101 01100001 00100000 01100010 01101001 01110100 01100101 (vous pouvez utiliser internet)', answer: 'Suce ma bite' };  
         case 27:
-          return { question: `Donnez moi la formule pour calculer Gradient Descent with Momentum ?`, answer: 'Jsp pas non plus faut demander a l autre enculer de X' }; // change
+          return { question: `Une question ?`, answer: '42' }; 
         case 33:
           return { question: `Quel est le meilleur moyen de communiquer avec un ordinateur ?`, answer: 'La schizophrénie surement..' };
         case 39:
-          return { question: `Comment Paul décrit la programmation à des gens qui ni connaissent rien ?`, answer: 'Je demande à un ordinateur de faire qql chose et quand il le fait pas je pleurs' }; // change
+          return { question: `Comment Paul décrit la programmation à des gens qui n'y connaissent rien ?`, answer: 'Je demande à un ordinateur de faire qql chose et quand il le fait pas je pleurs' }; // change
         case 45:
           return { question: `Est ce que Paul sait programmer ?`, answer: 'J vous emmerde tous, mais vous avez raison.' }; // change
         
 
-        //4ème columne (Gambling) Find another categroy probably
+        //4ème columne Monkey
         case 4:
-          return { question: 'Distribues 4 gorgées', answer: 'vraiment' };   
+          return { question: 'Quel est la taille a partir de laquelle un humain est considéré comme nain ?', answer: '0.9999 Maïa' };   
         case 10:
-          return { question: `Distribues 6 grogées`, answer: 'Sérieusement' };
+          return { question: `A quel point est ce que Sasha est attirant physiquement`, answer: 'Le mec est obèse il a une attraction très forte ' };
         case 16:
-          return { question: 'Distribues 8 gorgées', answer: 'Oui' };  
+          return { question: 'e^(-ln(2))', answer: '1/2' };  
         case 22:
-          return { question: `Distribues 10 gorgées`, answer: 'Evidemment' };
+          return { question: `Si ta mère ne te voulait pas et que ton père t'apprécie quel est le résultat ?`, answer: 'Sasha' };
         case 28:
-          return { question: 'Prends 4 gorgées', answer: 'Oui' };  
+          return { question: 'Qu est ce que VRP ?', answer: 'Un travail d avenir selon Max' };  
         case 34:
-           return { question: 'Prends 6 gorgées', answer: 'Oui' };  
+           return { question: 'Quelle taille fait la bite de Paul ?', answer: 'Tous ceux qui ont dit 14 une gorgée.' };  
         case 40:
-          return { question: 'Prends 8 gorgées', answer: 'Oui' };  
+          return { question: 'Les 11 premiers nombres de pi ? (autant de gorgées que de mauvais chiffres)', answer: '3,1415926535' };  
         case 46:
           return { question: 'Distribues 1 shot', answer: 'Oui' }; 
        
@@ -130,7 +130,7 @@ const Trivia = () => {
 
            //5ème columne (Shenanigans)
         case 6:
-          return { question: `Est ce que tu penses que je suis schizophrène ?`, answer: 'Je ne te parlais pas prends 3 gorgées.' }; // Change
+          return { question: `Est ce que tu penses que je suis schizophrène ?`, answer: 'Je ne te parlais pas prends 3 gorgées.' };
         case 12:
           return { question: `Ce film est une suite de shrek`, answer: 'Shrek 3' };
         case 18:
@@ -169,7 +169,7 @@ const Trivia = () => {
           <th className={styles["space-columns"]}>🎮 Jeux videos</th>
           <th className={styles["space-columns"]}>🌕 Astronomy</th>
           <th className={styles["space-columns"]}>🧮 Computer Science</th>
-          <th className={styles["space-columns"]}>🎰 Gambling</th>
+          <th className={styles["space-columns"]}>🐒 Monkey</th>
           <th className={styles["space-columns"]}>👨‍⚕️ Health</th>
           <th className={styles["space-columns"]}>❓ Shenanigans</th>
         </tr>

@@ -19,6 +19,12 @@ import {
 const BACKEND_URL = getBackendUrl();
 const WS_BASE_URL = getWsBaseUrl();
 const GAME_KEY = GAME_KEYS.WHO_SAID_IT;
+const QUOTE_OPTION_KEYS = ["option_a", "option_b", "option_c", "option_d"];
+
+function getQuoteOptions(quote) {
+  if (!quote) return [];
+  return QUOTE_OPTION_KEYS.map((key) => quote[key]).filter((opt) => opt?.name);
+}
 
 export default function WhoSaidItRoom() {
   const router = useRouter();
@@ -479,18 +485,15 @@ export default function WhoSaidItRoom() {
               <div className={styles.choices}>
                 <h3>Who said it?</h3>
                 <div className={styles.choiceButtons}>
-                  <button
-                    className={styles.choiceButton}
-                    onClick={() => submitVote(currentQuote.option_a.name)}
-                  >
-                    <div className={styles.choiceName}>{currentQuote.option_a.name}</div>
-                  </button>
-                  <button
-                    className={styles.choiceButton}
-                    onClick={() => submitVote(currentQuote.option_b.name)}
-                  >
-                    <div className={styles.choiceName}>{currentQuote.option_b.name}</div>
-                  </button>
+                  {getQuoteOptions(currentQuote).map((option) => (
+                    <button
+                      key={option.name}
+                      className={styles.choiceButton}
+                      onClick={() => submitVote(option.name)}
+                    >
+                      <div className={styles.choiceName}>{option.name}</div>
+                    </button>
+                  ))}
                 </div>
               </div>
             )}

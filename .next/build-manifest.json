@@ -27,15 +27,20 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/make_it_meme": [
+    "/never": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/make_it_meme.js"
+      "static/chunks/pages/never.js"
     ],
-    "/make_it_meme/room": [
+    "/trivia": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/make_it_meme/room.js"
+      "static/chunks/pages/trivia.js"
+    ],
+    "/who_said_it/room": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/who_said_it/room.js"
     ]
   },
   "ampFirstPages": []

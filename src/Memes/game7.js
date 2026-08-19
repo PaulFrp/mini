@@ -87,7 +87,7 @@ const Trivia = () => {
         case 11:
           return { question: `Ca m'émeut ca me met en syncope`, answer: '' };
         case 12:
-          return { question: 'Une chenilleeeeee', answer: '' }; 
+          return { question: 'Jeanneeee', answer: '' }; 
         case 13:
           return { question: `voiture`, answer: '' };
         case 14:

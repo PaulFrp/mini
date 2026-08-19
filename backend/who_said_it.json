@@ -7,7 +7,15 @@
             "image": "/images/who_said_it/kanye.jpg"
         },
         "option_b": {
-            "name": "Paul",
+            "name": "Max",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_c": {
+            "name": "Maia",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_d": {
+            "name": "Cléa",
             "image": "/images/who_said_it/hitler.jpg"
         },
         "correct_answer": "Sasha"
@@ -75,6 +83,10 @@
             "name": "Paul",
             "image": "/images/who_said_it/hitler.jpg"
         },
+        "option_c": {
+            "name": "Maia",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
         "correct_answer": "Sasha"
     },
     {
@@ -86,6 +98,14 @@
         },
         "option_b": {
             "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_c": {
+            "name": "Come",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_d": {
+            "name": "Cléa",
             "image": "/images/who_said_it/hitler.jpg"
         },
         "correct_answer": "Sasha"
@@ -112,6 +132,10 @@
         },
         "option_b": {
             "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_c": {
+            "name": "Max",
             "image": "/images/who_said_it/hitler.jpg"
         },
         "correct_answer": "Sasha"
@@ -153,6 +177,14 @@
             "name": "Paul",
             "image": "/images/who_said_it/hitler.jpg"
         },
+        "option_c": {
+            "name": "Max",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_d": {
+            "name": "Maia",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
         "correct_answer": "Sasha"
     },
     {
@@ -163,6 +195,14 @@
             "image": "/images/who_said_it/kanye.jpg"
         },
         "option_b": {
+            "name": "Come",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_c": {
+            "name": "Max",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_d": {
             "name": "Paul",
             "image": "/images/who_said_it/hitler.jpg"
         },
@@ -203,6 +243,14 @@
         },
         "option_b": {
             "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_c": {
+            "name": "Max",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_d": {
+            "name": "Come",
             "image": "/images/who_said_it/hitler.jpg"
         },
         "correct_answer": "Paul"
@@ -293,6 +341,14 @@
             "image": "/images/who_said_it/kanye.jpg"
         },
         "option_b": {
+            "name": "Max",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_c": {
+            "name": "Maia",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_d": {
             "name": "Paul",
             "image": "/images/who_said_it/hitler.jpg"
         },
@@ -335,6 +391,14 @@
             "name": "Cléa",
             "image": "/images/who_said_it/hitler.jpg"
         },
+        "option_c": {
+            "name": "Maia",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_d": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
         "correct_answer": "Sasha"
     },
     {
@@ -346,6 +410,14 @@
         },
         "option_b": {
             "name": "Come",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_c": {
+            "name": "Max",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_d": {
+            "name": "Paul",
             "image": "/images/who_said_it/hitler.jpg"
         },
         "correct_answer": "Come"
@@ -374,6 +446,10 @@
             "name": "Paul",
             "image": "/images/who_said_it/hitler.jpg"
         },
+        "option_c": {
+            "name": "Max",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
         "correct_answer": "Sasha"
     },
     {
@@ -400,6 +476,10 @@
             "name": "Paul",
             "image": "/images/who_said_it/hitler.jpg"
         },
+        "option_c": {
+            "name": "Maia",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
         "correct_answer": "Paul"
     },
     {
@@ -411,6 +491,14 @@
         },
         "option_b": {
             "name": "Maia",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_c": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_d": {
+            "name": "Paul",
             "image": "/images/who_said_it/hitler.jpg"
         },
         "correct_answer": "Maia"
@@ -426,6 +514,14 @@
             "name": "Cléa",
             "image": "/images/who_said_it/hitler.jpg"
         },
+        "option_c": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_d": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
         "correct_answer": "Maia"
     },
     {
@@ -439,17 +535,29 @@
             "name": "Maia",
             "image": "/images/who_said_it/hitler.jpg"
         },
+        "option_c": {
+            "name": "Cléa",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_d": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
         "correct_answer": "Maia"
     },
     {
         "id": 35,
-        "quote": "C est plus un attentat isolé c association de terrorisme.",
+        "quote": "C est plus un attentat isolé c est une association de terrorisme.",
         "option_a": {
             "name": "Max",
             "image": "/images/who_said_it/kanye.jpg"
         },
         "option_b": {
             "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_c": {
+            "name": "Sasha",
             "image": "/images/who_said_it/hitler.jpg"
         },
         "correct_answer": "Max"
@@ -465,6 +573,10 @@
             "name": "Max",
             "image": "/images/who_said_it/hitler.jpg"
         },
+        "option_c": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
         "correct_answer": "Max"
     },
     {
@@ -478,6 +590,10 @@
             "name": "Paul",
             "image": "/images/who_said_it/hitler.jpg"
         },
+        "option_c": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
         "correct_answer": "Maia"
     },
     {
@@ -488,6 +604,10 @@
             "image": "/images/who_said_it/kanye.jpg"
         },
         "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_c": {
             "name": "Maia",
             "image": "/images/who_said_it/hitler.jpg"
         },
@@ -517,6 +637,14 @@
             "name": "Cléa",
             "image": "/images/who_said_it/hitler.jpg"
         },
+        "option_c": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_d": {
+            "name": "Max",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
         "correct_answer": "Cléa"
     },
     {
@@ -541,6 +669,14 @@
         },
         "option_b": {
             "name": "Sasha",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_c": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_d": {
+            "name": "Max",
             "image": "/images/who_said_it/hitler.jpg"
         },
         "correct_answer": "Maia"
@@ -569,11 +705,19 @@
             "name": "Cléa",
             "image": "/images/who_said_it/hitler.jpg"
         },
+        "option_c": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "option_d": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
         "correct_answer": "Maia"
     },
       {
         "id": 44,
-        "quote": "Pas besoin du 06 si je la tringle dans les ciottes",
+        "quote": "Pas besoin du 06 si je la tringle dans les chiottes",
         "option_a": {
             "name": "Sasha",
             "image": "/images/who_said_it/kanye.jpg"

@@ -12,6 +12,25 @@ BACKEND_DIR = os.path.join(os.path.dirname(__file__), "..", "..")
 with open(os.path.join(BACKEND_DIR, "who_said_it.json"), encoding="utf-8") as f:
     QUOTE_POOL = json.load(f)
 
+OPTION_KEYS = ("option_a", "option_b", "option_c", "option_d")
+
+
+def get_quote_options(quote: dict) -> list[dict]:
+    """Return all defined options for a quote, in order (a through d)."""
+    if not quote:
+        return []
+    options = []
+    for key in OPTION_KEYS:
+        opt = quote.get(key)
+        if isinstance(opt, dict) and opt.get("name"):
+            options.append(opt)
+    return options
+
+
+def get_valid_choice_names(quote: dict) -> list[str]:
+    return [opt["name"] for opt in get_quote_options(quote)]
+
+
 def start_who_said_it_game(room_id: int, players: list[str], creator_id: str):
     """Initialize a new Who Said It game and persist in DB"""
     # Shuffle quote pool
@@ -40,7 +59,7 @@ def start_who_said_it_game(room_id: int, players: list[str], creator_id: str):
             duration=30,
             scores=json.dumps({p: 0 for p in players}),
             current_round=1,
-            total_rounds=10,
+            total_rounds=100,
         )
         db.add(game_state)
         db.commit()
@@ -114,10 +133,9 @@ async def submit_vote_logic(room_id, client_id, choice, db):
     
     # Validate choice is valid
     current_quote = json.loads(game_state.current_quote)
-    option_a = current_quote.get("option_a", {}).get("name")
-    option_b = current_quote.get("option_b", {}).get("name")
-    
-    if choice not in [option_a, option_b]:
+    valid_choices = get_valid_choice_names(current_quote)
+
+    if choice not in valid_choices:
         return {"error": "Invalid choice"}
     
     votes[player_username] = choice

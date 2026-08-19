@@ -65,13 +65,13 @@ const Trivia = () => {
         case 3:
           return { question: `Qu'est ce que 1+3 ?`, answer: 'Prends 4 gorgées' };
         case 11:
-          return { question: "Les 11 premiers nombres de pi ? (autant de gorgées que de mauvais chiffres)", answer: '3,1415926535' };  
+          return { question: "Missing", answer: 'Missing' };  
         case 19:
-          return { question: `e^(-ln(2)) `, answer: '1/2' };
+          return { question: `Missing`, answer: 'Missing' };
         case 27:
           return { question: 'Tu es dans une voiture qui va a 80,5km/h tu croises une voiture allant dans la même vitesse dans le sens opposé, à quelle vitesse semble la voiture aller ?', answer: '100mph' };  
         case 35:
-          return { question: `Si ta mère ne te voulait pas et que ton père t'apprécie quel est le résultat ?`, answer: 'Sasha' };
+          return { question: `Missing`, answer: 'Missing' };
         
 
         //4ème columne (Physique)
@@ -80,11 +80,11 @@ const Trivia = () => {
         case 12:
           return { question: `Combien de temps prend la lumière à voyager une année lumière ?`, answer: '1 an' };
         case 20:
-          return { question: 'A quel point est ce que Sasha est attirant physiquement', answer: 'Le mec est obèse il a une attraction très forte ' };  
+          return { question: 'Missing', answer: 'Missing' };  
         case 28:
           return { question: `Combien de protons y a-t-il dans le carbon ?`, answer: '6' };
         case 36:
-          return { question: 'Quel est la taille a partir de laquelle un humain est considéré comme nain ?', answer: '0.9999 Maïa' };  
+          return { question: 'Missing', answer: 'Missing' };  
        
 
         //5ème columne (Espace)
@@ -129,11 +129,11 @@ const Trivia = () => {
 
               //5ème columne (Ordinateur)
         case 8:
-            return { question: `Remets ces lettres dans l'ordre "Logarithm"`, answer: 'Algorithm' };
+            return { question: `Missing`, answer: 'Missing' };
           case 16:
             return { question: `taco cat à l'envers ?`, answer: 'cat taco' };
           case 24:
-            return { question: 'Une question', answer: '42' };  
+            return { question: 'Missing', answer: 'Missing' };  
           case 32:
             return { question: `let x = 50 if(x=10){console.log("Nique ta mère")} else {x-5}`, answer: 'manque un signe =' };
           case 40:
