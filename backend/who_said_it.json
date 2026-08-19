@@ -336,5 +336,252 @@
             "image": "/images/who_said_it/hitler.jpg"
         },
         "correct_answer": "Sasha"
+    },
+    {
+        "id": 27,
+        "quote": "Y a une go pro dans la salle de bain c est pour surveiller que personne rentre.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Come",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Come"
+    },
+    {
+        "id": 28,
+        "quote": "J'ai biflé un gorille tellement fort c est devenu un orangoutan.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Paul"
+    },
+    {
+        "id": 29,
+        "quote": "Après 3 ans de Ricard.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 30,
+        "quote": "J ai envie de taper dans son cul pour voir si y a des pommes qui tombent.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Paul"
+    },
+    {
+        "id": 31,
+        "quote": "Y'a un espèce d'énorme négro qui sent la saucisse.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Paul"
+    },
+    {
+        "id": 32,
+        "quote": "Y a moyen qu on puisse pas décoller vu ce que j ai dans le bide",
+        "option_a": {
+            "name": "Cléa",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Maia",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Maia"
+    },
+    {
+        "id": 33,
+        "quote": "Tu tiens même pas 5min pourquoi tu parles de 35",
+        "option_a": {
+            "name": "Maia",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Cléa",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Maia"
+    },
+    {
+        "id": 34,
+        "quote": "J'ai enive de l'avorter",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Maia",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Maia"
+    },
+    {
+        "id": 35,
+        "quote": "C est plus un attentat isolé c association de terrorisme.",
+        "option_a": {
+            "name": "Max",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Max"
+    },
+    {
+        "id": 36,
+        "quote": "Putain y a Einstein dans l'avion",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Max",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Max"
+    },
+    {
+        "id": 37,
+        "quote": "Need help for alcool.",
+        "option_a": {
+            "name": "Maia",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Maia"
+    },
+    {
+        "id": 38,
+        "quote": "How to chier",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Maia",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Maia"
+    },
+    {
+        "id": 39,
+        "quote": "Je suis entrain de chier un boieng à faire jouir les tours jumelles.",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+    {
+        "id": 40,
+        "quote": "Ton anus comme ca Maia",
+        "option_a": {
+            "name": "Paul",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Cléa",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Cléa"
+    },
+    {
+        "id": 39,
+        "quote": "",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Sasha"
+    },
+      {
+        "id": 41,
+        "quote": "J ai les toilettes qui tournent sur ma tête.",
+        "option_a": {
+            "name": "Maia",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Maia"
+    },
+      {
+        "id": 42,
+        "quote": "ET la y a un mec qui rip ass comme crazy",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Paul"
+    },
+      {
+        "id": 43,
+        "quote": "Je touche plus ta meuf que toi",
+        "option_a": {
+            "name": "Maia",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Cléa",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Maia"
+    },
+      {
+        "id": 44,
+        "quote": "Pas besoin du 06 si je la tringle dans les ciottes",
+        "option_a": {
+            "name": "Sasha",
+            "image": "/images/who_said_it/kanye.jpg"
+        },
+        "option_b": {
+            "name": "Paul",
+            "image": "/images/who_said_it/hitler.jpg"
+        },
+        "correct_answer": "Paul"
     }
 ]

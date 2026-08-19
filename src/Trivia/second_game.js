@@ -63,7 +63,7 @@ const Trivia = () => {
         
         //3ème columne Fiction
         case 3:
-          return { question: `Des enfants de 10 ans qui forcent des esclaves a se battre`, answer: 'Digimon' };
+          return { question: `Des enfants de 10 ans qui forcent des esclaves a se battre`, answer: 'Digimon' }; // change
         case 8:
           return { question: "Tu as un date ce soir, qu est ce que tu fais ?", answer: 'Tu bois, personne ne veut de toi c était ton imagination' };  
         case 13:

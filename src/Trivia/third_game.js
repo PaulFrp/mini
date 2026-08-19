@@ -95,10 +95,10 @@ const Trivia = () => {
         case 21:
           return { question: 'Combien de temps dans une année lumière ?', answer: 'Aucun c est une distance' };  
         case 29:
-          return { question: `Quel est la première planète que les astronomes ont découvert ?`, answer: 'La terre' };
+          return { question: `Missing`, answer: 'Missing ' };
           // Add picture
         case 37:
-          return { question: 'Quel est le vrai nom de la lune ?', answer: 'La Lune' };  
+          return { question: 'Missing', answer: 'Missing' };  
         
 
            //5ème columne (jeux vidéo)
@@ -111,7 +111,7 @@ const Trivia = () => {
           case 30:
             return { question: `Quel est la signification de word.exe ?`, answer: 'Scandale de triche le plus connu de CS' };
           case 38:
-            return { question: 'De quelle livre les auteurs de Minecraft se sont inspiré ?', answer: 'Mein Kampf' };  
+            return { question: 'Missing', answer: 'Missing' };  
           
 
              //5ème columne (Cailloux et trucs)

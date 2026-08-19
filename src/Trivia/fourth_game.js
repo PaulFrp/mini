@@ -36,13 +36,13 @@ const Trivia = () => {
         case 1:
           return { question: 'Dans ce jeux le joueur est un cercle jaune qui avale des cercles blancs et est chassé par des phantomes', answer: "Miss Pacman" };
         case 7: 
-          return { question: `Ce jeux est connu pour être un anti antidépressant`, answer: 'League of Legends' };
+          return { question: `De quelle livre les auteurs de Minecraft se sont inspiré ?`, answer: 'Mein Kampf' }; 
         case 13:
           return { question: `Réarranges ces lettres pour faire un titre de jeux video "GSOC"`, answer: 'Counter Strike Global Offensive' };
         case 19:
           return { question: 'C est un jeux connu pour avoir des pnjs chiants et des quetes répétitives et pas fun mais des graphismes incroyables', answer: 'La vie' };
         case 25:
-          return { question: `Quelle est la série de jeux préférée de Paul`, answer: 'Monster Hunter' };
+          return { question: `Quelle est la série de jeux préférée de Paul`, answer: 'Monster Hunter' }; //change
         case 31:
           return { question: `Qu est ce qu un easter egg ?`, answer: 'C est un oeuf en chocolat' };
         case 37:
@@ -53,9 +53,9 @@ const Trivia = () => {
         
         //2ème columne (Astronomy)
         case 2:
-          return { question: 'Est ce que mercure est en rétrograde ?', answer: 'Faut vérifier tout le monde un shoot si oui' };
+          return { question: 'Quel est le vrai nom de la Lune ?', answer: 'La Lune' }; 
         case 8:
-          return { question: `Quel est mon signe astrologique ?`, answer: 'Bélier' };
+          return { question: `Quel est la première planète que les astronomes ont découvert ?`, answer: 'La Terre' }; 
         case 14:
           return { question: 'Qu est ce que le Big Bang ?', answer: "La bande de Gaza" };
         case 20:
@@ -76,20 +76,20 @@ const Trivia = () => {
         case 9:
           return { question: "Est ce que les ordinateurs sont de bons nageurs ?", answer: 'Non' };  
         case 15:
-          return { question: `Que fait cette ligne de code: //function(element){get.id(element)} `, answer: 'Rien c est un commentaire' };
+          return { question: `Que fait cette ligne de code: //function(element){get.id(element)} `, answer: 'Rien c est un commentaire' }; // change
         case 21:
           return { question: 'Qu est ce que ca dit: 01010011 01110101 01100011 01100101 00100000 01101101 01100001 00100000 01100010 01101001 01110100 01100101 (vous pouvez utiliser internet)', answer: 'Suce ma bite' };  
         case 27:
-          return { question: `Donnez moi la formule pour calculer Gradient Descent with Momentum ?`, answer: 'Jsp pas non plus faut demander a l autre enculer de X' };
+          return { question: `Donnez moi la formule pour calculer Gradient Descent with Momentum ?`, answer: 'Jsp pas non plus faut demander a l autre enculer de X' }; // change
         case 33:
           return { question: `Quel est le meilleur moyen de communiquer avec un ordinateur ?`, answer: 'La schizophrénie surement..' };
         case 39:
-          return { question: `Comment Paul décrit la programmation à des gens qui ni connaissent rien ?`, answer: 'Je demande à un ordinateur de faire qql chose et quand il le fait pas je pleurs' };
+          return { question: `Comment Paul décrit la programmation à des gens qui ni connaissent rien ?`, answer: 'Je demande à un ordinateur de faire qql chose et quand il le fait pas je pleurs' }; // change
         case 45:
-          return { question: `Est ce que Paul sait programmer ?`, answer: 'J vous emmerde tous, mais vous avez raison.' };
+          return { question: `Est ce que Paul sait programmer ?`, answer: 'J vous emmerde tous, mais vous avez raison.' }; // change
         
 
-        //4ème columne (Gambling)
+        //4ème columne (Gambling) Find another categroy probably
         case 4:
           return { question: 'Distribues 4 gorgées', answer: 'vraiment' };   
         case 10:
@@ -112,16 +112,16 @@ const Trivia = () => {
         case 5:
           return { question: `Les docteurs recommendent de le faire très souvent ?`, answer: 'respirer' };
         case 11:
-          return { question: `Est ce que l'eau est bien pour enlever le sang d un tapis ?`, answer: 'Bof' };
+          return { question: `Est ce que l'eau est bien pour enlever le sang d un tapis ?`, answer: 'Bof' }; // change
         case 17:
           return { question: 'Paul se bat avec 3 docteurs combien de pommes doit il manger pour gagner ?', answer: 'Peu importe c est 3 contre 1 il perd' };  
         case 23:
           return { question: `Une personne se retrouve avec la tête détaché mais ne meurt pas, pourquoi ?`, answer: 'Il était déjà mort' };
           // Add picture
         case 29:
-          return { question: 'Que faire si une personne est inconsciente sur un pouf ?', answer: 'La trainer dans la chambre de Sasha' };  
+          return { question: 'Que faire si une personne est inconsciente sur un pouf ?', answer: 'La trainer dans la chambre de Sasha' };  //change maybe ? 
         case 35:
-          return { question: 'Quels sont les 3 macronutriments', answer: 'glucides, lipides, protéines' };  
+          return { question: 'Quels sont les 3 macronutriments', answer: 'glucides, lipides, protéines' };  // change
         case 41:
           return { question: 'Que fais tu quand tu es appelé pour testifier de ta participation dans un meurte', answer: 'Tu plaides coupable. Je vous connais aucune confiance.' }; 
         case 47:
@@ -130,9 +130,9 @@ const Trivia = () => {
 
            //5ème columne (Shenanigans)
         case 6:
-          return { question: `Est ce que tu penses que je suis schizophrène ?`, answer: 'Je ne te parlais pas prends 3 gorgées.' };
+          return { question: `Est ce que tu penses que je suis schizophrène ?`, answer: 'Je ne te parlais pas prends 3 gorgées.' }; // Change
         case 12:
-          return { question: `Ce filme est une suite de shrek`, answer: 'Shrek 3' };
+          return { question: `Ce film est une suite de shrek`, answer: 'Shrek 3' };
         case 18:
           return { question: 'Est ce que la bite est un fruit', answer: 'Non' };  
         case 24:
